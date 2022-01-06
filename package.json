@@ -1,0 +1,19 @@
+{
+  "name": "@harmonicpool/cardano-wallet-interface",
+  "version": "1.0.0",
+  "description": "a package that makes easier to interact with wallets on cardano",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "cardano",
+    "ada"
+  ],
+  "author": "Michele Nuzzi",
+  "license": "MIT",
+  "dependencies": {
+    "@emurgo/cardano-serialization-lib-browser": "^9.1.2",
+    "buffer": "^6.0.3"
+  }
+}
