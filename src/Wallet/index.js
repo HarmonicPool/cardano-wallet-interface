@@ -68,7 +68,7 @@ class Wallet
 
   static async getProtocolParameters( blockfrost_project_id = undefined )
   {
-    
+
     if( !Wallet.hasProtocolParameters() )
     {
       let api_key_toUse = "";
@@ -133,7 +133,7 @@ class Wallet
   static get Nami()
   {
     if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
-    if( !Wallet.namiHasBeenEnabled ) throw NamiError("Wallet.enableNami has never been called before, can't access the Nami interface");
+    if( !Wallet.namiHasBeenEnabled ) throw new NamiError("Wallet.enableNami has never been called before, can't access the Nami interface");
 
     if( Wallet._NamiInterface === undefined )
     {
@@ -195,11 +195,11 @@ function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key 
 {
   const getCurrentUserDelegation = async ( blockfrost_project_id = undefined ) =>
   {
-    if( !(blockfrost_project_id || defaultBlockfrost_api_key) ) throw NamiError("no blockfrost api key was provvided, please set a default one by calling Wallet.setBlockfrost or pass one as a parameter");
+    if( !(blockfrost_project_id || defaultBlockfrost_api_key) ) throw new NamiError("no blockfrost api key was provvided, please set a default one by calling Wallet.setBlockfrost or pass one as a parameter");
 
     if( typeof blockfrost_project_id !== "string" )
     {
-      if( typeof defaultBlockfrost_api_key !== "string" ) throw NamiError("no blockfrost api key is valid");
+      if( typeof defaultBlockfrost_api_key !== "string" ) throw new NamiError("no blockfrost api key is valid");
 
       return await private_getCurrentUserDelegation( WalletProvider, defaultBlockfrost_api_key )
     }
