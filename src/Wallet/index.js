@@ -1,4 +1,4 @@
-const new Buffer = require("buffer");
+const Buffer = require("buffer");
 const Loader = require("./WasmLoader")
 const StringFormatError = require("../errors/WalletInterfaceError/StringFormatError/StringFormatError");
 const WalletInterfaceError = require("../errors/WalletInterfaceError/WalletInterfaceError");
