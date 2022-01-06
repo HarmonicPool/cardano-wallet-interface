@@ -34,11 +34,16 @@ npm install https://github.com/HarmonicPool/cardano-wallet-interface
 
 ```js
 /*... other imports ...*/
-import { delegateUsingNami } from "@harmonicpool/cardano-wallet-interface";
+import { Wallet } from "@harmonicpool/cardano-wallet-interface";
 
 /*...*/
 
-delegateUsingNami(
+Wallet.Nami.delegateTo(
+    "<your pool id>",
+    "<your blockforst api key>"
+);
+
+Wallet.CCValut.delegateTo(
     "<your pool id>",
     "<your blockforst api key>"
 );
@@ -47,21 +52,21 @@ delegateUsingNami(
 ```
 <a name="deleg_with_logic">
 </a>
-<h4>In combination with NamiInterface static class</h4>
+<h4>an example using the Nami wallet with some logic</h4>
 
 
 ```js
 /*... other imports ...*/
-import { delegateUsingNami } from "@harmonicpool/cardano-wallet-interface";
+import { Wallet } from "@harmonicpool/cardano-wallet-interface";
 
 
 /*...*/
 
 async function myDelegationFunction()
 {
-    NamiInterface.init("<your blockforst api key>");
+    Wallet.setBlockforst("<your blockforst api key>");
 
-    const currentUserDelegation = await NamiInterface.getCurrentDelegation();
+    const currentUserDelegation = await Wallet.Nami.getCurrentDelegation(/*add <your blockforst api key> if you choose to not call Wallet.setBlockforst*/);
 
     if( currentUserDelegation.pool_id === "<your pool id>" )
     {
@@ -69,9 +74,9 @@ async function myDelegationFunction()
     }
     else
     {
-        delegateUsingNami(
+        Wallet.Nami.delegateTo(
             "<your pool id>",
-            "<your blockforst api key>"
+            "<your blockforst api key>" // not needed if called Wallet.setBlockforst previously
         );
     }
 }
