@@ -149,7 +149,7 @@ so anything needed will be aviable using the syntax: ```Wallet.{YourWallet}```
 
 
 <a name="nami_specific">
-</a>a
+</a>
 <h4>Nami</h4>
 
 
