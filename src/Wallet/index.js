@@ -295,26 +295,54 @@ function private_getPoolId( bech32_poolId )
 }
 
 
+
+async function private_getRewardAddress ( WalletProvider )
+{
+  const getRewardAddress =
+  // nami
+  WalletProvider.getRewardAddress || 
+  // CCVault
+  WalletProvider.getRewardAddresses
+
+  if( typeof getRewardAddress !== "function" )
+  throw WalletProcessError(
+  "could not find reward address or addresses, probably this is not your fault and the package may need mainatainance, \
+  please open an issue at https://github.com/HarmonicPool/cardano-wallet-interface/issues"
+  );
+
+  let rawAddress = await getRewardAddress();
+
+  if (rawAddress === undefined)
+  console.warn("GOT YA")
+
+  if( Array.isArray(rawAddress) )
+  {
+    rawAddress = rawAddress[0];
+  }
+  
+  if( typeof rawAddress !== "string" )
+  throw WalletProcessError(
+    "bad request for getting user reward address, probably not your fault, pleas open an issue explaining what appened here: https://github.com/HarmonicPool/cardano-wallet-interface/issues"
+  );
+
+  return rawAddress;
+}
+
 async function private_delegationTransaction( blockfrost_project_id, WalletProvider, delegation, targetPoolId)
 {
   await Loader.load();
   const protocolParameters = await private_getProtocolParameters( blockfrost_project_id );
 
   let address = (await WalletProvider.getUsedAddresses())[0];
+
+  if( address === undefined )
+  {
+    throw new WalletProcessError("Seems like the user has no used addresses, please found the using wallet")
+  }
+
   address = Loader.Cardano.Address.from_bytes(Buffer.from(address, "hex"));
 
-  const getRewardAddress =
-  // nami
-  WalletProvider.getRewardAddress || 
-  // CCVault
-  (async () => { return await WalletProvider.getRewardAddresses()[0] });
-
-  if( typeof getRewardAddress === "undefined" )
-  throw WalletProcessError(
-  "could not find reward address or addresses, probably this is not your fault and the package may need mainatainance, please open an issue"
-  );
-
-  const rewardAddress = await getRewardAddress();
+  const rewardAddress = await private_getRewardAddress( WalletProvider );
 
   const stakeCredential = Loader.Cardano.RewardAddress.from_address(
     Loader.Cardano.Address.from_bytes(Buffer.from(rewardAddress, "hex"))
@@ -474,32 +502,8 @@ async function private_submitTransaction( WalletProvider, signedTransaction )
 
 async function private_getRewardAddress_bech32( WalletProvider )
 {
-  const getRewardAddress =
-  // nami
-  WalletProvider.getRewardAddress || 
-  // CCVault
-  WalletProvider.getRewardAddresses
-
-  if( typeof getRewardAddress !== "function" )
-  throw WalletProcessError(
-  "could not find reward address or addresses, probably this is not your fault and the package may need mainatainance, \
-  please open an issue at https://github.com/HarmonicPool/cardano-wallet-interface/issues"
-  );
-
-  let rawAddress = await getRewardAddress();
-
-  if( Array.isArray(rawAddress) )
-  {
-    rawAddress = rawAddress[0];
-  }
-  
-  if( typeof rawAddress !== "string" )
-  throw WalletProcessError(
-    "bad request for getting user reward address, probably not your fault, pleas open an issue explaining what appened here: https://github.com/HarmonicPool/cardano-wallet-interface/issues"
-  );
-
   return await Loader.Cardano.Address.from_bytes(
-    Buffer.from(rawAddress, "hex")
+    Buffer.from( await private_getRewardAddress( WalletProvider ), "hex")
   ).to_bech32();
 }
 
