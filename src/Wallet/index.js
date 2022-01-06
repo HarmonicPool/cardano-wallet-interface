@@ -234,28 +234,14 @@ function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key 
 
   const delegateTo= async ( targetPoolId, blockfrost_project_id = undefined ) => 
   {
-    
-    const deleg = await createDelegagtionTransaction(
-      targetPoolId,
-      blockfrost_project_id
+    return await submitTransaction(
+      await signTransaction(
+        await createDelegagtionTransaction(
+          targetPoolId,
+          blockfrost_project_id
+        )
+      )
     );
-
-    console.log("delegation", deleg);
-
-    const signed = await signTransaction(
-      deleg
-    )
-
-    console.log("signed", signed);
-
-    const txHash = 
-    await submitTransaction(
-      signed
-    )
-
-    console.log("tx hash", txHash);
-
-    return txHash;
   }
 
   return {
@@ -492,49 +478,34 @@ async function private_signTransaction( WalletProvider, transactionObj )
 {
   await Loader.load();
 
-  console.log("private_signTransaction no problem load");
-
-  const witnesses = await WalletProvider.signTx(
-    Buffer.from(transactionObj.to_bytes(), "hex").toString("hex")
-  );
-  console.log("private_signTransaction no problem new witnesses");
-
-  const witnessesBytes = Buffer.from(witnesses, "hex");
-
-  console.log("private_signTransaction no problem witnessesBytes", witnessesBytes, witnessesBytes.toString("hex") );
-
-  const signedTx = await Loader.Cardano.Transaction.new(
+  // the transaction is signed ( by the witnesess )
+  return await Loader.Cardano.Transaction.new(
     transactionObj.body(),
+    // get witnesses object
     Loader.Cardano.TransactionWitnessSet.from_bytes(
-      witnessesBytes
+      Buffer.from(
+        // gets witnesses
+        await WalletProvider.signTx(
+          Buffer.from(transactionObj.to_bytes(), "hex").toString("hex")
+        ),
+        "hex"
+      )
     )
   );
-
-  console.log("private_signTransaction no problem getting signed transaction", signedTx, signedTx.to_bytes().toString("hex") );
-
-  return signedTx;
 };
 
+/**
+ * 
+ * @param {object} WalletProvider an object respecting the CIP30 dApp connector interface 
+ * @param {Transaction} signedTransaction 
+ * @returns {string} the transaction has you can use to check transaction status
+ */
 async function private_submitTransaction( WalletProvider, signedTransaction )
 {
-  console.log("entered private_submitTransaction succesfully...");
-
-  console.log("private_submitTransaction transaction to submit: ", signedTransaction, signedTransaction.to_bytes() );
-
-  console.log(
-    "private_submitTransaction transaction to submit BYTES: ",
-    Buffer.from( signedTransaction.to_bytes(), "hex"),
+  // returns the transaction hash
+  return await WalletProvider.submitTx(
     Buffer.from( signedTransaction.to_bytes(), "hex").toString("hex")
   );
-
-
-  const txHash = await WalletProvider.submitTx(
-    Buffer.from( signedTransaction.to_bytes(), "hex").toString("hex")
-  );
-
-  console.log("private_submitTransaction transaction hash: ", txHash);
-
-  return txHash;
 };
 
 async function private_getRewardAddress_bech32( WalletProvider )
@@ -556,4 +527,9 @@ async function private_getCurrentUserDelegation( WalletProvider, blockfrost_proj
   return stake;
 };
 
+// allows import { Wallet } from "@harmonicpool/cardano-wallet-interface";
+Wallet.Wallet = Wallet;
+// for strict ES Module import Wallet from "@harmonicpool/cardano-wallet-interface";
+Wallet.default  = Wallet;
+// exports default
 module.exports = Wallet;
