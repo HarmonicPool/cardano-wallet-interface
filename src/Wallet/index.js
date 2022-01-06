@@ -510,14 +510,29 @@ async function private_signTransaction( WalletProvider, transactionObj )
     )
   );
 
+  console.log("private_signTransaction no problem getting signed transaction", signedTx, signedTx.to_bytes().toString("hex") );
+
   return signedTx;
 };
 
 async function private_submitTransaction( WalletProvider, signedTransaction )
 {
+  console.log("entered private_submitTransaction succesfully...");
+
+  console.log("private_submitTransaction transaction to submit: ", signedTransaction, signedTransaction.to_bytes() );
+
+  console.log(
+    "private_submitTransaction transaction to submit BYTES: ",
+    Buffer.from( signedTransaction.to_bytes(), "hex"),
+    Buffer.from( signedTransaction.to_bytes(), "hex").toString("hex")
+  );
+
+
   const txHash = await WalletProvider.submitTx(
     Buffer.from( signedTransaction.to_bytes(), "hex").toString("hex")
   );
+
+  console.log("private_submitTransaction transaction hash: ", txHash);
 
   return txHash;
 };
