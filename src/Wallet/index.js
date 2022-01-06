@@ -47,7 +47,7 @@ class Wallet
    * 
    * @param {string} blockfrost_project_id blockforst api key to be used
    */
-  static setBlockforst( blockfrost_project_id )
+  static setBlockfrost( blockfrost_project_id )
   {    
     if( typeof blockfrost_project_id !== "string" ) throw StringFormatError("blockfrost_project_id must be a string")
     
@@ -58,7 +58,7 @@ class Wallet
   
   static async makeBlockfrostRequest( endpoint, headers, body )
   {
-    if( !private_walletInterface_hasBlockFrost ) throw new WalletProcessError("Wallet.setBlockforst has not been called, can't use Wallet.makeBlockfrostRequest")
+    if( !private_walletInterface_hasBlockFrost ) throw new WalletProcessError("Wallet.setBlockfrost has not been called, can't use Wallet.makeBlockfrostRequest")
     return await private_blockfrostRequest( Wallet._api_key, endpoint, headers, body );
   }
 
@@ -80,7 +80,7 @@ class Wallet
       }
       else
       {
-        if( !private_walletInterface_hasBlockFrost ) throw new WalletProcessError("Wallet.setBlockforst has not been called, can't use Wallet.getProtocolParameters")
+        if( !private_walletInterface_hasBlockFrost ) throw new WalletProcessError("Wallet.setBlockfrost has not been called, can't use Wallet.getProtocolParameters")
 
         api_key_toUse = Wallet._api_key;
       }

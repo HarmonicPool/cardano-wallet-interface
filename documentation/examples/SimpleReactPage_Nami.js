@@ -19,7 +19,7 @@ export default class Home extends React.Component
     await Wallet.enableNami();
 
     // set your key once then you are free to go
-    Wallet.setBlockforst("<your blockforst api key>");
+    Wallet.setBlockfrost("<your blockforst api key>");
 
     this.setState({
       currentDelegation: await Wallet.Nami.getCurrentUserDelegation(),

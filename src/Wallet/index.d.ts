@@ -24,7 +24,7 @@ declare class Wallet {
      * 
      * @param {string} blockfrost_project_id blockforst api key to be used
      */
-    static setBlockforst( blockfrost_project_id: string ): void;
+    static setBlockfrost( blockfrost_project_id: string ): void;
   
     /**
      * refer to https://docs.blockfrost.io/
