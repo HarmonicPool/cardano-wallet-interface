@@ -505,7 +505,7 @@ async function private_signTransaction( WalletProvider, transactionObj )
 
   const signedTx = await Loader.Cardano.Transaction.new(
     transactionObj.body(),
-    Loader.Cardano.Transaction.from_bytes(
+    Loader.Cardano.TransactionWitnessSet.from_bytes(
       witnessesBytes
     )
   );
