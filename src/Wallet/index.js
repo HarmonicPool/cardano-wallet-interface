@@ -1,5 +1,6 @@
 const Buffer = require("buffer").Buffer;
-const Loader = require("./WasmLoader")
+const Loader = require("./WasmLoader");
+const CoinSelection = require("./CoinSelection");
 const StringFormatError = require("../errors/WalletInterfaceError/StringFormatError/StringFormatError");
 const WalletInterfaceError = require("../errors/WalletInterfaceError/WalletInterfaceError");
 const NamiError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError");
