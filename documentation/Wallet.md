@@ -29,7 +29,7 @@ some methods also reqire to call this one first, if you don't plan to use any of
 static async makeBlockfrostRequest( endpoint: string, headers?: string, body?: string ): any
 ```
 
-> **_IMPORTANT:_** requires ```Wallet.setBlockforst("<your api key>")``` to have ben called before.
+> **_IMPORTANT:_** requires ```Wallet.setBlockforst("<your api key>")``` to have been called before.
 
 
 makes a blockfrost api call and returns a Promise of the response
@@ -54,7 +54,7 @@ takes an optional ```blockfrost_project_id ?: string``` to use as api key if no 
 if not provvided and no _prtocolParameters_ object is present tries to use the key setted via ```Wallet.setBlockforst("<your api key>")```
 finally throws a [WalletProcessError]() if no api key was founded
 
-returns ```Promise<object>``` where ```object``` are protocol parameters needed to make transactions
+returns ```Promise<object>``` where ```object``` are the protocol parameters needed to make transactions
 
 ##### protocolParameters
 ```ts
@@ -112,6 +112,9 @@ returns ```true``` if the ```Wallet.{YourWallet}``` is accessible, ```false``` o
 
 > **_NOTE:_**  calling this accessor **is differtent** than calling Wallet.{YourWallet}.isEnabled(), defined in the CIP30.
 
+> **_REMINDER:_**  the name of the accessor becomes ```Wallet.namiHasBeenEnabled``` for **Nami**; ```Wallet.ccvalutHasBeenEnabled```for **ccvalut**
+
+
 ###### Wallet
 
 ```ts
@@ -146,7 +149,7 @@ so anything needed will be aviable using the syntax: ```Wallet.{YourWallet}```
 
 
 <a name="nami_specific">
-</a>
+</a>a
 <h4>Nami</h4>
 
 
