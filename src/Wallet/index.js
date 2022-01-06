@@ -234,14 +234,28 @@ function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key 
 
   const delegateTo= async ( targetPoolId, blockfrost_project_id = undefined ) => 
   {
-    return await submitTransaction(
-      await signTransaction(
-        await createDelegagtionTransaction(
-          targetPoolId,
-          blockfrost_project_id
-        )
-      )
+    
+    const deleg = await createDelegagtionTransaction(
+      targetPoolId,
+      blockfrost_project_id
+    );
+
+    console.log("delegation", deleg);
+
+    const signed = await signTransaction(
+      deleg
     )
+
+    console.log("signed", signed);
+
+    const txHash = 
+    await submitTransaction(
+      signed
+    )
+
+    console.log("tx hash", txHash);
+
+    return txHash;
   }
 
   return {
