@@ -472,24 +472,41 @@ async function private_submitTransaction( WalletProvider, signedTransaction )
   return txHash;
 };
 
-async function private_getCurrentUserDelegation( WalletProvider, blockfrost_project_id ){
-  await Loader.load();
-
+async function private_getRewardAddress_bech32( WalletProvider )
+{
   const getRewardAddress =
   // nami
   WalletProvider.getRewardAddress || 
   // CCVault
   WalletProvider.getRewardAddresses
 
-  if( typeof getRewardAddress === "undefined" )
+  if( typeof getRewardAddress !== "function" )
   throw WalletProcessError(
-  "could not find reward address or addresses, probably this is not your fault and the package may need mainatainance, please open an issue"
+  "could not find reward address or addresses, probably this is not your fault and the package may need mainatainance, \
+  please open an issue at https://github.com/HarmonicPool/cardano-wallet-interface/issues"
   );
 
-  const rawAddress = await getRewardAddress();
-  const rewardAddress = Loader.Cardano.Address.from_bytes(
+  let rawAddress = await getRewardAddress();
+
+  if( Array.isArray(rawAddress) )
+  {
+    rawAddress = rawAddress[0];
+  }
+  
+  if( typeof rawAddress !== "string" )
+  throw WalletProcessError(
+    "bad request for getting user reward address, probably not your fault, pleas open an issue explaining what appened here: https://github.com/HarmonicPool/cardano-wallet-interface/issues"
+  );
+
+  return await Loader.Cardano.Address.from_bytes(
     Buffer.from(rawAddress, "hex")
   ).to_bech32();
+}
+
+async function private_getCurrentUserDelegation( WalletProvider, blockfrost_project_id ){
+  await Loader.load();
+
+  const rewardAddress = await private_getRewardAddress_bech32( WalletProvider );
 
   const stake = await private_blockfrostRequest( blockfrost_project_id, `/accounts/${rewardAddress}`);
 
