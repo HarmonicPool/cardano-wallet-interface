@@ -3,7 +3,7 @@ const Loader = require("./WasmLoader")
 const StringFormatError = require("../errors/WalletInterfaceError/StringFormatError/StringFormatError");
 const WalletInterfaceError = require("../errors/WalletInterfaceError/WalletInterfaceError");
 const NamiError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError");
-const CCVaultError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCVaultError");
+const CCVaultError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCValutError");
 const WalletError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError");
 const WalletProcessError = require("../errors/WalletInterfaceError/WalletProcessError/WalletProcessError");
 
@@ -161,7 +161,7 @@ class Wallet
 
     try
     {
-      Window._ccvaultObj = await window.cardano.ccvault.enable();
+      Wallet._ccvaultObj = await window.cardano.ccvault.enable();
     }
     catch (e)
     {
