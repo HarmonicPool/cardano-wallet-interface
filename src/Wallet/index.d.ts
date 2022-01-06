@@ -1,6 +1,6 @@
 // Type definitions for cardano-wallet-interface 1.0.18^
 // Project: cardano-wallet-interface
-// Definitions by: Michele Nuzzi <michelenuzzi.crypto>
+// Definitions by: Michele Nuzzi [michele.nuzzi.2014@gmail.com]
 
 export as namespace Wallet;
 export = Wallet;
