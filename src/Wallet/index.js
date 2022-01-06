@@ -492,14 +492,21 @@ async function private_signTransaction( WalletProvider, transactionObj )
 {
   await Loader.load();
 
+  console.log("private_signTransaction no problem load");
+
   const witnesses = await WalletProvider.signTx(
     Buffer.from(transactionObj.to_bytes(), "hex").toString("hex")
   );
+  console.log("private_signTransaction no problem new witnesses");
+
+  const witnessesBytes = Buffer.from(witnesses, "hex");
+
+  console.log("private_signTransaction no problem witnessesBytes", witnessesBytes, witnessesBytes.toString("hex") );
 
   const signedTx = await Loader.Cardano.Transaction.new(
     transactionObj.body(),
     Loader.Cardano.Transaction.from_bytes(
-      Buffer.from(witnesses, "hex")
+      witnessesBytes
     )
   );
 
