@@ -66,13 +66,25 @@ class Wallet
     return ( Wallet._protocolParameters !== undefined );
   }
 
-  static async getProtocolParameters()
+  static async getProtocolParameters( blockfrost_project_id = undefined )
   {
+    
     if( !Wallet.hasProtocolParameters() )
     {
-      if( !private_walletInterface_hasBlockFrost ) throw new WalletProcessError("Wallet.setBlockforst has not been called, can't use Wallet.getProtocolParameters")
+      let api_key_toUse = "";
 
-      Wallet._protocolParameters = await private_getProtocolParameters( Wallet._api_key );
+      if( typeof blockfrost_project_id === "string" )
+      {
+        api_key_toUse = blockfrost_project_id;
+      }
+      else
+      {
+        if( !private_walletInterface_hasBlockFrost ) throw new WalletProcessError("Wallet.setBlockforst has not been called, can't use Wallet.getProtocolParameters")
+
+        api_key_toUse = Wallet._api_key;
+      }
+
+      Wallet._protocolParameters = await private_getProtocolParameters( api_key_toUse );
     }
 
     return Wallet._protocolParameters;

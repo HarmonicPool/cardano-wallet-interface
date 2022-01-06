@@ -14,7 +14,7 @@
 
 make sure to enable web-assembly if not configured by default.
 
-You may find some help at [documentation/known_issues/allowing_webassembly.md]()
+You may find some help at [documentation/known_issues/allowing_webassembly.md](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/knownIssues/allowing_webassembly.md)
 
 ## Installation
 
