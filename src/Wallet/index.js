@@ -479,7 +479,7 @@ async function private_getCurrentUserDelegation( WalletProvider, blockfrost_proj
   // nami
   WalletProvider.getRewardAddress || 
   // CCVault
-  (async () => { return await WalletProvider.getRewardAddresses()[0] });
+  (async () => { return ( (await WalletProvider.getRewardAddresses())[0] ) });
 
   if( typeof getRewardAddress === "undefined" )
   throw WalletProcessError(
