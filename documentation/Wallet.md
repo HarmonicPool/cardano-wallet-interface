@@ -125,23 +125,45 @@ access the wallet functionalities.
 
 <a name="wallet_object">
 </a>
-<h4>Wallet object</h4>
+<h4>Wallet.WalletInterface</h4>
 
-getting a Wallet object from the ```Wallet``` static class returns an istance containing the following:
+getting a Wallet object from the ```Wallet``` static class returns an istance of the ```Wallet.WalletInterface``` interface,
+so defined:
 
 ```ts
-interface WalletObject
+interface RawCIP30WalletInterface
+{
+    enable: () => Promise<any>,
+    isEnabled: () => Promise<boolean>,
+    apiVersion?: string,
+    name?: string,
+    icon?: string,
+    getNetworkId: () => Promise<number>,
+    getUtxos:(amount: cbor<value> = undefined, paginate: Paginate = undefined) => Promise<TransactionUnspentOutput[] | undefined>,
+    getBalance: () => Promise<cbor<value>>,
+    getUsedAddresses: (paginate: Paginate = undefined) => Promise<cbor<address>[]>,
+    getUnusedAddresses: () => Promise<cbor<address>[]>,
+    getChangeAddress: () => Promise<cbor<address>>,
+    getRewardAddresses: () => Promise<cbor<address>[]>,
+    signTx: (tx: cbor<transaction>, partialSign: bool = false) => Promise<cbor<transaction_witness_set>>,
+    signData: (addr: cbor<address>, sigStructure: cbor<Sig_structure>) => Promise<Bytes>,
+    submitTx: (tx: cbor<transaction>) => Promise<hash32>
+}
+
+interface WalletInterface extends RawCIP30WalletInterface
 {
     // ...WalletProvider, <-- CIP30 
-    getCurrentUserDelegation: ,
-    createDelegagtionTransaction: ,
-    signTransaction: ,
-    submitTransaction: ,
-    getPoolId: ,
-    delegateTo: 
+    getCurrentUserDelegation: ( blockfrost_project_id?: string = undefined ) => Promise<object>,
+    createDelegagtionTransaction: ( targetPoolId?: string, blockfrost_project_id?: string = undefined ) => Promise<Transaction>,
+    signTransaction: ( transactionToSign: Transaction ) => Promise<Transaction>,
+    submitTransaction:  ( signedTransaction: Transaction ) => Promise<string>,
+    delegateTo: ( targetPoolId: string, blockfrost_project_id?: string = undefined ) => Promise<string>
 }
+
 ```
-so anything needed will be aviable using the syntax: ```Wallet.{YourWallet}```
+so anything needed will be aviable using the syntax: ```Wallet.{YourWallet}```;
+
+for the ```Wallet.RawCIP30WalletInterface``` refer to the [CIP-0030](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0030) itself.
 
 <a name="wallet_specific">
 </a>

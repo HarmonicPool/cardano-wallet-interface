@@ -94,7 +94,7 @@ declare class Wallet {
     static async enableCCVault(): void
 
     /**
-     * 
+     * @returns {boolean} true if the last call to Wallet.enableCCVault was succesfull, false otherwise
      */
     static get ccvaultHasBeenEnabled(): boolean
 
@@ -111,7 +111,21 @@ declare namespace Wallet {
     }
 
     export interface RawCIP30WalletInterface {
-        // TODO
+        enable: () => Promise<any>,
+        isEnabled: () => Promise<boolean>,
+        apiVersion?: string,
+        name?: string,
+        icon?: string,
+        getNetworkId: () => Promise<number>,
+        getUtxos:(amount: cbor<value> = undefined, paginate: Paginate = undefined) => Promise<TransactionUnspentOutput[] | undefined>,
+        getBalance: () => Promise<cbor<value>>,
+        getUsedAddresses: (paginate: Paginate = undefined) => Promise<cbor<address>[]>,
+        getUnusedAddresses: () => Promise<cbor<address>[]>,
+        getChangeAddress: () => Promise<cbor<address>>,
+        getRewardAddresses: () => Promise<cbor<address>[]>,
+        signTx: (tx: cbor<transaction>, partialSign: bool = false) => Promise<cbor<transaction_witness_set>>,
+        signData: (addr: cbor<address>, sigStructure: cbor<Sig_structure>) => Promise<Bytes>,
+        submitTx: (tx: cbor<transaction>) => Promise<hash32>
     }
 
     export interface WalletInterface extends RawCIP30WalletInterface

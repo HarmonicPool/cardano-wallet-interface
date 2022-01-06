@@ -6,7 +6,8 @@
 - [Installation](#Installation)
 - [Usage](#Usage)
     - [basic usage](#basic_delegation)
-    - [with some logic](#deleg_with_logic)
+        - [nami delegation](#delegate_using_nami)
+        - [ccvault delegation](#delegate_using_ccvault)
     - [other examples](#oth_examples)
 - [Support Harmonic](#Support)
 
@@ -32,62 +33,83 @@ npm install https://github.com/HarmonicPool/cardano-wallet-interface
 </a>
 <h4>basic delegation functionality</h4>
 
-```js
-/*... other imports ...*/
-import { Wallet } from "@harmonicpool/cardano-wallet-interface";
-
-/*...*/
-
-Wallet.Nami.delegateTo(
-    "<your pool id>",
-    "<your blockforst api key>"
-);
-
-Wallet.CCValut.delegateTo(
-    "<your pool id>",
-    "<your blockforst api key>"
-);
-
-/*...*/
-```
-<a name="deleg_with_logic">
+<a name="delegate_using_nami">
 </a>
-<h4>an example using the Nami wallet with some logic</h4>
 
-
+##### using Nami
 ```js
 /*... other imports ...*/
 import { Wallet } from "@harmonicpool/cardano-wallet-interface";
 
-
 /*...*/
 
-async function myDelegationFunction()
+if( Wallet.hasNami() )
 {
-    Wallet.setBlockforst("<your blockforst api key>");
-
-    const currentUserDelegation = await Wallet.Nami.getCurrentDelegation(/*add <your blockforst api key> if you choose to not call Wallet.setBlockforst*/);
-
-    if( currentUserDelegation.pool_id === "<your pool id>" )
+    if( !Wallet.namiHasBeenEnabled )
     {
-        /* thank your delegator*/
+        Wallet.enableNami()
+        .then(
+            () => {
+                Wallet.Nami.delegateTo(
+                    "<your pool id>",
+                    "<your blockforst api key>"
+                );
+            }
+        );
     }
     else
     {
         Wallet.Nami.delegateTo(
             "<your pool id>",
-            "<your blockforst api key>" // not needed if called Wallet.setBlockforst previously
+            "<your blockforst api key>"
         );
     }
 }
 
 /*...*/
 ```
+
+<a name="delegate_using_ccvault">
+</a>
+
+##### using ccvault
+```js
+/*... other imports ...*/
+import { Wallet } from "@harmonicpool/cardano-wallet-interface";
+
+/*...*/
+
+if( Wallet.hasCCVault() )
+{
+    if( !Wallet.ccvaultHasBeenEnabled )
+    {
+        Wallet.enableCCVault()
+        .then(
+            () => {
+                Wallet.CCVault.delegateTo(
+                    "<your pool id>",
+                    "<your blockforst api key>"
+                );
+            }
+        );
+    }
+    else
+    {
+        Wallet.CCVault.delegateTo(
+            "<your pool id>",
+            "<your blockforst api key>"
+        );
+    }
+}
+
+/*...*/
+```
+
 <a name="oth_examples">
 </a>
 <h4>other examples</h4>
 
-check the [documentation/examples](https://github.com/HarmonicPool/delegateUsingNami/tree/main/documentation/examples) folder for more
+check the [documentation/examples](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/examples) folder for more
 
 <a name="Support">
 </a>
