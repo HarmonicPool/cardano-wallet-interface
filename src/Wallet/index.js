@@ -3,7 +3,7 @@ const Loader = require("./WasmLoader")
 const StringFormatError = require("../errors/WalletInterfaceError/StringFormatError/StringFormatError");
 const WalletInterfaceError = require("../errors/WalletInterfaceError/WalletInterfaceError");
 const NamiError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError");
-const CCValutError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/CCValutError/CCValutError");
+const CCVaultError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCVaultError");
 const WalletError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError");
 const WalletProcessError = require("../errors/WalletInterfaceError/WalletProcessError/WalletProcessError");
 
@@ -35,12 +35,12 @@ class Wallet
   /**
    * @private
    */
-  static _ccvalutObj = undefined;
+  static _ccvaultObj = undefined;
   
   /**
    * @private
    */
-  static _CCValutInterface = undefined;
+  static _CCVaultInterface = undefined;
 
   /**
    * 
@@ -108,8 +108,8 @@ class Wallet
   {
     if( typeof window === "undefined" ) throw new WalletInterfaceError("can check for nami extension on in a browser environment");
 
-    // if only ccvalut was installed but not nami
-    // then window.cardano would still be defined but containing onli the ccvalut object
+    // if only ccvault was installed but not nami
+    // then window.cardano would still be defined but containing onli the ccvault object
     // here I check for window.cardano.enable to be defined but could be any function defined
     // by the nami extension
     return ( typeof window.cardano?.enable !== "undefined" );
@@ -143,50 +143,50 @@ class Wallet
     return Wallet._NamiInterface;
   }
   
-  // ---------------------------------------- CCValut ---------------------------------------- //
+  // ---------------------------------------- ccvault ---------------------------------------- //
   /**
    * 
-   * @returns {boolean} true if the ccvalut extension has injected the window.cardano.ccvalut object; false otherwise
+   * @returns {boolean} true if the ccvault extension has injected the window.cardano.ccvault object; false otherwise
    */
-  static hasCCValut()
+  static hasCCVault()
   {
-    if( typeof window === "undefined" ) throw new WalletInterfaceError("can check for ccvalut extension on in a browser environment");
+    if( typeof window === "undefined" ) throw new WalletInterfaceError("can check for CCVault extension on in a browser environment");
 
-    return !!window.cardano?.ccvalut;
+    return !!window.cardano?.ccvault;
   }
 
-  static async enableCCValut()
+  static async enableCCVault()
   {
-    if( !Wallet.hasCCValut() ) throw new CCValutError("can't access the CCValut object if the ccvalut extension is not installed");
+    if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
 
     try
     {
-      Window._ccvalutObj = await window.cardano.ccvalut.enable();
+      Window._ccvaultObj = await window.cardano.ccvault.enable();
     }
     catch (e)
     {
-      console.warn("could not enable ccvalut");
-      Wallet._ccvalutObj = undefined;
+      console.warn("could not enable CCVault");
+      Wallet._ccvaultObj = undefined;
       throw e;
     }
   }
 
-  static get ccvalutHasBeenEnabled()
+  static get ccvaultHasBeenEnabled()
   {
-    return ( Wallet._ccvalutObj !== undefined )
+    return ( Wallet._ccvaultObj !== undefined )
   }
 
-  static get CCValut()
+  static get CCVault()
   {
-    if( !Wallet.hasCCValut() ) throw new CCValutError("can't access the CCValut object if the ccvalut extension is not installed");
-    if( !Wallet.ccvalutHasBeenEnabled ) throw new CCValutError("Wallet.enableCCValut has never been called before, can't access the CCValut interface");
+    if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+    if( !Wallet.ccvaultHasBeenEnabled ) throw new CCVaultError("Wallet.enableCCVault has never been called before, can't access the CCVault interface");
 
-    if( Wallet._CCValutInterface === undefined )
+    if( Wallet._CCVaultInterface === undefined )
     {
-      Wallet._CCValutInterface = private_makeWalletInterface( Wallet._ccvalutObj, Wallet._api_key )
+      Wallet._CCVaultInterface = private_makeWalletInterface( Wallet._ccvaultObj, Wallet._api_key )
     }
 
-    return Wallet._CCValutInterface;
+    return Wallet._CCVaultInterface;
   }
 
 }
@@ -306,7 +306,7 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   const getRewardAddress =
   // nami
   WalletProvider.getRewardAddress || 
-  // ccvalut
+  // CCVault
   (async () => { return await WalletProvider.getRewardAddresses()[0] });
 
   if( typeof getRewardAddress === "undefined" )
@@ -478,7 +478,7 @@ async function private_getCurrentUserDelegation( WalletProvider, blockfrost_proj
   const getRewardAddress =
   // nami
   WalletProvider.getRewardAddress || 
-  // ccvalut
+  // CCVault
   (async () => { return await WalletProvider.getRewardAddresses()[0] });
 
   if( typeof getRewardAddress === "undefined" )

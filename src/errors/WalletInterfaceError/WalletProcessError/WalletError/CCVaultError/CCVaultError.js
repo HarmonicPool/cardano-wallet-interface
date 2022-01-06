@@ -1,7 +1,7 @@
 
 const WalletError = require("../WalletError");
 
-class CCValut extends WalletError
+class CCVaultError extends WalletError
 {
     constructor( message )
     {
@@ -9,4 +9,4 @@ class CCValut extends WalletError
     }
 }
 
-module.exports = CCValut;
+module.exports = CCVaultError;
