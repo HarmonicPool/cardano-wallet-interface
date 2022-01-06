@@ -249,7 +249,7 @@ function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key 
     createDelegagtionTransaction,
     signTransaction,
     submitTransaction,
-    // getPoolId: private_getPoolId,
+    getPoolId: private_getPoolId,
     delegateTo
   }
 }
@@ -291,7 +291,7 @@ async function private_getProtocolParameters( blockfrost_project_id )
 
 function private_getPoolId( bech32_poolId )
 {
-  return new Buffer(Loader.Cardano.Ed25519KeyHash.from_bech32(poolId).to_bytes(), "hex").toString("hex")
+  return Buffer.from(Loader.Cardano.Ed25519KeyHash.from_bech32(poolId).to_bytes(), "hex").toString("hex")
 }
 
 
@@ -301,7 +301,7 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   const protocolParameters = await private_getProtocolParameters( blockfrost_project_id );
 
   let address = (await WalletProvider.getUsedAddresses())[0];
-  address = Loader.Cardano.Address.from_bytes(new Buffer(address, "hex"));
+  address = Loader.Cardano.Address.from_bytes(Buffer.from(address, "hex"));
 
   const getRewardAddress =
   // nami
@@ -317,13 +317,13 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   const rewardAddress = await getRewardAddress();
 
   const stakeCredential = Loader.Cardano.RewardAddress.from_address(
-    Loader.Cardano.Address.from_bytes(new Buffer(rewardAddress, "hex"))
+    Loader.Cardano.Address.from_bytes(Buffer.from(rewardAddress, "hex"))
   ).payment_cred();
 
   let utxos = await WalletProvider.getUtxos();
 
   utxos = utxos.map((utxo) =>
-    Loader.Cardano.TransactionUnspentOutput.from_bytes(new Buffer(utxo, "hex"))
+    Loader.Cardano.TransactionUnspentOutput.from_bytes(Buffer.from(utxo, "hex"))
   );
 
   //estimated max multiasset size 5848
@@ -450,13 +450,13 @@ async function private_signTransaction( WalletProvider, transactionObj )
   await Loader.load();
 
   const witnesses = await WalletProvider.signTx(
-    new Buffer(transactionObj.to_bytes(), "hex").toString("hex")
+    Buffer.from(transactionObj.to_bytes(), "hex").toString("hex")
   );
 
   const signedTx = await Loader.Cardano.Transaction.new(
     transactionObj.body(),
     Loader.Cardano.transactionObj.from_bytes(
-      new Buffer(witnesses, "hex")
+      Buffer.from(witnesses, "hex")
     )
   );
 
@@ -466,7 +466,7 @@ async function private_signTransaction( WalletProvider, transactionObj )
 async function private_submitTransaction( WalletProvider, signedTransaction )
 {
   const txHash = await WalletProvider.submitTx(
-    new Buffer( signedTransaction.to_bytes(), "hex").toString("hex")
+    Buffer.from( signedTransaction.to_bytes(), "hex").toString("hex")
   );
 
   return txHash;
@@ -488,7 +488,7 @@ async function private_getCurrentUserDelegation( WalletProvider, blockfrost_proj
 
   const rawAddress = await getRewardAddress();
   const rewardAddress = Loader.Cardano.Address.from_bytes(
-    new Buffer(rawAddress, "hex")
+    Buffer.from(rawAddress, "hex")
   ).to_bech32();
 
   const stake = await private_blockfrostRequest( blockfrost_project_id, `/accounts/${rewardAddress}`);
