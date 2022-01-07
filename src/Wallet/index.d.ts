@@ -104,7 +104,6 @@ declare class Wallet {
     static get CCVault(): Wallet.WalletInterface
 }
 
-
 declare namespace Wallet {
     export interface TransactionProtocolParameters {
         // TODO

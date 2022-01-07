@@ -9,6 +9,7 @@
         - [nami delegation](#delegate_using_nami)
         - [ccvault delegation](#delegate_using_ccvault)
     - [other examples](#oth_examples)
+- [Documentation](#docs_link)
 - [Support Harmonic](#Support)
 
 ## Prerequisites
@@ -110,6 +111,21 @@ if( Wallet.hasCCVault() )
 <h4>other examples</h4>
 
 check the [documentation/examples](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/examples) folder for more
+
+<a name="docs_link">
+</a>
+<h2>Documentation</h2>
+
+a more in depth documentation can be found in the [documentation folder](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation)
+
+### Docs Index
+- [examples](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/examples)
+    - [simple react page using nami](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/examples/SimpleReactPage_Nami.js)
+    - [simple react page using ccvault](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/examples/SimpleReactPage_CCVault.js)
+- [known issues](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/known_issues)
+    - [allowing webassembly](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/known_issues/allowing_webassembly.md)
+- [Wallet](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/Wallet.md)
+- [Errors](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/errors.md)
 
 <a name="Support">
 </a>
