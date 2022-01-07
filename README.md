@@ -40,7 +40,7 @@ npm install https://github.com/HarmonicPool/cardano-wallet-interface
 ##### using Nami
 ```js
 /*... other imports ...*/
-import { Wallet } from "@harmonicpool/cardano-wallet-interface";
+import Wallet from "@harmonicpool/cardano-wallet-interface";
 
 /*...*/
 
@@ -76,7 +76,7 @@ if( Wallet.hasNami() )
 ##### using ccvault
 ```js
 /*... other imports ...*/
-import { Wallet } from "@harmonicpool/cardano-wallet-interface";
+import Wallet from "@harmonicpool/cardano-wallet-interface";
 
 /*...*/
 
