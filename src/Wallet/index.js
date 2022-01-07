@@ -8,7 +8,7 @@ const CCVaultError = require("../errors/WalletInterfaceError/WalletProcessError/
 const WalletError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError");
 const WalletProcessError = require("../errors/WalletInterfaceError/WalletProcessError/WalletProcessError");
 
-private_walletInterface_hasBlockFrost = false;
+let private_walletInterface_hasBlockFrost = false;
 
 class Wallet
 {
@@ -294,7 +294,6 @@ function private_getPoolId( bech32_poolId )
 {
   return Buffer.from(Loader.Cardano.Ed25519KeyHash.from_bech32(poolId).to_bytes(), "hex").toString("hex")
 }
-
 
 
 async function private_getRewardAddress ( WalletProvider )
