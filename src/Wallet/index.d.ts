@@ -78,7 +78,7 @@ declare class Wallet {
     /**
      * 
      */
-    static get Nami() : Wallet.WalletInterface
+    static get Nami() : Wallet.NamiInterface
 
     
     // ---------------------------------------- ccvault ---------------------------------------- //
@@ -147,7 +147,7 @@ declare namespace Wallet {
         remove: () => void
     }
 
-    export interface SpecificNami extends WalletInterface
+    export interface NamiInterface extends WalletInterface
     {
         onAccountChange: ( callback: (addresses : [CardanoTypes.BaseAddress]) => void ) => NamiEventController
         onNetworkChange: ( callback: (network : number) => void ) => NamiEventController

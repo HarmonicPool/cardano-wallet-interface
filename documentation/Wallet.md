@@ -10,6 +10,7 @@
 - [Wallet specific](#wallet_specific)
     - [Nami](#nami_specific)
     - [ccvalut](#ccvalut_specific)
+    - [flintExperimental](#flintExperimental_specific)
 
 <a name="top_level_functions">
 </a>
@@ -131,6 +132,11 @@ getting a Wallet object from the ```Wallet``` static class returns an istance of
 so defined:
 
 ```ts
+
+namespace CardanoTypes {
+    export type BaseAddress = string
+}
+
 interface RawCIP30WalletInterface
 {
     enable: () => Promise<any>,
@@ -174,7 +180,36 @@ for the ```Wallet.RawCIP30WalletInterface``` refer to the [CIP-0030](https://git
 </a>
 <h4>Nami</h4>
 
+###### Wallet Interface return object
+
+the Nami wallet interface is extended as follows
+
+```ts
+static get Nami() : Wallet.NamiInterface
+```
+
+```ts
+
+interface NamiEventController
+{
+    remove: () => void
+}
+
+interface NamiInterface extends WalletInterface
+{
+    onAccountChange: ( callback: (addresses : [CardanoTypes.BaseAddress]) => void ) => NamiEventController
+    onNetworkChange: ( callback: (network : number) => void ) => NamiEventController
+}
+
+```
+
+therfore it supports the ```onAccountChange``` and ```onNetworkChange``` event listeners;
+check out the [Nami wallet documentation](https://github.com/Berry-Pool/nami-wallet#cardanoonaccountchangeaddresses) for further informations.
 
 <a name="ccvalut_specific">
 </a>
 <h4>ccvalut</h4>
+
+<a name="flintExperimental_specific">
+</a>
+<h4>flintExperimental</h4>
