@@ -21,6 +21,12 @@ declare class Wallet {
     private static _CCVaultInterface?: Wallet.WalletInterface = undefined;
 
     /**
+     * checks for a defined window object
+     * @throws {WalletInterfaceError} if typeof window === "undefined" evaluates to true
+     */
+    static _assertBrowser(): void
+
+    /**
      * 
      * @param {string} blockfrost_project_id blockforst api key to be used
      */
@@ -102,6 +108,27 @@ declare class Wallet {
      * 
      */
     static get CCVault(): Wallet.WalletInterface
+
+    // ---------------------------------------- flintExperimental ---------------------------------------- //
+
+    /**
+     * checks for the others extension supported
+     * @throws {FlintExperimentalError} if either Wallet.hasNami() or Wallet.hasCCVault() evaluates to true.
+     */
+    static _assertFlintExperimentalOnly() : void
+
+    /**
+     * 
+     * @returns {boolean} true if the flintExperimental extension has injected the window.cardano.flintExperimental object; false otherwise
+     */
+    static hasFlintExperimental() : boolean
+
+    static async enableFlintExperimental(): void
+
+    static get flintExperimentalHasBeenEnabled(): boolean
+
+    static get FlintExperimental(): Wallet.WalletInterface
+
 }
 
 declare namespace Wallet {

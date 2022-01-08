@@ -1,12 +1,16 @@
 const Buffer = require("buffer").Buffer;
-const Loader = require("./WasmLoader");
+
+const Loader        = require("./WasmLoader");
 const CoinSelection = require("./CoinSelection");
+
 const StringFormatError = require("../errors/WalletInterfaceError/StringFormatError/StringFormatError");
-const WalletInterfaceError = require("../errors/WalletInterfaceError/WalletInterfaceError");
-const NamiError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError");
-const CCVaultError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCVaultError");
-const WalletError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError");
-const WalletProcessError = require("../errors/WalletInterfaceError/WalletProcessError/WalletProcessError");
+
+const WalletInterfaceError    = require("../errors/WalletInterfaceError/WalletInterfaceError");
+const NamiError               = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError");
+const CCVaultError            = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCVaultError");
+const FlintExperimentalError  = require("../errors/WalletInterfaceError/WalletProcessError//WalletError/FlintExperimentalError/FlintExperimentalError");
+const WalletError             = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError");
+const WalletProcessError      = require("../errors/WalletInterfaceError/WalletProcessError/WalletProcessError");
 
 let private_walletInterface_hasBlockFrost = false;
 
@@ -42,6 +46,21 @@ class Wallet
    * @private
    */
   static _CCVaultInterface = undefined;
+
+  /**
+   * @private
+   */
+   static _flintExperimentalObj = undefined;
+  
+   /**
+    * @private
+    */
+   static _flintExperimentalInterface = undefined;
+
+  static _assertBrowser()
+  {
+    if( typeof window === "undefined" ) throw new WalletInterfaceError("can check for any cardano wallet extension only in a browser environment");
+  }
 
   /**
    * 
@@ -107,13 +126,26 @@ class Wallet
    */
   static hasNami()
   {
-    if( typeof window === "undefined" ) throw new WalletInterfaceError("can check for nami extension on in a browser environment");
+    Wallet._assertBrowser();
 
     // if only ccvault was installed but not nami
     // then window.cardano would still be defined but containing onli the ccvault object
     // here I check for window.cardano.enable to be defined but could be any function defined
     // by the nami extension
-    return ( typeof window.cardano?.enable !== "undefined" );
+    // DEPRECATED SINCE FLINT_EXPERIMENTAL return ( typeof window.cardano?.enable !== "undefined" );
+
+    const tmpEvtController = window.cardano?.onAccountChange(console.log);
+
+    // since from the addition of FlintExperimental window.cardano.enable gets ingìjected too is no more a valid way to check for nami
+    // if Nami is injected correctly the return type of window.cardano?.onAccountChange(<anyFunc>) is {Wallet.NamiEventController} object
+    // if Nami is not injected but flintEcperimental is, the return type is undefined.
+    if ( typeof tmpEvtController !== "undefined" )
+    {
+      tmpEvtController.remove();
+      return true;
+    }
+
+    return false;
   }
 
   static async enableNami()
@@ -151,7 +183,7 @@ class Wallet
    */
   static hasCCVault()
   {
-    if( typeof window === "undefined" ) throw new WalletInterfaceError("can check for CCVault extension on in a browser environment");
+    Wallet._assertBrowser();
 
     return !!window.cardano?.ccvault;
   }
@@ -188,6 +220,70 @@ class Wallet
     }
 
     return Wallet._CCVaultInterface;
+  }
+
+  // ---------------------------------------- flintExperimental ---------------------------------------- //
+
+  static _assertFlintExperimentalOnly()
+  {
+    if( Wallet.hasNami() || Wallet.hasCCVault() )
+    throw new FlintExperimentalError(
+      "flintExperimental only works if is the only extension injected, please ask to disable all other cardano wallets extension and to refresh the page in order to work with flintExperimental"
+    );
+  }
+
+  /**
+   * 
+   * @returns {boolean} true if the flintExperimental extension has injected the window.cardano.flintExperimental object; false otherwise
+   */
+  static hasFlintExperimental()
+  {
+    Wallet._assertBrowser();
+    Wallet._assertFlintExperimentalOnly();
+
+    return !!window.cardano?.flintExperimental;
+  }
+ 
+  static async enableFlintExperimental()
+  {
+    Wallet._assertFlintExperimentalOnly();
+    if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+
+    try
+    {
+      let enableResult = await window.cardano?.flintExperimental.enable();
+
+      if(enableResult)
+      {
+        Wallet._flintExperimentalObj = window.cardano;
+      }
+    }
+    catch (e)
+    {
+      console.warn("could not enable flintExperimental");
+      Wallet._flintExperimentalObj = undefined;
+      throw e;
+    }
+  }
+ 
+  static get flintExperimentalHasBeenEnabled()
+  {
+    Wallet._assertFlintExperimentalOnly();
+    return ( Wallet._flintExperimentalObj !== undefined )
+  }
+
+  static get FlintExperimental()
+  {
+    Wallet._assertFlintExperimentalOnly();
+    if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+    if( !Wallet.flintExperimentalHasBeenEnabled ) throw new FlintExperimentalError("Wallet.enableFlintExperimental has never been called before, can't access the flintExperimental interface");
+
+    if( Wallet._flintExperimentalInterface === undefined )
+    {
+      Wallet._flintExperimentalInterface = private_makeWalletInterface( Wallet._flintExperimentalObj, Wallet._api_key )
+    }
+
+    return Wallet._flintExperimentalInterface;
   }
 
 }
@@ -299,7 +395,7 @@ function private_getPoolId( bech32_poolId )
 async function private_getRewardAddress ( WalletProvider )
 {
   const getRewardAddress =
-  // nami
+  // nami || flintExperimental
   WalletProvider.getRewardAddress || 
   // CCVault
   WalletProvider.getRewardAddresses
