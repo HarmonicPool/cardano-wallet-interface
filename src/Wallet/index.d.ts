@@ -105,6 +105,11 @@ declare class Wallet {
 }
 
 declare namespace Wallet {
+
+    export declare namespace CardanoTypes {
+        export type BaseAddress = string
+    }
+
     export interface TransactionProtocolParameters {
         // TODO
     }
@@ -135,5 +140,16 @@ declare namespace Wallet {
         submitTransaction:  ( signedTransaction: Transaction ) => Promise<string>,
         // getPoolId,
         delegateTo: ( targetPoolId: string, blockfrost_project_id?: string = undefined ) => Promise<string>
+    }
+
+    export interface NamiEventController
+    {
+        remove: () => void
+    }
+
+    export interface SpecificNami extends WalletInterface
+    {
+        onAccountChange: ( callback: (addresses : [CardanoTypes.BaseAddress]) => void ) => NamiEventController
+        onNetworkChange: ( callback: (network : number) => void ) => NamiEventController
     }
 }
