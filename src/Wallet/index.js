@@ -163,6 +163,20 @@ class Wallet
     return ( Wallet._namiObj !== undefined )
   }
 
+  static async namiIsEnabled()
+  {
+    if( !Wallet.hasNami() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+
+    if( await window.cardano?.isEnabled() )
+    {
+      // sets the _ccvaultObj static property
+      Wallet.enableNami();
+      return true;
+    }
+    else return false;
+
+  }
+
   static get Nami()
   {
     if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
@@ -207,6 +221,20 @@ class Wallet
   static get ccvaultHasBeenEnabled()
   {
     return ( Wallet._ccvaultObj !== undefined )
+  }
+
+  static async ccvaultIsEnabled()
+  {
+    if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+
+    if( await window.cardano?.ccvault.isEnabled() )
+    {
+      // sets the _ccvaultObj static property
+      Wallet.enableCCVault();
+      return true;
+    }
+    else return false;
+
   }
 
   static get CCVault()
@@ -270,6 +298,21 @@ class Wallet
   {
     Wallet._assertFlintExperimentalOnly();
     return ( Wallet._flintExperimentalObj !== undefined )
+  }
+
+  static async flintExperimentalIsEnabled()
+  {
+    Wallet._assertFlintExperimentalOnly();
+    if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+
+    if( await window.cardano?.flintExperimental.isEnabled() )
+    {
+      // sets the _flintExperimentalObj static property
+      Wallet.enableFlintExperimental();
+      return true;
+    }
+    else return false;
+
   }
 
   static get FlintExperimental()

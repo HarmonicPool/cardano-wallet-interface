@@ -3,6 +3,7 @@
 ### static class
 
 ## Contents
+- [How to use the Wallet documentation](#how_to_use)
 - [Top level functions](#top_level_functions)
 - [Wallet common Interface](#wallet_common_interface)
     - [Making sure a wallet is aviable](#check_for_wallet)
@@ -11,6 +12,23 @@
     - [Nami](#nami_specific)
     - [ccvalut](#ccvalut_specific)
     - [flintExperimental](#flintExperimental_specific)
+
+<a name="how_to_use">
+</a>
+<h2>How to use the Wallet documentation</h2>
+
+#### curly brackets abstraction
+
+since multiple functions behave similarly with the only difference for the wallet in use the following abstraction has benn introdced
+
+```Wallet``` ->  ```Nami``` | ```CCVault```  | ```FlintExperimental``` 
+```wallet``` ->  ```nami``` | ```ccvault```  | ```flintExperimental``` 
+
+**PLEASE PAY ATTENTION TO THE CAPITAL LETTERS**
+
+as an example then ```Wallet.{Wallet}``` here in the documentation will be intended as ```Wallet.Nami``` or ```Wallet.CCVault``` or ```Wallet.FlintExperimental``` depending from the desired wallet.
+
+and similarly ```Wallet.{wallet}IsEnabled()``` should be intended respectively ```Wallet.namiIsEnabled()```, ```Wallet.ccvaultIsEnabled()``` or ```Wallet.flintExperimentalIsEnabled()```.
 
 <a name="top_level_functions">
 </a>
@@ -35,7 +53,7 @@ static async makeBlockfrostRequest( endpoint: string, headers?: string, body?: s
 
 makes a blockfrost api call and returns a Promise of the response
 
-se the [Blockfrost documentation](https://docs.blockfrost.io/) to see the valid enpoints.
+see the [Blockfrost documentation](https://docs.blockfrost.io/) to see the valid enpoints.
 
 ###### hasProtocolParameters
 
@@ -43,7 +61,7 @@ se the [Blockfrost documentation](https://docs.blockfrost.io/) to see the valid 
 static hasProtocolParameters() : boolean
 ```
 
-returns ```true``` if a protocol parameters object needed for creating transaction s aviable, false otherwise 
+returns ```true``` if a protocol parameters object needed for creating transaction is aviable, false otherwise 
 
 ###### getProtocolParameters
 
@@ -85,7 +103,7 @@ the following methods / properties are accessible via the Wallet static class di
 ###### hasWallet
 
 ```ts
-static hasWallet(): boolean
+static has{Wallet}(): boolean
 ```
 
 checks if the extension for the wallet is aviable;
@@ -94,32 +112,43 @@ returns ```true``` if the extension was found, ```false``` otherwise
 ###### enableWallet
 
 ```ts
-static async enableWallet(): void
+static async enable{Wallet}(): void
 ```
 
-tries to call ```.enable()``` on the chosen wallet, then makes aviable the accessor ```Wallet.{YourWallet}```  
+tries to call ```.enable()``` on the chosen wallet, then makes aviable the accessor ```Wallet.{Wallet}```  
 
-> **_SIDE EFFECT:_**  calling ```.enable()```(defined in the CIP30) will likely open a window asking for the user to connect the wallet,
-this wont appen if the wallet is alreadi connected; iou can check if that's the case via ```.isEnabled()```.
+> **_SIDE EFFECT:_**  calling ```.enable()```([defined in the CIP30](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0030#cardanowalletnameenable-promiseapi)) will likely open a window asking for the user to connect the wallet,
+this wont appen if the wallet is already connected; you can check if that's the case via ```Wallet.{wallet}IsEnabled()```.
 
 
 ###### walletHasBeenEnabled
 
 ```ts
-static get walletHasBeenEnabled(): boolean
+static get {wallet}HasBeenEnabled(): boolean
 ```
 
-returns ```true``` if the ```Wallet.{YourWallet}``` is accessible, ```false``` otherwise
+returns ```true``` if the ```Wallet.{Wallet}``` is accessible, ```false``` otherwise
 
-> **_NOTE:_**  calling this accessor **is differtent** than calling Wallet.{YourWallet}.isEnabled(), defined in the CIP30.
+> **_NOTE:_**  calling this accessor **is differtent** than calling Wallet.{Wallet}.isEnabled(), defined in the CIP30.
 
-> **_REMINDER:_**  the name of the accessor becomes ```Wallet.namiHasBeenEnabled``` for **Nami**; ```Wallet.ccvalutHasBeenEnabled```for **ccvalut**
+> **_REMINDER:_**  the name of the accessor becomes ```Wallet.namiHasBeenEnabled``` for **Nami**; ```Wallet.ccvalutHasBeenEnabled```for **ccvalut** and soo on
+
+###### {wallet}IsEnabled
+
+```ts
+static async Wallet.{wallet}IsEnabled(): boolean
+```
+calls internally the ```isEnabled()``` [defined in the CIP-0030](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0030#cardanowalletnameisenabled-promisebool)
+
+if the promise result is true then the ```{Wallet}``` accessor will be aviable without the need to call ```Wallet.enable{Wallet}()```.
+
+this method may be useful to understand when a user has already connected the given wallet to the website in a previous session
 
 
 ###### Wallet
 
 ```ts
-static get Wallet() : object // returns a Wallet object described below
+static get {Wallet}() : Wallet.WalletInterface // returns a Wallet object described below
 ```
 
 access the wallet functionalities.
