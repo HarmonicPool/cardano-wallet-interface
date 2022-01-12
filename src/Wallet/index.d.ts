@@ -31,8 +31,12 @@ declare class Wallet {
      * @param {string} blockfrost_project_id blockforst api key to be used
      */
     static setBlockfrost( blockfrost_project_id: string ): void;
-  
+
     /**
+     * @requires Wallet.setBlockfrost to have been called with a valid argument before
+     * 
+     * makes a blockfrost api call and returns a Promise of the response
+     * see the [Blockfrost documentation](https://docs.blockfrost.io/) to see the valid enpoints.   
      * refer to https://docs.blockfrost.io/
      * @param {string} endpoint 
      * @param headers 
@@ -49,14 +53,17 @@ declare class Wallet {
 
     /**
      * 
-     * @param blockfrost_project_id 
-     * @returns {Wallet.TransactionProtocolParameters}
+     * 
+     * @param {string | undefined} blockfrost_project_id optional blocfrost api key to use as api key if no prtocolParameters object has been found before
+     * @throws {WalletProcessError} if no api key was founded
+     * @returns {Promise<Wallet.TransactionProtocolParameters>}
      */
     static async getProtocolParameters( blockfrost_project_id ?: string ) : Wallet.TransactionProtocolParameters
 
     /**
-     * minimal protocol parameters needed for transactions, throws if not present,
-     * prefer ```await Wallet.getProtocolParameters()``` instead
+     * sync version of ```Wallet.getProtocolParameters```
+     * @throws {WalletError} if no protocolParameters object was found
+     * prefer ```await Wallet.getProtocolParameters()``` if possible
      */
     static get protocolParameters() : Wallet.TransactionProtocolParameters
    
@@ -65,21 +72,30 @@ declare class Wallet {
     // ---------------------------------------- Nami ---------------------------------------- //
 
     /**
-     * 
+     * checks if the nami extension is aviable
      * @returns {boolean} true if the nami extension has injected the window.cardano.enable function; false otherwise
      */
     static hasNami(): boolean
     
     /**
-     * 
+     * tries to call ```.enable()``` on the chosen wallet, if successful makes aviable the accessor ```Wallet.{Wallet}```
      */
     static async enableNami(): void
 
     /**
-     * 
+     * NOTE the result of this accessor may differ from calling Wallet.{wallet}IsEnabled()
+     * only checks if the ```Wallet.{Wallet}``` is accessible
+     * @returns {boolean} ```true``` if the ```Wallet.{Wallet}``` is accessible, ```false``` otherwise
      */
     static get namiHasBeenEnabled() : boolean
 
+    /**
+     * calls internally the ```isEnabled()``` defined in the CIP-0030
+     * if the promise result is true then the ```Wallet.Nami``` accessor will be aviable without the need to call ```Wallet.enable{Wallet}()```.
+     * may be useful to understand when a user has already connected the given wallet to the website in a previous session
+     * @returns {Promise<boolean>} same as window.cardano.isEnabled()
+     */
+    static async namiIsEnabled(): boolean
 
     /**
      * 
@@ -89,20 +105,30 @@ declare class Wallet {
     
     // ---------------------------------------- ccvault ---------------------------------------- //
     /**
-     * 
+     * checks if the ccvault extension is aviable
      * @returns {boolean} true if the ccvault extension has injected the window.cardano.ccvault object; false otherwise
      */
     static hasCCVault(): boolean
 
     /**
-     * 
+     * tries to call ```window.cardano.ccvault.enable()``` if successful makes aviable the accessor ```Wallet.{Wallet}```
      */
     static async enableCCVault(): void
 
     /**
-     * @returns {boolean} true if the last call to Wallet.enableCCVault was succesfull, false otherwise
+     * NOTE the result of this accessor may differ from calling Wallet.ccvaultIsEnabled()
+     * only checks if the ```Wallet.CCVault``` is accessible
+     * @returns {boolean} ```true``` if the ```Wallet.CCVault``` is accessible, ```false``` otherwise
      */
     static get ccvaultHasBeenEnabled(): boolean
+
+    /**
+     * calls internally the ```isEnabled()``` defined in the CIP-0030
+     * if the promise result is true then the ```Wallet.CCVault``` accessor will be aviable without the need to call ```Wallet.enableCCVault()```.
+     * may be useful to understand when a user has already connected the given wallet to the website in a previous session
+     * @returns {Promise<boolean>} same as window.cardano.ccvault.isEnabled()
+     */
+    static async ccvaultlIsEnabled(): boolean
 
     /**
      * 
@@ -118,14 +144,30 @@ declare class Wallet {
     static _assertFlintExperimentalOnly() : void
 
     /**
-     * 
+     * checks if the flintExperimental extension is aviable
      * @returns {boolean} true if the flintExperimental extension has injected the window.cardano.flintExperimental object; false otherwise
      */
     static hasFlintExperimental() : boolean
 
+    /**
+     * tries to call ```window.cardano.flintExperimental.enable()``` if successful makes aviable the accessor ```Wallet.{Wallet}```
+     */
     static async enableFlintExperimental(): void
 
+    /**
+     * NOTE the result of this accessor may differ from calling Wallet.flintExperimentalIsEnabled()
+     * only checks if the ```Wallet.FlintExperimental``` is accessible
+     * @returns {boolean} ```true``` if the ```Wallet.FlintExperimental``` is accessible, ```false``` otherwise
+     */
     static get flintExperimentalHasBeenEnabled(): boolean
+
+    /**
+     * calls internally the ```isEnabled()``` defined in the CIP-0030
+     * if the promise result is true then the ```Wallet.FlintExperimental``` accessor will be aviable without the need to call ```Wallet.enableFlintExperimental()```.
+     * may be useful to understand when a user has already connected the given wallet to the website in a previous session
+     * @returns {Promise<boolean>} same as window.cardano.flintExperimental.isEnabled()
+     */
+    static async flintExperimentalIsEnabled(): boolean
 
     static get FlintExperimental(): Wallet.WalletInterface
 
