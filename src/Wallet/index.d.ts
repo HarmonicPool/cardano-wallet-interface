@@ -131,7 +131,7 @@ declare class Wallet {
      * may be useful to understand when a user has already connected the given wallet to the website in a previous session
      * @returns {Promise<boolean>} same as window.cardano.ccvault.isEnabled()
      */
-    static ccvaultlIsEnabled(): Promise<boolean>
+    static ccvaultIsEnabled(): Promise<boolean>
 
     /**
      * 
@@ -180,7 +180,7 @@ declare class Wallet {
 
 declare namespace Wallet {
 
-    export type WalletName = "nami" | "ccvault" | "flintEperimental";
+    export type WalletName = "nami" | "ccvault" | "flintExperimental";
 
     export namespace CardanoTypes {
         export type BaseAddress = string
