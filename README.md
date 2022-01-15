@@ -1,5 +1,5 @@
 # cardano-wallet-interface
-##### brought to you by Harmonic Pool
+##### brought to you by [Harmonic Pool](https://harmonicpool.on.fleek.co/)
 
 ## Contents
 - [Prerequisites](#Prerequisites)
