@@ -6,4 +6,4 @@ import Wallet from "./Wallet/index";
 export default Wallet;
 export {
     Wallet
-}
+};

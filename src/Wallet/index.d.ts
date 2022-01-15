@@ -6,8 +6,9 @@ import { Transaction, TransactionUnspentOutput, TransactionWitnessSet } from "@e
 import { Buffer } from "buffer";
 
 export as namespace Wallet;
+export = Wallet;
 
-export declare class Wallet {
+declare class Wallet {
     private constructor();
 
     private static _api_key?: string;
@@ -175,13 +176,7 @@ export declare class Wallet {
 
 }
 
-export type cbor<val = any> =  string;
-export type address =  string;
-export type hash32 =  string;
-export type Bytes = Buffer;
-export type Paginate = object
-export type value = any;
-export type Sig_structure = any;
+
 
 declare namespace Wallet {
 
@@ -194,6 +189,14 @@ declare namespace Wallet {
     export interface TransactionProtocolParameters {
         // TODO
     }
+
+    export type cbor<val = any> =  string;
+    export type address =  string;
+    export type hash32 =  string;
+    export type Bytes = Buffer;
+    export type Paginate = object
+    export type value = any;
+    export type Sig_structure = any;
 
     export interface RawCIP30WalletInterface {
         enable: () => Promise<any>,
