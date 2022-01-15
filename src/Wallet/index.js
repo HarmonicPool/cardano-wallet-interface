@@ -665,9 +665,6 @@ async function private_getCurrentUserDelegation( WalletProvider, blockfrost_proj
   return stake;
 };
 
-// allows import { Wallet } from "@harmonicpool/cardano-wallet-interface";
-Wallet.Wallet = Wallet;
-// for strict ES Module import Wallet from "@harmonicpool/cardano-wallet-interface";
-Wallet.default  = Wallet;
+
 // exports default
 module.exports = Wallet;

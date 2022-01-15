@@ -2,23 +2,25 @@
 // Project: cardano-wallet-interface
 // Definitions by: Michele Nuzzi [michele.nuzzi.2014@gmail.com]
 
-export as namespace Wallet;
-export = Wallet;
+import { Transaction, TransactionUnspentOutput, TransactionWitnessSet } from "@emurgo/cardano-serialization-lib-browser";
+import { Buffer } from "buffer";
 
-declare class Wallet {
+export as namespace Wallet;
+
+export declare class Wallet {
     private constructor();
 
-    private static _api_key?: string = undefined;
+    private static _api_key?: string;
 
-    private static _protocolParameters?: Wallet.TransactionProtocolParameters = undefined;
+    private static _protocolParameters?: Wallet.TransactionProtocolParameters;
 
-    private static _namiObj?: Wallet.RawCIP30WalletInterface = undefined;
+    private static _namiObj?: Wallet.RawCIP30WalletInterface;
 
-    private static _NamiInterface?: Wallet.WalletInterface = undefined;
+    private static _NamiInterface?: Wallet.WalletInterface;
 
-    private static _ccvaultObj?: Wallet.RawCIP30WalletInterface = undefined;
+    private static _ccvaultObj?: Wallet.RawCIP30WalletInterface;
     
-    private static _CCVaultInterface?: Wallet.WalletInterface = undefined;
+    private static _CCVaultInterface?: Wallet.WalletInterface;
 
     /**
      * checks for a defined window object
@@ -43,7 +45,7 @@ declare class Wallet {
      * @param body 
      * @returns 
      */
-    static async makeBlockfrostRequest( endpoint: string, headers?: object, body?: object ): any
+    static makeBlockfrostRequest( endpoint: string, headers?: object, body?: object ): Promise<any>
 
     /**
      * 
@@ -58,7 +60,7 @@ declare class Wallet {
      * @throws {WalletProcessError} if no api key was founded
      * @returns {Promise<Wallet.TransactionProtocolParameters>}
      */
-    static async getProtocolParameters( blockfrost_project_id ?: string ) : Wallet.TransactionProtocolParameters
+    static getProtocolParameters( blockfrost_project_id ?: string ) : Promise<Wallet.TransactionProtocolParameters>
 
     /**
      * sync version of ```Wallet.getProtocolParameters```
@@ -80,7 +82,7 @@ declare class Wallet {
     /**
      * tries to call ```.enable()``` on the chosen wallet, if successful makes aviable the accessor ```Wallet.{Wallet}```
      */
-    static async enableNami(): void
+    static enableNami(): Promise<void>
 
     /**
      * NOTE the result of this accessor may differ from calling Wallet.{wallet}IsEnabled()
@@ -95,7 +97,7 @@ declare class Wallet {
      * may be useful to understand when a user has already connected the given wallet to the website in a previous session
      * @returns {Promise<boolean>} same as window.cardano.isEnabled()
      */
-    static async namiIsEnabled(): boolean
+    static namiIsEnabled(): Promise<boolean>
 
     /**
      * 
@@ -113,7 +115,7 @@ declare class Wallet {
     /**
      * tries to call ```window.cardano.ccvault.enable()``` if successful makes aviable the accessor ```Wallet.{Wallet}```
      */
-    static async enableCCVault(): void
+    static enableCCVault(): Promise<void>
 
     /**
      * NOTE the result of this accessor may differ from calling Wallet.ccvaultIsEnabled()
@@ -128,7 +130,7 @@ declare class Wallet {
      * may be useful to understand when a user has already connected the given wallet to the website in a previous session
      * @returns {Promise<boolean>} same as window.cardano.ccvault.isEnabled()
      */
-    static async ccvaultlIsEnabled(): boolean
+    static ccvaultlIsEnabled(): Promise<boolean>
 
     /**
      * 
@@ -152,7 +154,7 @@ declare class Wallet {
     /**
      * tries to call ```window.cardano.flintExperimental.enable()``` if successful makes aviable the accessor ```Wallet.{Wallet}```
      */
-    static async enableFlintExperimental(): void
+    static enableFlintExperimental(): Promise<void>
 
     /**
      * NOTE the result of this accessor may differ from calling Wallet.flintExperimentalIsEnabled()
@@ -167,15 +169,25 @@ declare class Wallet {
      * may be useful to understand when a user has already connected the given wallet to the website in a previous session
      * @returns {Promise<boolean>} same as window.cardano.flintExperimental.isEnabled()
      */
-    static async flintExperimentalIsEnabled(): boolean
+    static flintExperimentalIsEnabled(): Promise<boolean>
 
     static get FlintExperimental(): Wallet.WalletInterface
 
 }
 
+export type cbor<val = any> =  string;
+export type address =  string;
+export type hash32 =  string;
+export type Bytes = Buffer;
+export type Paginate = object
+export type value = any;
+export type Sig_structure = any;
+
 declare namespace Wallet {
 
-    export declare namespace CardanoTypes {
+    export type WalletName = "nami" | "ccvault" | "flintEperimental";
+
+    export namespace CardanoTypes {
         export type BaseAddress = string
     }
 
@@ -190,25 +202,25 @@ declare namespace Wallet {
         name?: string,
         icon?: string,
         getNetworkId: () => Promise<number>,
-        getUtxos:(amount: cbor<value> = undefined, paginate: Paginate = undefined) => Promise<TransactionUnspentOutput[] | undefined>,
+        getUtxos:(amount?: cbor<value>, paginate?: Paginate) => Promise<TransactionUnspentOutput[] | undefined>,
         getBalance: () => Promise<cbor<value>>,
-        getUsedAddresses: (paginate: Paginate = undefined) => Promise<cbor<address>[]>,
+        getUsedAddresses: (paginate?: Paginate) => Promise<cbor<address>[]>,
         getUnusedAddresses: () => Promise<cbor<address>[]>,
         getChangeAddress: () => Promise<cbor<address>>,
         getRewardAddresses: () => Promise<cbor<address>[]>,
-        signTx: (tx: cbor<transaction>, partialSign: bool = false) => Promise<cbor<transaction_witness_set>>,
+        signTx: (tx: cbor<Transaction>, partialSign: boolean ) => Promise<cbor<TransactionWitnessSet>>,
         signData: (addr: cbor<address>, sigStructure: cbor<Sig_structure>) => Promise<Bytes>,
-        submitTx: (tx: cbor<transaction>) => Promise<hash32>
+        submitTx: (tx: cbor<Transaction>) => Promise<hash32>
     }
 
     export interface WalletInterface extends RawCIP30WalletInterface
     {
-        getCurrentUserDelegation: ( blockfrost_project_id?: string = undefined ) => Promise<object>,
-        createDelegagtionTransaction: ( targetPoolId?: string, blockfrost_project_id?: string = undefined ) => Promise<Transaction>,
+        getCurrentUserDelegation: ( blockfrost_project_id?: string ) => Promise<object>,
+        createDelegagtionTransaction: ( targetPoolId?: string, blockfrost_project_id?: string) => Promise<Transaction>,
         signTransaction: ( transactionToSign: Transaction ) => Promise<Transaction>,
         submitTransaction:  ( signedTransaction: Transaction ) => Promise<string>,
         // getPoolId,
-        delegateTo: ( targetPoolId: string, blockfrost_project_id?: string = undefined ) => Promise<string>
+        delegateTo: ( targetPoolId: string, blockfrost_project_id?: string ) => Promise<string>
     }
 
     export interface NamiEventController
