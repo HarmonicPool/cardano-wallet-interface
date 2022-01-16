@@ -1,3 +1,5 @@
+"use strict";
+
 const Buffer = require("buffer").Buffer;
 
 const Loader        = require("./WasmLoader");
@@ -26,6 +28,7 @@ class Wallet
    */
   static _protocolParameters = undefined;
 
+  // ---------------------------------------- nami objects ---------------------------------------- //
   /**
    * @private
    */
@@ -36,6 +39,7 @@ class Wallet
    */
   static _NamiInterface = undefined;
 
+  // ---------------------------------------- ccvault objects ---------------------------------------- //
   
   /**
    * @private
@@ -47,6 +51,8 @@ class Wallet
    */
   static _CCVaultInterface = undefined;
 
+  // ---------------------------------------- flint objects ---------------------------------------- //
+
   /**
    * @private
    */
@@ -56,6 +62,20 @@ class Wallet
     * @private
     */
    static _flintExperimentalInterface = undefined;
+
+   // ---------------------------------------- flint objects ---------------------------------------- //
+
+  /**
+   * @private
+   */
+    static _yoroiObj = undefined;
+
+    /**
+    * @private
+    */
+    static _yoroiInterface = undefined;
+
+  // ---------------------------------------- wallet utils ---------------------------------------- //
 
   static _assertBrowser()
   {
@@ -329,6 +349,78 @@ class Wallet
     return Wallet._flintExperimentalInterface;
   }
 
+  // ---------------------------------------- yoroi ---------------------------------------- //
+  static _makeSureYoroiIsInjectedCorrectly()
+  {
+    Wallet._assertBrowser();
+
+    if(!private_performedYoroiReInjection)
+    {
+      private_injectYoroi();
+    }
+  }
+
+  static hasYoroi()
+  {
+    Wallet._assertBrowser();
+    
+    return !!window.cardano?.yoroi;
+  }
+
+  static async enableYoroi()
+  {
+    if( !Wallet.hasYoroi() ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi extension is not installed");
+
+    try
+    {
+      Wallet._makeSureYoroiIsInjectedCorrectly();
+      Wallet._yoroiObj = await window.cardano.yoroi.enable();
+      Wallet._yoroiObj = {
+        ...Wallet._yoroiObj,
+        enable: window.cardano.yoroi.enable,
+        isEnabled: window.cardano.yoroi.isEnabled
+      }
+    }
+    catch (e)
+    {
+      console.warn("could not enable Yoroi");
+      Wallet._yoroiObj = undefined;
+      throw e;
+    }
+  }
+
+  static get yoroiHasBeenEnabled()
+  {
+    return ( Wallet._yoroiObj !== undefined )
+  }
+
+  static async yoroiIsEnabled()
+  {
+    if( !Wallet.hasYoroi() ) throw new WalletInterfaceError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+
+    Wallet._makeSureYoroiIsInjectedCorrectly();
+    if( await window.cardano?.yoroi.isEnabled() )
+    {
+      // sets the _flintExperimentalObj static property
+      Wallet.enableYoroi();
+      return true;
+    }
+    else return false;
+
+  }
+
+  static get Yoroi()
+  {
+    if( !Wallet.hasYoroi() ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi nigthly extension is not installed");
+    if( !Wallet.yoroiHasBeenEnabled ) throw new WalletInterfaceError("Wallet.enableYoroi has never been called before, can't access the Yoroi interface");
+
+    if( Wallet._yoroiInterface === undefined )
+    {
+      Wallet._yoroiInterface = private_makeWalletInterface( Wallet._yoroiObj, Wallet._api_key )
+    }
+
+    return Wallet._yoroiInterface;
+  }
 }
 
 function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key )
@@ -665,6 +757,136 @@ async function private_getCurrentUserDelegation( WalletProvider, blockfrost_proj
   return stake;
 };
 
+/**
+ * 
+ */
+let private_performedYoroiReInjection = false
+/**
+ * this function only injectsyoroi if the extension is present already
+ * this injection corrects some bugs present in the extension
+ */
+function private_injectYoroi()
+{
+  if( !window?.cardnao?.yoroi ) throw WalletProcessError("could not perform bug correction injection of yoroi if yoroi nightly is not installed");
+
+  var connectRequests = [];
+
+  window.addEventListener("message", function(event) {
+    if (event.data.type == "connector_connected") {
+      if (event.data.err !== undefined) {
+        connectRequests.forEach(promise => promise.reject(event.data.err));
+      } else {
+        const isSuccess = event.data.success;
+        connectRequests.forEach(promise => {
+            if (promise.protocol === 'cardano') {
+                if (isSuccess) {
+                    promise.resolve(event.data.auth);
+                } else {
+                    promise.reject(new Error('user reject'));
+                }
+            } else {
+                promise.resolve(isSuccess);
+            }
+        });
+      }
+    }
+  });
+
+  window.ergo_request_read_access = function() {
+    return new Promise(function(resolve, reject) {
+      window.postMessage({
+        type: "connector_connect_request/ergo",
+      }, location.origin);
+      connectRequests.push({ resolve: resolve, reject: reject });
+    });
+  };
+
+  window.ergo_check_read_access = function() {
+    if (typeof ergo !== "undefined") {
+      return ergo._ergo_rpc_call("ping", []);
+    } else {
+      return Promise.resolve(false);
+    }
+  };
+
+  // RPC setup
+  var cardanoRpcUid = 0;
+  var cardanoRpcResolver = new Map();
+
+  window.addEventListener("message", function(event) {
+    if (event.data.type == "connector_rpc_response" && event.data.protocol === "cardano") {
+      console.debug("page received from connector: " + JSON.stringify(event.data) + " with source = " + event.source + " and origin = " + event.origin);
+      const rpcPromise = cardanoRpcResolver.get(event.data.uid);
+      if (rpcPromise !== undefined) {
+        const ret = event.data.return;
+        if (ret.err !== undefined) {
+          rpcPromise.reject(ret.err);
+        } else {
+          rpcPromise.resolve(ret.ok);
+        }
+      }
+    }
+  });
+  
+  function cardano_rpc_call(func, params) {
+    return new Promise(function(resolve, reject) {
+      window.postMessage({
+        type: "connector_rpc_request",
+        protocol: "cardano",
+        uid: cardanoRpcUid,
+        function: func,
+        params: params
+      }, location.origin);
+      console.debug("cardanoRpcUid = " + cardanoRpcUid);
+      cardanoRpcResolver.set(cardanoRpcUid, { resolve: resolve, reject: reject });
+      cardanoRpcUid += 1;
+    });
+  }
+
+  function cardano_request_read_access(cardanoAccessRequest) {
+    const { requestIdentification, onlySilent } = (cardanoAccessRequest || {});
+    return new Promise(function(resolve, reject) {
+      window.postMessage({
+        type: "connector_connect_request/cardano",
+        requestIdentification,
+        onlySilent,
+      }, location.origin);
+      connectRequests.push({
+        protocol: 'cardano',
+        resolve: (auth) => {
+            resolve(Object.freeze(new CardanoAPI(auth, cardano_rpc_call)));
+        },
+        reject: reject
+      });
+    });
+  }
+
+  function cardano_check_read_access() {
+    if (typeof cardano !== "undefined") {
+      //return cardano._cardano_rpc_call("ping", []);
+      /**
+       * original call was ```cardano._cardano_rpc_call("ping", []);```
+       * however no such function is present until window.cardano.yoroi.enable() evaluates to true
+       * which makes useless "window.cardano.yoroi.isEnabled()" in this case
+       */
+      return cardano_rpc_call("ping", []);
+    } else {
+      return Promise.resolve(false);
+    }
+  }
+  
+  window.cardano = {
+    ...(window.cardano||{}),
+    'yoroi': {
+      enable: cardano_request_read_access,
+      isEnabled: cardano_check_read_access,
+      apiVersion: '0.2.0',
+      name: 'yoroi',
+    }
+  };
+  
+  private_performedYoroiReInjection = true;
+}
 
 // exports default
 module.exports = Wallet;
