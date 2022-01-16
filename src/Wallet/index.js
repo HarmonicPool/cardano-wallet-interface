@@ -63,7 +63,7 @@ class Wallet
     */
    static _flintExperimentalInterface = undefined;
 
-   // ---------------------------------------- flint objects ---------------------------------------- //
+   // ---------------------------------------- yoroi objects ---------------------------------------- //
 
   /**
    * @private
@@ -74,6 +74,18 @@ class Wallet
     * @private
     */
     static _yoroiInterface = undefined;
+
+    // ---------------------------------------- gero objects ---------------------------------------- //
+
+  /**
+   * @private
+   */
+   static _geroObj = undefined;
+
+   /**
+   * @private
+   */
+   static _geroInterface = undefined;
 
   // ---------------------------------------- wallet utils ---------------------------------------- //
 
@@ -421,6 +433,82 @@ class Wallet
 
     return Wallet._yoroiInterface;
   }
+
+  // ---------------------------------------- gerowallet ---------------------------------------- //
+
+  static hasGero()
+  {
+    Wallet._assertBrowser();
+    
+    return !!window.cardano?.gerowallet;
+  }
+
+  static pageIsGeroWalletFriendly()
+  {
+    const thisDomainSplitted = window.location.hostname
+    .split(".") ;
+
+    return geroWalletFriendlyDomains.includes(
+      thisDomainSplitted.filter( (_, i) => ( i === thisDomainSplitted.length - 1 || i === thisDomainSplitted.length - 2) ).join(".")
+    );
+  }
+
+  static async enableGero()
+  {
+    // Wallet._assertBrowser(); include in Wallet.hasGero()
+    if( !Wallet.hasGero() ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
+
+    try
+    {
+      
+      Wallet._geroObj = await window.cardano.gerowallet.enable();
+      Wallet._geroObj = {
+        ...Wallet._geroObj,
+        enable: window.cardano.gerowallet.enable,
+        isEnabled: window.cardano.gerowallet.isEnabled
+      }
+    }
+    catch (e)
+    {
+      console.warn("could not enable Gero");
+      Wallet._geroObj = undefined;
+      throw e;
+    }
+  }
+
+  static get geroHasBeenEnabled()
+  {
+    return ( Wallet._geroObj !== undefined )
+  }
+
+  static async geroIsEnabled()
+  {
+    if( !Wallet.hasGero() ) throw new WalletInterfaceError("can't access the Gero object if the gero wallet extension is not installed");
+
+
+    if( await window.cardano?.gerowallet.isEnabled() )
+    {
+      // sets the _geroObj static property
+      Wallet.enableGero();
+      return true;
+    }
+    else return false;
+
+  }
+
+  static get Gero()
+  {
+    if( !Wallet.hasGero() ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
+    if( !Wallet.geroHasBeenEnabled ) throw new WalletInterfaceError("Wallet.enableGero has never been called before, can't access the Gero interface");
+
+    if( Wallet._geroInterface === undefined )
+    {
+      Wallet._geroInterface = private_makeWalletInterface( Wallet._yoroiObj, Wallet._api_key )
+    }
+
+    return Wallet._geroInterface;
+  }
+
 }
 
 function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key )
@@ -890,3 +978,113 @@ function private_injectYoroi()
 
 // exports default
 module.exports = Wallet;
+
+
+const geroWalletFriendlyDomains = [
+  "3air.io",
+  "aada.finance",
+  "ada-quest.com",
+  "adadomains.io",
+  "adafinance.io",
+  "adahandle.com",
+  "adalend.finance",
+  "adanft.app",
+  "adanize.com",
+  "adapay.finance",
+  "adaswap.app",
+  "adatokenizer.io",
+  "adax.pro",
+  "adazine.com",
+  "adazoo.com",
+  "ardana.org",
+  "artano.io",
+  "artifct.app",
+  "astarter.io",
+  "bearsclub.io",
+  "beyondrockets.city",
+  "bingochain.io",
+  "bondly.finance",
+  "canucks-publishing.com",
+  "cardahub.io",
+  "cardano4speed.com",
+  "cardanotales.com",
+  "cardanowarriors.io",
+  "cardax.io",
+  "cardingo.io",
+  "cardstarter.io",
+  "centaurify.com",
+  "charli3.io",
+  "chibidangoheroes.com",
+  "cnft.io",
+  "cnft.tools",
+  "coinlink.finance",
+  "cornucopias.io",
+  "coti.io",
+  "credefi.finance",
+  "cryptodino.io",
+  "dcspark.io",
+  "defire.fi",
+  "do.exchange",
+  "don-key.finance",
+  "dracards.com",
+  "dripdropz.io",
+  "drunkendragon.games",
+  "duelistking.com",
+  "empowa.io",
+  "ergodex.io",
+  "everlens.io",
+  "flur.ee",
+  "gada.finance",
+  "galactico.app",
+  "galaxyof.art",
+  "gamingcardano.com",
+  "genesishouse.io",
+  "geniusyield.co",
+  "hashguardians.io",
+  "husky-swap.io",
+  "indigoprotocol.io",
+  "jpg.store",
+  "kick.io",
+  "koios.rest",
+  "kubecoin.org",
+  "lilgoats.io",
+  "liqwid.finance",
+  "liqwid.finance",
+  "lovada.art",
+  "maladex.com",
+  "martify.io",
+  "matrixswap.io",
+  "matrixswap.io",
+  "mechverse.co",
+  "meld.com",
+  "meowswap.fi",
+  "meowswap.fi",
+  "minswap.org",
+  "mirqur.io",
+  "muesliswap.com",
+  "myhomeplanet.io",
+  "nexo.io",
+  "nftjam.io",
+  "optim.finance",
+  "paribus.io",
+  "pavia.io",
+  "payment.nft-maker.io",
+  "pixellinks.golf",
+  "planetpalz.io",
+  "playermint.com",
+  "raynetwork.io",
+  "ridotto.io",
+  "rraayy.com",
+  "scatdao.com",
+  "spacetimemeta.io",
+  "spinada.cash",
+  "sundaeswap.finance",
+  "tangocrypto.com",
+  "theos.fi",
+  "tokhun.io",
+  "txgalactic.io",
+  "vyfi.io",
+  "wayacollective.com",
+  "worldmobile.io",
+  "worldofpirates.io",
+]
