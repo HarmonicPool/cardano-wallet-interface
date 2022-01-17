@@ -65,12 +65,15 @@ declare class Wallet {
 
     /**
      * sync version of ```Wallet.getProtocolParameters```
-     * @throws {WalletError} if no protocolParameters object was found
+     * @throws {WalletInterfaceError} if no protocolParameters object was found
      * prefer ```await Wallet.getProtocolParameters()``` if possible
      */
     static get protocolParameters() : Wallet.TransactionProtocolParameters
    
-
+    static has( wallet : symbol ) : boolean;
+    static enable( wallet : symbol ) : Promise<void>;
+    static isEnabled( wallet : symbol ) : Promise<boolean>;
+    static isAviable( wallet : symbol ) : boolean;
 
     // ---------------------------------------- Nami ---------------------------------------- //
 

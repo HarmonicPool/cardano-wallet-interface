@@ -1,6 +1,11 @@
 import Wallet from "..";
 
 /**
+ * set of valid wallet names
+ */
+const walletNames: Readonly<Array<string>>;
+
+/**
  * 
  * @param walletNameEnum member of the WalleName enum object
  * @returns {Wallet.WalletStringName}
@@ -16,5 +21,6 @@ function getWalletNameFromString( string: Wallet.WalletStringName ) : symbol;
 
 export default {
     getStringFromWalletName,
-    getWalletNameFromString
+    getWalletNameFromString,
+    walletNames
 }

@@ -1,13 +1,13 @@
 const WalletInterfaceError = require("../../errors/WalletInterfaceError/WalletInterfaceError");
 const WalletName =  require("./index");
 
-const walletNames = [
+const walletNames = Object.freeze([
     "Nami",
     "ccvault",
     "Flint Experimental",
     "yoroi",
     "GeroWallet"
-]
+]);
 
 function getStringFromWalletName( walletNameEnum )
 {
@@ -42,12 +42,13 @@ function getWalletNameFromString( string )
         case "yoroi":               return WalletName.Yoroi;
         case "GeroWallet":          return WalletName.Gero;
 
-        default:
+        default: // should never get here
             throw invalidString;
     }
 }
 
 module.exports = {
     getStringFromWalletName,
-    getWalletNameFromString
+    getWalletNameFromString,
+    walletNames
 }

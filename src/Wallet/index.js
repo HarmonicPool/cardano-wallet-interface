@@ -149,6 +149,10 @@ class Wallet
     return Wallet._protocolParameters;
   }
 
+  // static has( wallet );
+  // static async enable( wallet );
+  // static async isEnabled( wallet );
+  // static isAviable( wallet );
 
   // ---------------------------------------- Nami ---------------------------------------- //
 
