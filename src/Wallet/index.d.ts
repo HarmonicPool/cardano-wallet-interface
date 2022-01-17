@@ -180,7 +180,7 @@ declare class Wallet {
 
 declare namespace Wallet {
 
-    export type WalletName = "nami" | "ccvault" | "flintExperimental";
+    export type WalletStringName = "Nami" | "ccvault" | "Flint Experimental" | "yoroi" | "GeroWallet" ;
 
     export namespace CardanoTypes {
         export type BaseAddress = string
