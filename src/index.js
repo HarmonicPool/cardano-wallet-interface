@@ -1,9 +1,19 @@
 
 const Wallet = require("./Wallet/index");
+const WalletName = require("./Wallet/WalletName")
+const {
+    getWalletNameFromString,
+    getStringFromWalletName,
+    walletNames
+} =  require("./Wallet/WalletName/utils");
 
-// allows import { Wallet } from "@harmonicpool/cardano-wallet-interface";
-Wallet.Wallet = Wallet;
-// for strict ES Module import Wallet from "@harmonicpool/cardano-wallet-interface";
-Wallet.default  = Wallet;
+module.exports.default = Wallet
 
-module.exports = Wallet
+module.exports = {
+    Wallet,
+    ...WalletNameImport,
+    WalletName,
+    getWalletNameFromString,
+    getStringFromWalletName,
+    walletNames
+}

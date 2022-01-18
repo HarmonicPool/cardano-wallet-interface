@@ -14,8 +14,15 @@ const FlintExperimentalError  = require("../errors/WalletInterfaceError/WalletPr
 const WalletError             = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError");
 const WalletProcessError      = require("../errors/WalletInterfaceError/WalletProcessError/WalletProcessError");
 
-let private_walletInterface_hasBlockFrost = false;
+const { WalletName } = require("./WalletName")
+const { getStringFromWalletName, walletNames } =  require("./WalletName/utils");
 
+function private_warnDeprecated(altSuggestion)
+{
+  console.warn("this mthod will be deprecated soon" + ( altSuggestion ? ", please consider using " + altSuggestion + " instead" : "") );
+}
+
+let private_walletInterface_hasBlockFrost = false;
 class Wallet
 {
   /**
@@ -144,49 +151,202 @@ class Wallet
 
   static get protocolParameters()
   {
-    if( !Wallet.hasProtocolParameters() ) throw new WalletError("protocoloParameters never checked before, call the async version Wallet.getProtocolParameters first");
+    if( !Wallet.hasProtocolParameters() ) throw new WalletError("protocolParameters never checked before, call the async version Wallet.getProtocolParameters first");
     
     return Wallet._protocolParameters;
   }
 
-  // static has( wallet );
-  // static async enable( wallet );
-  // static async isEnabled( wallet );
-  // static isAviable( wallet );
+  // ----------------------------------------------- Wallet common --------------------------------------------------- //
+
+  static _assertWalletNameIsSym( walletSymbol )
+  {
+    if( typeof walletSymbol !== "symbol" ) throw WalletProcessError("a wallet identifier must be a member of the WalletName enumeration");
+  }
+
+  static _assertWalletExtensionInjected( walletSymbol )
+  {
+    Wallet._assertWalletNameIsSym( walletSymbol );
+    const wName = getStringFromWalletName( walletSymbol );
+
+    if( !Wallet.has( walletSymbol ) ) throw new WalletError("can't access the "+wName+" object if the "+wName+" extension is not installed");
+  }
+  
+  /**
+   * 
+   * @param {symbol} wallet 
+   * @returns {boolean} ```true``` if the extension has been injected, ```false``` otherwise
+   */
+  static has( wallet )
+  {
+    Wallet._assertBrowser();
+    Wallet._assertWalletNameIsSym( wallet );
+
+    switch( wallet )
+    {
+      case WalletName.Nami:               return !!window?.cardano?.nami;
+      case WalletName.CCVault:            return !!window?.cardano?.ccvault;
+      case WalletName.FlintExperimental:  return !!window?.cardano?.flintExperimental;
+      case WalletName.Yoroi:              return !!window?.cardano?.yoroi;
+      case WalletName.Gero:               return !!window?.cardano?.gerowallet;
+
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+  
+  /**
+   * 
+   * @param {symbol} wallet 
+   */
+  static async enable( wallet )
+  {
+    Wallet._assertWalletExtensionInjected( wallet );
+
+    switch( wallet )
+    {
+      case WalletName.Nami:               
+        Wallet._namiObj = await window.cardano.nami.enable();
+        return; break;
+
+      case WalletName.CCVault:            
+        Wallet._ccvaultObj = await window.cardano.ccvault.enable();
+        return; break;
+
+      case WalletName.FlintExperimental:
+        Wallet._assertFlintExperimentalOnly() 
+        Wallet._flintExperimentalObj = await window.cardano.flintExperimental.enable();
+        return; break;
+
+      case WalletName.Yoroi:              
+        Wallet._yoroiObj = await window.cardano.yoroi.enable();
+        return; break;
+
+      case WalletName.Gero:               
+        Wallet._geroObj = await window.cardano.gerowallet.enable();
+        return; break;
+
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+
+  /**
+   * 
+   * @param {symbol} wallet
+   * @returns {boolean} ```true``` if the user wallet is connected, ```false``` otherwise
+   */
+  static async isEnabled( wallet )
+  {
+    Wallet._assertWalletExtensionInjected( wallet );
+
+    switch( wallet )
+    {
+      case WalletName.Nami:               
+        if( await window.cardano.nami.isEnabled() )
+        {
+          Wallet.enable( wallet );
+          return true;
+        }
+        else
+        {
+          return false;
+        };
+        return; break;
+        
+      case WalletName.CCVault:            
+        if( await window.cardano.ccvault.isEnabled() )
+        {
+          Wallet.enable( wallet );
+          return true;
+        }
+        else
+        {
+          return false;
+        };
+        return; break;
+        
+      case WalletName.FlintExperimental:
+        Wallet._assertFlintExperimentalOnly();
+        if( await window.cardano.flintExperimental.isEnabled() )
+        {
+          Wallet.enable( wallet );
+          return true;
+        }
+        else
+        {
+          return false;
+        };
+        return; break;
+        
+      case WalletName.Yoroi:              
+        if( await window.cardano.yoroi.isEnabled() )
+        {
+          Wallet.enable( wallet );
+          return true;
+        }
+        else
+        {
+          return false;
+        };
+        return; break;
+        
+      case WalletName.Gero:               
+        if( await window.cardano.gerowallet.isEnabled() )
+        {
+          Wallet.enable( wallet );
+          return true;
+        }
+        else
+        {
+          return false;
+        };
+        return; break;
+        
+
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+
+  /**
+   * 
+   * @param {symbol} wallet 
+   */
+  static isAviable( wallet )
+  {
+    // Wallet._assertBrowser() not needed since checks into the Wallet class only
+    Wallet._assertWalletNameIsSym( wallet );
+
+    switch( wallet )
+    {
+      case WalletName.Nami:               return ( Wallet._namiObj !== undefined );
+      case WalletName.CCVault:            return ( Wallet._ccvaultObj !== undefined );
+      case WalletName.FlintExperimental:  return ( Wallet._flintExperimentalObj !== undefined );
+      case WalletName.Yoroi:              return ( Wallet._yoroiObj !== undefined );
+      case WalletName.Gero:               return ( Wallet._geroObj !== undefined );
+
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
 
   // ---------------------------------------- Nami ---------------------------------------- //
 
   /**
-   * 
+   * @deprecated use Wallet.has( WalletName.Nami ) instead
    * @returns {boolean} true if the nami extension has injected the window.cardano.enable function; false otherwise
    */
   static hasNami()
   {
     Wallet._assertBrowser();
+    private_warnDeprecated("Wallet.has( WalletName.Nami )");
 
-    // if only ccvault was installed but not nami
-    // then window.cardano would still be defined but containing onli the ccvault object
-    // here I check for window.cardano.enable to be defined but could be any function defined
-    // by the nami extension
-    // DEPRECATED SINCE FLINT_EXPERIMENTAL return ( typeof window.cardano?.enable !== "undefined" );
-
-    const tmpEvtController = window.cardano?.onAccountChange(console.log);
-
-    // since from the addition of FlintExperimental window.cardano.enable gets ingìjected too is no more a valid way to check for nami
-    // if Nami is injected correctly the return type of window.cardano?.onAccountChange(<anyFunc>) is {Wallet.NamiEventController} object
-    // if Nami is not injected but flintEcperimental is, the return type is undefined.
-    if ( typeof tmpEvtController !== "undefined" )
-    {
-      tmpEvtController.remove();
-      return true;
-    }
-
-    return false;
+    return !!window?.cardano?.nami;
   }
 
+  /**
+   * @deprecated use Wallet.enable( WalletName.Nami ) instead
+   */
   static async enableNami()
   {
     if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
+    private_warnDeprecated("Wallet.enable( WalletName.Nami )")
 
     if( await window.cardano.isEnabled() || await window.cardano.enable() )
       Wallet._namiObj = window.cardano;
@@ -194,14 +354,23 @@ class Wallet
       Wallet._namiObj = undefined;
   }
 
+  /**
+   * @deprecated use Wallet.isAviable( WalletName.Nami ) instead
+   */
   static get namiHasBeenEnabled()
   {
+    private_warnDeprecated("Wallet.isAviable( WalletName.Nami )");
     return ( Wallet._namiObj !== undefined )
   }
 
+  /**
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.Nami ) instead
+   */
   static async namiIsEnabled()
   {
-    if( !Wallet.hasNami() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+    if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the Nami extension is not installed");
+    private_warnDeprecated("Wallet.isEnabled( WalletName.Nami )")
 
     if( await window.cardano?.isEnabled() )
     {
@@ -228,19 +397,24 @@ class Wallet
   
   // ---------------------------------------- ccvault ---------------------------------------- //
   /**
-   * 
+   * @deprecated use Wallet.has( WalletName.CCVault ) instead
    * @returns {boolean} true if the ccvault extension has injected the window.cardano.ccvault object; false otherwise
    */
   static hasCCVault()
   {
     Wallet._assertBrowser();
+    private_warnDeprecated("Wallet.has( WalletName.CCVault )");
 
     return !!window.cardano?.ccvault;
   }
 
+  /**
+   * @deprecated use Wallet.enable( WalletName.CCVault ) instead
+   */
   static async enableCCVault()
   {
     if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+    private_warnDeprecated("Wallet.enable( WalletName.CCVault )")
 
     try
     {
@@ -254,14 +428,23 @@ class Wallet
     }
   }
 
+  /**
+   * @deprecated use Wallet.isAviable( WalletName.CCVault ) instead
+   */
   static get ccvaultHasBeenEnabled()
   {
+    private_warnDeprecated("Wallet.isAviable( WalletName.CCVault )")
     return ( Wallet._ccvaultObj !== undefined )
   }
 
+  /**
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.CCVault ) instead
+   */
   static async ccvaultIsEnabled()
   {
     if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+    private_warnDeprecated("Wallet.isEnabled( WalletName.CCVault )")
 
     if( await window.cardano?.ccvault.isEnabled() )
     {
@@ -290,29 +473,33 @@ class Wallet
 
   static _assertFlintExperimentalOnly()
   {
-    if( Wallet.hasNami() || Wallet.hasCCVault() )
+    if( Wallet.hasNami() || Wallet.hasCCVault() ||  Wallet.hasGero() || Wallet.hasYoroi() )
     throw new FlintExperimentalError(
       "flintExperimental only works if is the only extension injected, please ask to disable all other cardano wallets extension and to refresh the page in order to work with flintExperimental"
     );
   }
 
   /**
-   * 
+   * @deprecated use Wallet.has( WalletName.FlintExperimental ) instead
    * @returns {boolean} true if the flintExperimental extension has injected the window.cardano.flintExperimental object; false otherwise
    */
   static hasFlintExperimental()
   {
     Wallet._assertBrowser();
     Wallet._assertFlintExperimentalOnly();
+    private_warnDeprecated("Wallet.has( WalletName.FlintExperimental )");
 
     return !!window.cardano?.flintExperimental;
   }
  
+  /**
+   * @deprecated use Wallet.enable( WalletName.FlintExperimental ) instead
+   */
   static async enableFlintExperimental()
   {
     Wallet._assertFlintExperimentalOnly();
     if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
-
+    private_warnDeprecated("Wallet.enable( WalletName.FlintExperimental )")
     try
     {
       let enableResult = await window.cardano?.flintExperimental.enable();
@@ -330,16 +517,25 @@ class Wallet
     }
   }
  
+  /**
+   * @deprecated use Wallet.isAviable( WalletName.FlintExperimental ) instead
+   */
   static get flintExperimentalHasBeenEnabled()
   {
     Wallet._assertFlintExperimentalOnly();
+    private_warnDeprecated("Wallet.isAviable( WalletName.FlintExperimental )")
     return ( Wallet._flintExperimentalObj !== undefined )
   }
 
+  /**
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.FlintExperimental ) instead
+   */
   static async flintExperimentalIsEnabled()
   {
     Wallet._assertFlintExperimentalOnly();
     if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+    private_warnDeprecated("Wallet.isEnabled( WalletName.FlintExperimental )")
 
     if( await window.cardano?.flintExperimental.isEnabled() )
     {
@@ -366,6 +562,11 @@ class Wallet
   }
 
   // ---------------------------------------- yoroi ---------------------------------------- //
+  /**
+   * temporary workaround
+   * @todo update as soon yoroi fixes what he has to fix
+   * TODO
+   */
   static _makeSureYoroiIsInjectedCorrectly()
   {
     Wallet._assertBrowser();
@@ -376,16 +577,25 @@ class Wallet
     }
   }
 
+  /**
+   * 
+   * @deprecated use Wallet.has( WalletName.Yoroi ) instead
+   */
   static hasYoroi()
   {
     Wallet._assertBrowser();
+    private_warnDeprecated("Wallet.has( WalletName.Yoroi )")
     
     return !!window.cardano?.yoroi;
   }
 
+  /**
+   * @deprecated use Wallet.enable( WalletName.Yoroi ) instead
+   */
   static async enableYoroi()
   {
     if( !Wallet.hasYoroi() ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi extension is not installed");
+    private_warnDeprecated("Wallet.enable( WalletName.Yoroi )")
 
     try
     {
@@ -405,14 +615,23 @@ class Wallet
     }
   }
 
+  /**
+   * @deprecated use Wallet.isAviable( WalletName.Yoroi ) instead
+   */
   static get yoroiHasBeenEnabled()
   {
+    private_warnDeprecated("Wallet.isAviable( WalletName.Yoroi )")
     return ( Wallet._yoroiObj !== undefined )
   }
 
+  /**
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.Yoroi ) instead
+   */
   static async yoroiIsEnabled()
   {
     if( !Wallet.hasYoroi() ) throw new WalletInterfaceError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+    private_warnDeprecated("Wallet.isEnabled( WalletName.Yoroi )")
 
     Wallet._makeSureYoroiIsInjectedCorrectly();
     if( await window.cardano?.yoroi.isEnabled() )
@@ -440,9 +659,14 @@ class Wallet
 
   // ---------------------------------------- gerowallet ---------------------------------------- //
 
+  /**
+   * 
+   * @deprecated use Wallet.has( WalletName.Gero ) instead
+   */
   static hasGero()
   {
     Wallet._assertBrowser();
+    private_warnDeprecated("Wallet.has( WalletName.Gero )");
     
     return !!window.cardano?.gerowallet;
   }
@@ -457,11 +681,14 @@ class Wallet
     );
   }
 
+  /**
+   * @deprecated use Wallet.enable( WalletName.Gero ) instead
+   */
   static async enableGero()
   {
     // Wallet._assertBrowser(); include in Wallet.hasGero()
     if( !Wallet.hasGero() ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
-
+    private_warnDeprecated("Wallet.enable( WalletName.Gero )")
     try
     {
       
@@ -485,10 +712,14 @@ class Wallet
     return ( Wallet._geroObj !== undefined )
   }
 
+  /**
+   * 
+   * @deprecated use Wallet.isEnabled( WalleName.Gero ) instead
+   */
   static async geroIsEnabled()
   {
     if( !Wallet.hasGero() ) throw new WalletInterfaceError("can't access the Gero object if the gero wallet extension is not installed");
-
+    private_warnDeprecated("Wallet.isEnabled( WalleName.Gero )")
 
     if( await window.cardano?.gerowallet.isEnabled() )
     {
@@ -514,6 +745,12 @@ class Wallet
   }
 
 }
+
+
+
+// ---------------------------------------------------- private --------------------------------------------------------- //
+
+
 
 function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key )
 {
