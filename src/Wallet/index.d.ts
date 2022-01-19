@@ -5,6 +5,7 @@
 import { Transaction, TransactionUnspentOutput, TransactionWitnessSet } from "@emurgo/cardano-serialization-lib-browser";
 import { Buffer } from "buffer";
 
+
 export as namespace Wallet;
 export = Wallet;
 
@@ -22,6 +23,19 @@ declare class Wallet {
     private static _ccvaultObj?: Wallet.RawCIP30WalletInterface;
     
     private static _CCVaultInterface?: Wallet.WalletInterface;
+
+    private static _flintExperimentalObj?: Wallet.RawCIP30WalletInterface;
+    
+    private static _flintExperimentalInterface?: Wallet.WalletInterface;
+
+    private static _yoroiObj?: Wallet.RawCIP30WalletInterface;
+
+    private static _yoroiInterface?: Wallet.WalletInterface;
+
+    private static _geroObj?: Wallet.RawCIP30WalletInterface;
+
+    private static _geroInterface?: Wallet.WalletInterface;
+
 
     /**
      * checks for a defined window object
@@ -70,70 +84,87 @@ declare class Wallet {
      */
     static get protocolParameters() : Wallet.TransactionProtocolParameters
    
-    static has( wallet : symbol ) : boolean;
-    static enable( wallet : symbol ) : Promise<void>;
-    static isEnabled( wallet : symbol ) : Promise<boolean>;
-    static isAviable( wallet : symbol ) : boolean;
+    /**
+     * 
+     * @param {Wallet.WalletName} wallet member of the WalletName enumerative object
+     * @returns {boolean} ```true``` of the extension has been injected, ```false``` otherwise
+     */
+    static has( wallet : Wallet.WalletName ) : boolean;
+
+    /**
+     * 
+     * @param {Wallet.WalletName} wallet member of the WalletName enumerative object
+     */
+    static enable( wallet : Wallet.WalletName ) : Promise<void>;
+
+    /**
+     * calls internally the ```isEnabled()``` defined in the CIP-0030
+     * if the promise result is true then the WalletInterface accessor will be aviable without the need to call ```Wallet.enable( WalletName.Wallet )```.
+     * may be useful to understand when a user has already connected the given wallet to the website in a previous session
+     * @param {Wallet.WalletName} wallet member of the WalletName enumerative object
+     * @returns {Promise<boolean>} same as window.cardano.isEnabled()
+     */
+    static isEnabled( wallet : Wallet.WalletName ) : Promise<boolean>;
+
+    /**
+     * 
+     * @param {Wallet.WalletName} wallet member of the WalletName enumerative object
+     * @returns {boolean} if the WalletInterface object is aviable
+     */
+    static isAviable( wallet : Wallet.WalletName ) : boolean;
 
     // ---------------------------------------- Nami ---------------------------------------- //
 
     /**
-     * checks if the nami extension is aviable
-     * @returns {boolean} true if the nami extension has injected the window.cardano.enable function; false otherwise
-     */
+   * @deprecated use Wallet.has( WalletName.Nami ) instead
+   * @returns {boolean} true if the nami extension has injected the window.cardano.enable function; false otherwise
+   */
     static hasNami(): boolean
     
     /**
-     * tries to call ```.enable()``` on the chosen wallet, if successful makes aviable the accessor ```Wallet.{Wallet}```
-     */
+   * @deprecated use Wallet.enable( WalletName.Nami ) instead
+   */
     static enableNami(): Promise<void>
 
     /**
-     * NOTE the result of this accessor may differ from calling Wallet.{wallet}IsEnabled()
-     * only checks if the ```Wallet.{Wallet}``` is accessible
-     * @returns {boolean} ```true``` if the ```Wallet.{Wallet}``` is accessible, ```false``` otherwise
-     */
+   * @deprecated use Wallet.isAviable( WalletName.Nami ) instead
+   */
     static get namiHasBeenEnabled() : boolean
 
+    
     /**
-     * calls internally the ```isEnabled()``` defined in the CIP-0030
-     * if the promise result is true then the ```Wallet.Nami``` accessor will be aviable without the need to call ```Wallet.enable{Wallet}()```.
-     * may be useful to understand when a user has already connected the given wallet to the website in a previous session
-     * @returns {Promise<boolean>} same as window.cardano.isEnabled()
-     */
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.Nami ) instead
+   */
     static namiIsEnabled(): Promise<boolean>
 
     /**
      * 
      */
-    static get Nami() : Wallet.NamiInterface
+    static get Nami() : Wallet.WalletInterface
 
     
     // ---------------------------------------- ccvault ---------------------------------------- //
     /**
-     * checks if the ccvault extension is aviable
-     * @returns {boolean} true if the ccvault extension has injected the window.cardano.ccvault object; false otherwise
-     */
+   * @deprecated use Wallet.has( WalletName.CCVault ) instead
+   * @returns {boolean} true if the ccvault extension has injected the window.cardano.ccvault object; false otherwise
+   */
     static hasCCVault(): boolean
 
     /**
-     * tries to call ```window.cardano.ccvault.enable()``` if successful makes aviable the accessor ```Wallet.{Wallet}```
-     */
+   * @deprecated use Wallet.enable( WalletName.CCVault ) instead
+   */
     static enableCCVault(): Promise<void>
 
     /**
-     * NOTE the result of this accessor may differ from calling Wallet.ccvaultIsEnabled()
-     * only checks if the ```Wallet.CCVault``` is accessible
-     * @returns {boolean} ```true``` if the ```Wallet.CCVault``` is accessible, ```false``` otherwise
-     */
+   * @deprecated use Wallet.isAviable( WalletName.CCVault ) instead
+   */
     static get ccvaultHasBeenEnabled(): boolean
 
     /**
-     * calls internally the ```isEnabled()``` defined in the CIP-0030
-     * if the promise result is true then the ```Wallet.CCVault``` accessor will be aviable without the need to call ```Wallet.enableCCVault()```.
-     * may be useful to understand when a user has already connected the given wallet to the website in a previous session
-     * @returns {Promise<boolean>} same as window.cardano.ccvault.isEnabled()
-     */
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.CCVault ) instead
+   */
     static ccvaultIsEnabled(): Promise<boolean>
 
     /**
@@ -150,38 +181,85 @@ declare class Wallet {
     static _assertFlintExperimentalOnly() : void
 
     /**
-     * checks if the flintExperimental extension is aviable
-     * @returns {boolean} true if the flintExperimental extension has injected the window.cardano.flintExperimental object; false otherwise
-     */
+   * @deprecated use Wallet.has( WalletName.FlintExperimental ) instead
+   * @returns {boolean} true if the flintExperimental extension has injected the window.cardano.flintExperimental object; false otherwise
+   */
     static hasFlintExperimental() : boolean
 
     /**
-     * tries to call ```window.cardano.flintExperimental.enable()``` if successful makes aviable the accessor ```Wallet.{Wallet}```
-     */
+   * @deprecated use Wallet.enable( WalletName.FlintExperimental ) instead
+   */
     static enableFlintExperimental(): Promise<void>
 
     /**
-     * NOTE the result of this accessor may differ from calling Wallet.flintExperimentalIsEnabled()
-     * only checks if the ```Wallet.FlintExperimental``` is accessible
-     * @returns {boolean} ```true``` if the ```Wallet.FlintExperimental``` is accessible, ```false``` otherwise
-     */
+   * @deprecated use Wallet.isAviable( WalletName.FlintExperimental ) instead
+   */
     static get flintExperimentalHasBeenEnabled(): boolean
 
     /**
-     * calls internally the ```isEnabled()``` defined in the CIP-0030
-     * if the promise result is true then the ```Wallet.FlintExperimental``` accessor will be aviable without the need to call ```Wallet.enableFlintExperimental()```.
-     * may be useful to understand when a user has already connected the given wallet to the website in a previous session
-     * @returns {Promise<boolean>} same as window.cardano.flintExperimental.isEnabled()
-     */
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.FlintExperimental ) instead
+   */
     static flintExperimentalIsEnabled(): Promise<boolean>
 
     static get FlintExperimental(): Wallet.WalletInterface
 
+
+    /**
+   * 
+   * @deprecated use Wallet.has( WalletName.Yoroi ) instead
+   */
+    static hasYoroi(): boolean
+        
+    /**
+     * @deprecated use Wallet.enable( WalletName.Yoroi ) instead
+     */
+    static enableYoroi(): Promise<void>
+
+    /**
+     * @deprecated use Wallet.isAviable( WalletName.Yoroi ) instead
+     */
+    static get yoroiHasBeenEnabled(): boolean
+
+    /**
+     * 
+     * @deprecated use Wallet.isEnabled( WalletName.Yoroi ) instead
+     */
+    static yoroiIsEnabled(): Promise<boolean>
+
+    static get Yoroi(): Wallet.WalletInterface
+
+    // ---------------------------------------- gerowallet ---------------------------------------- //
+
+    /**
+     * 
+     * @deprecated use Wallet.has( WalletName.Gero ) instead
+     */
+    static hasGero(): boolean
+
+    static pageIsGeroWalletFriendly(): boolean
+
+    /**
+     * @deprecated use Wallet.enable( WalletName.Gero ) instead
+     */
+    static enableGero(): Promise<void>
+
+    static get geroHasBeenEnabled(): boolean
+
+    /**
+     * 
+     * @deprecated use Wallet.isEnabled( WalleName.Gero ) instead
+     */
+    static geroIsEnabled(): Promise<boolean>
+
+    static get Gero(): Wallet.WalletInterface
 }
 
 
 
 declare namespace Wallet {
+
+    export type WalletName = symbol;
 
     export type WalletStringName = "Nami" | "ccvault" | "Flint Experimental" | "yoroi" | "GeroWallet" ;
 
@@ -202,25 +280,30 @@ declare namespace Wallet {
     export type Sig_structure = any;
 
     export interface RawCIP30WalletInterface {
-        enable: () => Promise<any>,
-        isEnabled: () => Promise<boolean>,
-        apiVersion?: string,
-        name?: string,
-        icon?: string,
+        /**
+         * may vary depending from the extension
+         */
+        exerimental: object
+        //enable: () => Promise<any>,
+        //isEnabled: () => Promise<boolean>,
+        //apiVersion?: string,
+        //name?: string,
+        //icon?: string,
         getNetworkId: () => Promise<number>,
-        getUtxos:(amount?: cbor<value>, paginate?: Paginate) => Promise<TransactionUnspentOutput[] | undefined>,
         getBalance: () => Promise<cbor<value>>,
         getUsedAddresses: (paginate?: Paginate) => Promise<cbor<address>[]>,
         getUnusedAddresses: () => Promise<cbor<address>[]>,
         getChangeAddress: () => Promise<cbor<address>>,
         getRewardAddresses: () => Promise<cbor<address>[]>,
+        getUtxos:(amount?: cbor<value>, paginate?: Paginate) => Promise<TransactionUnspentOutput[] | undefined>,
         signTx: (tx: cbor<Transaction>, partialSign: boolean ) => Promise<cbor<TransactionWitnessSet>>,
         signData: (addr: cbor<address>, sigStructure: cbor<Sig_structure>) => Promise<Bytes>,
         submitTx: (tx: cbor<Transaction>) => Promise<hash32>
     }
 
-    export interface WalletInterface extends RawCIP30WalletInterface
+    export interface WalletInterface
     {
+        raw: RawCIP30WalletInterface;
         getCurrentUserDelegation: ( blockfrost_project_id?: string ) => Promise<object>,
         createDelegagtionTransaction: ( targetPoolId?: string, blockfrost_project_id?: string) => Promise<Transaction>,
         signTransaction: ( transactionToSign: Transaction ) => Promise<Transaction>,
@@ -229,6 +312,7 @@ declare namespace Wallet {
         delegateTo: ( targetPoolId: string, blockfrost_project_id?: string ) => Promise<string>
     }
 
+    /*
     export interface NamiEventController
     {
         remove: () => void
@@ -239,4 +323,5 @@ declare namespace Wallet {
         onAccountChange: ( callback: (addresses : [CardanoTypes.BaseAddress]) => void ) => NamiEventController
         onNetworkChange: ( callback: (network : number) => void ) => NamiEventController
     }
+    */
 }

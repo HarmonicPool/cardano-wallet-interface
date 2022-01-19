@@ -212,8 +212,14 @@ class Wallet
         return; break;
 
       case WalletName.FlintExperimental:
-        Wallet._assertFlintExperimentalOnly() 
-        Wallet._flintExperimentalObj = await window.cardano.flintExperimental.enable();
+        Wallet._assertFlintExperimentalOnly();
+
+        // this should be the right piece of code however flin experimental 0.10.0 uses the global cardano object instead
+        // expected fix in 0.12.0
+        //Wallet._flintExperimentalObj = await window.cardano.flintExperimental.enable();
+        window.cardano.flintExperimental.enable();
+
+        Wallet._flintExperimentalObj = window.cardano;
         return; break;
 
       case WalletName.Yoroi:              
@@ -348,10 +354,14 @@ class Wallet
     if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
     private_warnDeprecated("Wallet.enable( WalletName.Nami )")
 
-    if( await window.cardano.isEnabled() || await window.cardano.enable() )
-      Wallet._namiObj = window.cardano;
-    else
+    try
+    {
+      Wallet._namiObj = await window.cardano.enable();
+    }
+    catch
+    {
       Wallet._namiObj = undefined;
+    }
   }
 
   /**
@@ -751,7 +761,12 @@ class Wallet
 // ---------------------------------------------------- private --------------------------------------------------------- //
 
 
-
+/**
+ * 
+ * @param {RawCip30} WalletProvider 
+ * @param {string} defaultBlockfrost_api_key 
+ * @returns 
+ */
 function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key )
 {
   const getCurrentUserDelegation = async ( blockfrost_project_id = undefined ) =>
@@ -792,6 +807,15 @@ function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key 
     return await private_submitTransaction( WalletProvider, signedTransaction )
   }
 
+  const signAndSubmitTransaction = async ( Transaction ) =>
+  {
+    return await submitTransaction(
+      await signTransaction(
+        Transaction
+      )
+    )
+  }
+
   const delegateTo= async ( targetPoolId, blockfrost_project_id = undefined ) => 
   {
     return await submitTransaction(
@@ -805,11 +829,12 @@ function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key 
   }
 
   return {
-    ...WalletProvider,
+    raw: WalletProvider,
     getCurrentUserDelegation,
     createDelegagtionTransaction,
     signTransaction,
     submitTransaction,
+    signAndSubmitTransaction,
     getPoolId: private_getPoolId,
     delegateTo
   }
