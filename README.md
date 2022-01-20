@@ -7,7 +7,6 @@
 - [Usage](#Usage)
     - [basic usage](#basic_delegation)
         - [nami delegation](#delegate_using_nami)
-        - [ccvault delegation](#delegate_using_ccvault)
     - [other examples](#oth_examples)
 - [Documentation](#docs_link)
 - [Support Harmonic](#Support)
@@ -40,15 +39,15 @@ npm install https://github.com/HarmonicPool/cardano-wallet-interface
 ##### using Nami
 ```js
 /*... other imports ...*/
-import Wallet from "@harmonicpool/cardano-wallet-interface";
+import Wallet, { WalletName } from "@harmonicpool/cardano-wallet-interface";
 
 /*...*/
 
-if( Wallet.hasNami() )
+if( Wallet.has( WalletName.Nami ) )
 {
-    if( !Wallet.namiHasBeenEnabled )
+    if( !Wallet.isEnabled( WalletName.Nami ) )
     {
-        Wallet.enableNami()
+        Wallet.enable( WalletName.Nami )
         .then(
             () => {
                 Wallet.Nami.delegateTo(
@@ -61,42 +60,6 @@ if( Wallet.hasNami() )
     else
     {
         Wallet.Nami.delegateTo(
-            "<your pool id>",
-            "<your blockforst api key>"
-        );
-    }
-}
-
-/*...*/
-```
-
-<a name="delegate_using_ccvault">
-</a>
-
-##### using ccvault
-```js
-/*... other imports ...*/
-import Wallet from "@harmonicpool/cardano-wallet-interface";
-
-/*...*/
-
-if( Wallet.hasCCVault() )
-{
-    if( !Wallet.ccvaultHasBeenEnabled )
-    {
-        Wallet.enableCCVault()
-        .then(
-            () => {
-                Wallet.CCVault.delegateTo(
-                    "<your pool id>",
-                    "<your blockforst api key>"
-                );
-            }
-        );
-    }
-    else
-    {
-        Wallet.CCVault.delegateTo(
             "<your pool id>",
             "<your blockforst api key>"
         );
