@@ -1,3 +1,5 @@
+"use strict";
+
 const Buffer = require("buffer").Buffer;
 
 const Loader        = require("./WasmLoader");
@@ -12,8 +14,15 @@ const FlintExperimentalError  = require("../errors/WalletInterfaceError/WalletPr
 const WalletError             = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError");
 const WalletProcessError      = require("../errors/WalletInterfaceError/WalletProcessError/WalletProcessError");
 
-let private_walletInterface_hasBlockFrost = false;
+const { WalletName } = require("./WalletName")
+const { getStringFromWalletName, walletNames } =  require("./WalletName/utils");
 
+function private_warnDeprecated(altSuggestion)
+{
+  console.warn("this mthod will be deprecated soon" + ( altSuggestion ? ", please consider using " + altSuggestion + " instead" : "") );
+}
+
+let private_walletInterface_hasBlockFrost = false;
 class Wallet
 {
   /**
@@ -26,6 +35,7 @@ class Wallet
    */
   static _protocolParameters = undefined;
 
+  // ---------------------------------------- nami objects ---------------------------------------- //
   /**
    * @private
    */
@@ -36,6 +46,7 @@ class Wallet
    */
   static _NamiInterface = undefined;
 
+  // ---------------------------------------- ccvault objects ---------------------------------------- //
   
   /**
    * @private
@@ -47,6 +58,8 @@ class Wallet
    */
   static _CCVaultInterface = undefined;
 
+  // ---------------------------------------- flint objects ---------------------------------------- //
+
   /**
    * @private
    */
@@ -56,6 +69,32 @@ class Wallet
     * @private
     */
    static _flintExperimentalInterface = undefined;
+
+   // ---------------------------------------- yoroi objects ---------------------------------------- //
+
+  /**
+   * @private
+   */
+    static _yoroiObj = undefined;
+
+    /**
+    * @private
+    */
+    static _yoroiInterface = undefined;
+
+    // ---------------------------------------- gero objects ---------------------------------------- //
+
+  /**
+   * @private
+   */
+   static _geroObj = undefined;
+
+   /**
+   * @private
+   */
+   static _geroInterface = undefined;
+
+  // ---------------------------------------- wallet utils ---------------------------------------- //
 
   static _assertBrowser()
   {
@@ -112,60 +151,236 @@ class Wallet
 
   static get protocolParameters()
   {
-    if( !Wallet.hasProtocolParameters() ) throw new WalletError("protocoloParameters never checked before, call the async version Wallet.getProtocolParameters first");
+    if( !Wallet.hasProtocolParameters() ) throw new WalletError("protocolParameters never checked before, call the async version Wallet.getProtocolParameters first");
     
     return Wallet._protocolParameters;
   }
 
+  // ----------------------------------------------- Wallet common --------------------------------------------------- //
+
+  static _assertWalletNameIsSym( walletSymbol )
+  {
+    if( typeof walletSymbol !== "symbol" ) throw WalletProcessError("a wallet identifier must be a member of the WalletName enumeration");
+  }
+
+  static _assertWalletExtensionInjected( walletSymbol )
+  {
+    Wallet._assertWalletNameIsSym( walletSymbol );
+    const wName = getStringFromWalletName( walletSymbol );
+
+    if( !Wallet.has( walletSymbol ) ) throw new WalletError("can't access the "+wName+" object if the "+wName+" extension is not installed");
+  }
+  
+  /**
+   * 
+   * @param {symbol} wallet member of the WalletName enum object
+   * @returns {boolean} ```true``` if the extension has been injected, ```false``` otherwise
+   */
+  static has( wallet )
+  {
+    Wallet._assertBrowser();
+    Wallet._assertWalletNameIsSym( wallet );
+
+    switch( wallet )
+    {
+      case WalletName.Nami:               return !!window?.cardano?.nami;
+      case WalletName.CCVault:            return !!window?.cardano?.ccvault;
+      case WalletName.FlintExperimental:  return !!window?.cardano?.flintExperimental;
+      case WalletName.Yoroi:              return !!window?.cardano?.yoroi;
+      case WalletName.Gero:               return !!window?.cardano?.gerowallet;
+
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+  
+  /**
+   * 
+   * @param {symbol} wallet member of the WalletName enum object
+   */
+  static async enable( wallet )
+  {
+    Wallet._assertWalletExtensionInjected( wallet );
+
+    switch( wallet )
+    {
+      case WalletName.Nami:               
+        Wallet._namiObj = await window.cardano.nami.enable();
+        return; break;
+
+      case WalletName.CCVault:            
+        Wallet._ccvaultObj = await window.cardano.ccvault.enable();
+        return; break;
+
+      case WalletName.FlintExperimental:
+        Wallet._assertFlintExperimentalOnly();
+
+        // this should be the right piece of code however flin experimental 0.10.0 uses the global cardano object instead
+        // expected fix in 0.12.0
+        //Wallet._flintExperimentalObj = await window.cardano.flintExperimental.enable();
+        window.cardano.flintExperimental.enable();
+
+        Wallet._flintExperimentalObj = window.cardano;
+        return; break;
+
+      case WalletName.Yoroi:              
+        Wallet._yoroiObj = await window.cardano.yoroi.enable();
+        return; break;
+
+      case WalletName.Gero:               
+        Wallet._geroObj = await window.cardano.gerowallet.enable();
+        return; break;
+
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+
+  /**
+   * 
+   * @param {symbol} wallet member of the WalletName enum object
+   * @returns {boolean} ```true``` if the user wallet is connected, ```false``` otherwise
+   */
+  static async isEnabled( wallet )
+  {
+    Wallet._assertWalletExtensionInjected( wallet );
+
+    switch( wallet )
+    {
+      case WalletName.Nami:               
+        if( await window.cardano.nami.isEnabled() )
+        {
+          Wallet.enable( wallet );
+          return true;
+        }
+        else
+        {
+          return false;
+        };
+        return; break;
+        
+      case WalletName.CCVault:            
+        if( await window.cardano.ccvault.isEnabled() )
+        {
+          Wallet.enable( wallet );
+          return true;
+        }
+        else
+        {
+          return false;
+        };
+        return; break;
+        
+      case WalletName.FlintExperimental:
+        Wallet._assertFlintExperimentalOnly();
+        if( await window.cardano.flintExperimental.isEnabled() )
+        {
+          Wallet.enable( wallet );
+          return true;
+        }
+        else
+        {
+          return false;
+        };
+        return; break;
+        
+      case WalletName.Yoroi:              
+        if( await window.cardano.yoroi.isEnabled() )
+        {
+          Wallet.enable( wallet );
+          return true;
+        }
+        else
+        {
+          return false;
+        };
+        return; break;
+        
+      case WalletName.Gero:               
+        if( await window.cardano.gerowallet.isEnabled() )
+        {
+          Wallet.enable( wallet );
+          return true;
+        }
+        else
+        {
+          return false;
+        };
+        return; break;
+        
+
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+
+  /**
+   * 
+   * @param {symbol} wallet member of the WalletName enum object
+   */
+  static isAviable( wallet )
+  {
+    // Wallet._assertBrowser() not needed since checks into the Wallet class only
+    Wallet._assertWalletNameIsSym( wallet );
+
+    switch( wallet )
+    {
+      case WalletName.Nami:               return ( Wallet._namiObj !== undefined );
+      case WalletName.CCVault:            return ( Wallet._ccvaultObj !== undefined );
+      case WalletName.FlintExperimental:  return ( Wallet._flintExperimentalObj !== undefined );
+      case WalletName.Yoroi:              return ( Wallet._yoroiObj !== undefined );
+      case WalletName.Gero:               return ( Wallet._geroObj !== undefined );
+
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
 
   // ---------------------------------------- Nami ---------------------------------------- //
 
   /**
-   * 
+   * @deprecated use Wallet.has( WalletName.Nami ) instead
    * @returns {boolean} true if the nami extension has injected the window.cardano.enable function; false otherwise
    */
   static hasNami()
   {
     Wallet._assertBrowser();
+    private_warnDeprecated("Wallet.has( WalletName.Nami )");
 
-    // if only ccvault was installed but not nami
-    // then window.cardano would still be defined but containing onli the ccvault object
-    // here I check for window.cardano.enable to be defined but could be any function defined
-    // by the nami extension
-    // DEPRECATED SINCE FLINT_EXPERIMENTAL return ( typeof window.cardano?.enable !== "undefined" );
-
-    const tmpEvtController = window.cardano?.onAccountChange(console.log);
-
-    // since from the addition of FlintExperimental window.cardano.enable gets ingìjected too is no more a valid way to check for nami
-    // if Nami is injected correctly the return type of window.cardano?.onAccountChange(<anyFunc>) is {Wallet.NamiEventController} object
-    // if Nami is not injected but flintEcperimental is, the return type is undefined.
-    if ( typeof tmpEvtController !== "undefined" )
-    {
-      tmpEvtController.remove();
-      return true;
-    }
-
-    return false;
+    return !!window?.cardano?.nami;
   }
 
+  /**
+   * @deprecated use Wallet.enable( WalletName.Nami ) instead
+   */
   static async enableNami()
   {
     if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
+    private_warnDeprecated("Wallet.enable( WalletName.Nami )")
 
-    if( await window.cardano.isEnabled() || await window.cardano.enable() )
-      Wallet._namiObj = window.cardano;
-    else
+    try
+    {
+      Wallet._namiObj = await window.cardano.enable();
+    }
+    catch
+    {
       Wallet._namiObj = undefined;
+    }
   }
 
+  /**
+   * @deprecated use Wallet.isAviable( WalletName.Nami ) instead
+   */
   static get namiHasBeenEnabled()
   {
+    private_warnDeprecated("Wallet.isAviable( WalletName.Nami )");
     return ( Wallet._namiObj !== undefined )
   }
 
+  /**
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.Nami ) instead
+   */
   static async namiIsEnabled()
   {
-    if( !Wallet.hasNami() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+    if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the Nami extension is not installed");
+    private_warnDeprecated("Wallet.isEnabled( WalletName.Nami )")
 
     if( await window.cardano?.isEnabled() )
     {
@@ -177,14 +392,19 @@ class Wallet
 
   }
 
+  static get NamiInterface()
+  {
+    return private_makeWalletInterface( WalletName.Nami );
+  }
+
   static get Nami()
   {
-    if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
-    if( !Wallet.namiHasBeenEnabled ) throw new NamiError("Wallet.enableNami has never been called before, can't access the Nami interface");
+    if( !Wallet.has( WalletName.Nami ) ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
+    if( !Wallet.isAviable( WalletName.Nami ) ) throw new NamiError("Wallet.enableNami has never been called before, can't access the Nami interface");
 
     if( Wallet._NamiInterface === undefined )
     {
-      Wallet._NamiInterface = private_makeWalletInterface( Wallet._namiObj, Wallet._api_key )
+      Wallet._NamiInterface = private_makeWallet( Wallet._namiObj, Wallet._api_key )
     }
 
     return Wallet._NamiInterface;
@@ -192,19 +412,24 @@ class Wallet
   
   // ---------------------------------------- ccvault ---------------------------------------- //
   /**
-   * 
+   * @deprecated use Wallet.has( WalletName.CCVault ) instead
    * @returns {boolean} true if the ccvault extension has injected the window.cardano.ccvault object; false otherwise
    */
   static hasCCVault()
   {
     Wallet._assertBrowser();
+    private_warnDeprecated("Wallet.has( WalletName.CCVault )");
 
     return !!window.cardano?.ccvault;
   }
 
+  /**
+   * @deprecated use Wallet.enable( WalletName.CCVault ) instead
+   */
   static async enableCCVault()
   {
     if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+    private_warnDeprecated("Wallet.enable( WalletName.CCVault )")
 
     try
     {
@@ -218,14 +443,23 @@ class Wallet
     }
   }
 
+  /**
+   * @deprecated use Wallet.isAviable( WalletName.CCVault ) instead
+   */
   static get ccvaultHasBeenEnabled()
   {
+    private_warnDeprecated("Wallet.isAviable( WalletName.CCVault )")
     return ( Wallet._ccvaultObj !== undefined )
   }
 
+  /**
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.CCVault ) instead
+   */
   static async ccvaultIsEnabled()
   {
     if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+    private_warnDeprecated("Wallet.isEnabled( WalletName.CCVault )")
 
     if( await window.cardano?.ccvault.isEnabled() )
     {
@@ -237,14 +471,19 @@ class Wallet
 
   }
 
+  static get CCVaultInterface()
+  {
+    return private_makeWalletInterface( WalletName.CCVault );
+  }
+
   static get CCVault()
   {
-    if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
-    if( !Wallet.ccvaultHasBeenEnabled ) throw new CCVaultError("Wallet.enableCCVault has never been called before, can't access the CCVault interface");
+    if( !Wallet.has( WalletName.CCVault ) ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+    if( !Wallet.isAviable( WalletName.CCVault ) ) throw new CCVaultError("Wallet.enableCCVault has never been called before, can't access the CCVault interface");
 
     if( Wallet._CCVaultInterface === undefined )
     {
-      Wallet._CCVaultInterface = private_makeWalletInterface( Wallet._ccvaultObj, Wallet._api_key )
+      Wallet._CCVaultInterface = private_makeWallet( Wallet._ccvaultObj, Wallet._api_key )
     }
 
     return Wallet._CCVaultInterface;
@@ -254,29 +493,33 @@ class Wallet
 
   static _assertFlintExperimentalOnly()
   {
-    if( Wallet.hasNami() || Wallet.hasCCVault() )
+    if( Wallet.hasNami() || Wallet.hasCCVault() ||  Wallet.hasGero() || Wallet.hasYoroi() )
     throw new FlintExperimentalError(
       "flintExperimental only works if is the only extension injected, please ask to disable all other cardano wallets extension and to refresh the page in order to work with flintExperimental"
     );
   }
 
   /**
-   * 
+   * @deprecated use Wallet.has( WalletName.FlintExperimental ) instead
    * @returns {boolean} true if the flintExperimental extension has injected the window.cardano.flintExperimental object; false otherwise
    */
   static hasFlintExperimental()
   {
     Wallet._assertBrowser();
     Wallet._assertFlintExperimentalOnly();
+    private_warnDeprecated("Wallet.has( WalletName.FlintExperimental )");
 
     return !!window.cardano?.flintExperimental;
   }
  
+  /**
+   * @deprecated use Wallet.enable( WalletName.FlintExperimental ) instead
+   */
   static async enableFlintExperimental()
   {
     Wallet._assertFlintExperimentalOnly();
     if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
-
+    private_warnDeprecated("Wallet.enable( WalletName.FlintExperimental )")
     try
     {
       let enableResult = await window.cardano?.flintExperimental.enable();
@@ -294,16 +537,25 @@ class Wallet
     }
   }
  
+  /**
+   * @deprecated use Wallet.isAviable( WalletName.FlintExperimental ) instead
+   */
   static get flintExperimentalHasBeenEnabled()
   {
     Wallet._assertFlintExperimentalOnly();
+    private_warnDeprecated("Wallet.isAviable( WalletName.FlintExperimental )")
     return ( Wallet._flintExperimentalObj !== undefined )
   }
 
+  /**
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.FlintExperimental ) instead
+   */
   static async flintExperimentalIsEnabled()
   {
     Wallet._assertFlintExperimentalOnly();
     if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+    private_warnDeprecated("Wallet.isEnabled( WalletName.FlintExperimental )")
 
     if( await window.cardano?.flintExperimental.isEnabled() )
     {
@@ -315,23 +567,305 @@ class Wallet
 
   }
 
+  static get FlintExperimentalInterface()
+  {
+    return private_makeWalletInterface( WalletName.FlintExperimental );
+  }
+
   static get FlintExperimental()
   {
     Wallet._assertFlintExperimentalOnly();
-    if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
-    if( !Wallet.flintExperimentalHasBeenEnabled ) throw new FlintExperimentalError("Wallet.enableFlintExperimental has never been called before, can't access the flintExperimental interface");
+    if( !Wallet.has( WalletName.FlintExperimental ) ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+    if( !Wallet.isAviable( WalletName.FlintExperimental ) ) throw new FlintExperimentalError("Wallet.enableFlintExperimental has never been called before, can't access the flintExperimental interface");
 
     if( Wallet._flintExperimentalInterface === undefined )
     {
-      Wallet._flintExperimentalInterface = private_makeWalletInterface( Wallet._flintExperimentalObj, Wallet._api_key )
+      Wallet._flintExperimentalInterface = private_makeWallet( Wallet._flintExperimentalObj, Wallet._api_key )
     }
 
     return Wallet._flintExperimentalInterface;
   }
 
+  // ---------------------------------------- yoroi ---------------------------------------- //
+  /**
+   * temporary workaround
+   * @todo update as soon yoroi fixes what he has to fix
+   * TODO
+   */
+  static _makeSureYoroiIsInjectedCorrectly()
+  {
+    Wallet._assertBrowser();
+
+    if(!private_performedYoroiReInjection)
+    {
+      private_injectYoroi();
+    }
+  }
+
+  /**
+   * 
+   * @deprecated use Wallet.has( WalletName.Yoroi ) instead
+   */
+  static hasYoroi()
+  {
+    Wallet._assertBrowser();
+    private_warnDeprecated("Wallet.has( WalletName.Yoroi )")
+    
+    return !!window.cardano?.yoroi;
+  }
+
+  /**
+   * @deprecated use Wallet.enable( WalletName.Yoroi ) instead
+   */
+  static async enableYoroi()
+  {
+    if( !Wallet.hasYoroi() ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi extension is not installed");
+    private_warnDeprecated("Wallet.enable( WalletName.Yoroi )")
+
+    try
+    {
+      Wallet._makeSureYoroiIsInjectedCorrectly();
+      Wallet._yoroiObj = await window.cardano.yoroi.enable();
+      Wallet._yoroiObj = {
+        ...Wallet._yoroiObj,
+        enable: window.cardano.yoroi.enable,
+        isEnabled: window.cardano.yoroi.isEnabled
+      }
+    }
+    catch (e)
+    {
+      console.warn("could not enable Yoroi");
+      Wallet._yoroiObj = undefined;
+      throw e;
+    }
+  }
+
+  /**
+   * @deprecated use Wallet.isAviable( WalletName.Yoroi ) instead
+   */
+  static get yoroiHasBeenEnabled()
+  {
+    private_warnDeprecated("Wallet.isAviable( WalletName.Yoroi )")
+    return ( Wallet._yoroiObj !== undefined )
+  }
+
+  /**
+   * 
+   * @deprecated use Wallet.isEnabled( WalletName.Yoroi ) instead
+   */
+  static async yoroiIsEnabled()
+  {
+    if( !Wallet.hasYoroi() ) throw new WalletInterfaceError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+    private_warnDeprecated("Wallet.isEnabled( WalletName.Yoroi )")
+
+    Wallet._makeSureYoroiIsInjectedCorrectly();
+    if( await window.cardano?.yoroi.isEnabled() )
+    {
+      // sets the _flintExperimentalObj static property
+      Wallet.enableYoroi();
+      return true;
+    }
+    else return false;
+
+  }
+
+  static get YoroiInterface()
+  {
+    return private_makeWalletInterface( WalletName.Yoroi );
+  }
+
+  static get Yoroi()
+  {
+    if( !Wallet.has( WalletName.Yoroi ) ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi nigthly extension is not installed");
+    if( !Wallet.isAviable( WalletName.Yoroi ) ) throw new WalletInterfaceError("Wallet.enableYoroi has never been called before, can't access the Yoroi interface");
+
+    if( Wallet._yoroiInterface === undefined )
+    {
+      Wallet._yoroiInterface = private_makeWallet( Wallet._yoroiObj, Wallet._api_key )
+    }
+
+    return Wallet._yoroiInterface;
+  }
+
+  // ---------------------------------------- gerowallet ---------------------------------------- //
+
+  /**
+   * 
+   * @deprecated use Wallet.has( WalletName.Gero ) instead
+   */
+  static hasGero()
+  {
+    Wallet._assertBrowser();
+    private_warnDeprecated("Wallet.has( WalletName.Gero )");
+    
+    return !!window.cardano?.gerowallet;
+  }
+
+  static pageIsGeroWalletFriendly()
+  {
+    const thisDomainSplitted = window.location.hostname
+    .split(".") ;
+
+    return geroWalletFriendlyDomains.includes(
+      thisDomainSplitted.filter( (_, i) => ( i === thisDomainSplitted.length - 1 || i === thisDomainSplitted.length - 2) ).join(".")
+    );
+  }
+
+  /**
+   * @deprecated use Wallet.enable( WalletName.Gero ) instead
+   */
+  static async enableGero()
+  {
+    // Wallet._assertBrowser(); include in Wallet.hasGero()
+    if( !Wallet.hasGero() ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
+    private_warnDeprecated("Wallet.enable( WalletName.Gero )")
+    try
+    {
+      
+      Wallet._geroObj = await window.cardano.gerowallet.enable();
+      Wallet._geroObj = {
+        ...Wallet._geroObj,
+        enable: window.cardano.gerowallet.enable,
+        isEnabled: window.cardano.gerowallet.isEnabled
+      }
+    }
+    catch (e)
+    {
+      console.warn("could not enable Gero");
+      Wallet._geroObj = undefined;
+      throw e;
+    }
+  }
+
+  static get geroHasBeenEnabled()
+  {
+    return ( Wallet._geroObj !== undefined )
+  }
+
+  /**
+   * 
+   * @deprecated use Wallet.isEnabled( WalleName.Gero ) instead
+   */
+  static async geroIsEnabled()
+  {
+    if( !Wallet.hasGero() ) throw new WalletInterfaceError("can't access the Gero object if the gero wallet extension is not installed");
+    private_warnDeprecated("Wallet.isEnabled( WalleName.Gero )")
+
+    if( await window.cardano?.gerowallet.isEnabled() )
+    {
+      // sets the _geroObj static property
+      Wallet.enableGero();
+      return true;
+    }
+    else return false;
+
+  }
+
+  static get GeroInterface()
+  {
+    return private_makeWalletInterface( WalletName.Gero );
+  }
+
+  static get Gero()
+  {
+    if( !Wallet.has( WalletName.Gero ) ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
+    if( !Wallet.isAviable( WalletName.Gero ) ) throw new WalletInterfaceError("Wallet.enableGero has never been called before, can't access the Gero interface");
+
+    if( Wallet._geroInterface === undefined )
+    {
+      Wallet._geroInterface = private_makeWallet( Wallet._yoroiObj, Wallet._api_key )
+    }
+
+    return Wallet._geroInterface;
+  }
+
 }
 
-function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key )
+
+
+// ---------------------------------------------------- private --------------------------------------------------------- //
+
+/**
+ * 
+ * @param {symbol} walletSymbolName member of the WalletNameobject which you can import by ```inport { WalletName } from "@harmonicpool/cardano-wallet-interface"```
+ * @returns {Wallet.WalletInterface}
+1 */
+function private_makeWalletInterface( walletSymbolName )
+{
+  // I know is private but I don't trust myself
+  Wallet._assertBrowser();
+  Wallet._assertWalletNameIsSym( walletSymbolName );
+
+  if(
+    walletSymbolName !== WalletName.Nami ||
+    walletSymbolName !== WalletName.CCVault ||
+    walletSymbolName !== WalletName.FlintExperimental ||
+    walletSymbolName !== WalletName.Yoroi ||
+    walletSymbolName !== WalletName.Gero
+  )
+  throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object");
+
+  function getApiVersion()
+  {
+    switch( walletSymbolName )
+    {
+      case WalletName.Nami:              return window?.cardano?.nami?.apiVersion               ? window.cardano.nami.apiVersion : ""; 
+      case WalletName.CCVault:           return window?.cardano?.ccvault?.apiVersion            ? window.cardano.ccvault.apiVersion : "";  
+      case WalletName.FlintExperimental: return window?.cardano?.flintExperimental?.apiVersion  ? window.cardano.flintExperimental.apiVersion : "";  
+      case WalletName.Yoroi:             return window?.cardano?.yoroi?.apiVersion              ? window.cardano.yoroi.apiVersion : "";  
+      case WalletName.Gero:              return window?.cardano?.gerowallet?.apiVersion         ? window.cardano.gerowallet.apiVersion : "";
+      
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+
+  function getName()
+  {
+    switch( walletSymbolName )
+    {
+      case WalletName.Nami:              return window?.cardano?.nami?.name               ? window.cardano.nami.name : ""; 
+      case WalletName.CCVault:           return window?.cardano?.ccvault?.name            ? window.cardano.ccvault.name : "";  
+      case WalletName.FlintExperimental: return window?.cardano?.flintExperimental?.name  ? window.cardano.flintExperimental.name : "";  
+      case WalletName.Yoroi:             return window?.cardano?.yoroi?.name              ? window.cardano.yoroi.name : "";  
+      case WalletName.Gero:              return window?.cardano?.gerowallet?.name         ? window.cardano.gerowallet.name : "";
+      
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+
+  function getIcon()
+  {
+    switch( walletSymbolName )
+    {
+      case WalletName.Nami:              return window?.cardano?.nami?.icon               ? window.cardano.nami.icon : ""; 
+      case WalletName.CCVault:           return window?.cardano?.ccvault?.icon            ? window.cardano.ccvault.icon : "";  
+      case WalletName.FlintExperimental: return window?.cardano?.flintExperimental?.icon  ? window.cardano.flintExperimental.icon : "";  
+      case WalletName.Yoroi:             return window?.cardano?.yoroi?.icon              ? window.cardano.yoroi.icon : "";  
+      case WalletName.Gero:              return window?.cardano?.gerowallet?.icon         ? window.cardano.gerowallet.icon : "";
+      
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+
+  return {
+    apiVersion: getApiVersion(),
+    icon:       getIcon(),
+    name:       getName(),
+    isInjected: () => Wallet.has( walletSymbolName ),
+    isAviable:  () => Wallet.isAviable( walletSymbolName ),
+    isEnabled:  () => Wallet.isEnabled( walletSymbolName ),
+    enable:     () => Wallet.enable( walletSymbolName )
+  };
+
+}
+
+/**
+ * 
+ * @param {RawCip30} WalletProvider 
+ * @param {string} defaultBlockfrost_api_key 
+ * @returns {Wallet.Wallet}
+ */
+function private_makeWallet( WalletProvider, defaultBlockfrost_api_key )
 {
   const getCurrentUserDelegation = async ( blockfrost_project_id = undefined ) =>
   {
@@ -371,6 +905,15 @@ function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key 
     return await private_submitTransaction( WalletProvider, signedTransaction )
   }
 
+  const signAndSubmitTransaction = async ( Transaction ) =>
+  {
+    return await submitTransaction(
+      await signTransaction(
+        Transaction
+      )
+    )
+  }
+
   const delegateTo= async ( targetPoolId, blockfrost_project_id = undefined ) => 
   {
     return await submitTransaction(
@@ -384,11 +927,12 @@ function private_makeWalletInterface( WalletProvider, defaultBlockfrost_api_key 
   }
 
   return {
-    ...WalletProvider,
+    raw: WalletProvider,
     getCurrentUserDelegation,
     createDelegagtionTransaction,
     signTransaction,
     submitTransaction,
+    signAndSubmitTransaction,
     getPoolId: private_getPoolId,
     delegateTo
   }
@@ -665,6 +1209,246 @@ async function private_getCurrentUserDelegation( WalletProvider, blockfrost_proj
   return stake;
 };
 
+/**
+ * 
+ */
+let private_performedYoroiReInjection = false
+/**
+ * this function only injectsyoroi if the extension is present already
+ * this injection corrects some bugs present in the extension
+ */
+function private_injectYoroi()
+{
+  if( !window?.cardnao?.yoroi ) throw WalletProcessError("could not perform bug correction injection of yoroi if yoroi nightly is not installed");
+
+  var connectRequests = [];
+
+  window.addEventListener("message", function(event) {
+    if (event.data.type == "connector_connected") {
+      if (event.data.err !== undefined) {
+        connectRequests.forEach(promise => promise.reject(event.data.err));
+      } else {
+        const isSuccess = event.data.success;
+        connectRequests.forEach(promise => {
+            if (promise.protocol === 'cardano') {
+                if (isSuccess) {
+                    promise.resolve(event.data.auth);
+                } else {
+                    promise.reject(new Error('user reject'));
+                }
+            } else {
+                promise.resolve(isSuccess);
+            }
+        });
+      }
+    }
+  });
+
+  window.ergo_request_read_access = function() {
+    return new Promise(function(resolve, reject) {
+      window.postMessage({
+        type: "connector_connect_request/ergo",
+      }, location.origin);
+      connectRequests.push({ resolve: resolve, reject: reject });
+    });
+  };
+
+  window.ergo_check_read_access = function() {
+    if (typeof ergo !== "undefined") {
+      return ergo._ergo_rpc_call("ping", []);
+    } else {
+      return Promise.resolve(false);
+    }
+  };
+
+  // RPC setup
+  var cardanoRpcUid = 0;
+  var cardanoRpcResolver = new Map();
+
+  window.addEventListener("message", function(event) {
+    if (event.data.type == "connector_rpc_response" && event.data.protocol === "cardano") {
+      console.debug("page received from connector: " + JSON.stringify(event.data) + " with source = " + event.source + " and origin = " + event.origin);
+      const rpcPromise = cardanoRpcResolver.get(event.data.uid);
+      if (rpcPromise !== undefined) {
+        const ret = event.data.return;
+        if (ret.err !== undefined) {
+          rpcPromise.reject(ret.err);
+        } else {
+          rpcPromise.resolve(ret.ok);
+        }
+      }
+    }
+  });
+  
+  function cardano_rpc_call(func, params) {
+    return new Promise(function(resolve, reject) {
+      window.postMessage({
+        type: "connector_rpc_request",
+        protocol: "cardano",
+        uid: cardanoRpcUid,
+        function: func,
+        params: params
+      }, location.origin);
+      console.debug("cardanoRpcUid = " + cardanoRpcUid);
+      cardanoRpcResolver.set(cardanoRpcUid, { resolve: resolve, reject: reject });
+      cardanoRpcUid += 1;
+    });
+  }
+
+  function cardano_request_read_access(cardanoAccessRequest) {
+    const { requestIdentification, onlySilent } = (cardanoAccessRequest || {});
+    return new Promise(function(resolve, reject) {
+      window.postMessage({
+        type: "connector_connect_request/cardano",
+        requestIdentification,
+        onlySilent,
+      }, location.origin);
+      connectRequests.push({
+        protocol: 'cardano',
+        resolve: (auth) => {
+            resolve(Object.freeze(new CardanoAPI(auth, cardano_rpc_call)));
+        },
+        reject: reject
+      });
+    });
+  }
+
+  function cardano_check_read_access() {
+    if (typeof cardano !== "undefined") {
+      //return cardano._cardano_rpc_call("ping", []);
+      /**
+       * original call was ```cardano._cardano_rpc_call("ping", []);```
+       * however no such function is present until window.cardano.yoroi.enable() evaluates to true
+       * which makes useless "window.cardano.yoroi.isEnabled()" in this case
+       */
+      return cardano_rpc_call("ping", []);
+    } else {
+      return Promise.resolve(false);
+    }
+  }
+  
+  window.cardano = {
+    ...(window.cardano||{}),
+    'yoroi': {
+      enable: cardano_request_read_access,
+      isEnabled: cardano_check_read_access,
+      apiVersion: '0.2.0',
+      name: 'yoroi',
+    }
+  };
+  
+  private_performedYoroiReInjection = true;
+}
 
 // exports default
 module.exports = Wallet;
+
+
+const geroWalletFriendlyDomains = [
+  "3air.io",
+  "aada.finance",
+  "ada-quest.com",
+  "adadomains.io",
+  "adafinance.io",
+  "adahandle.com",
+  "adalend.finance",
+  "adanft.app",
+  "adanize.com",
+  "adapay.finance",
+  "adaswap.app",
+  "adatokenizer.io",
+  "adax.pro",
+  "adazine.com",
+  "adazoo.com",
+  "ardana.org",
+  "artano.io",
+  "artifct.app",
+  "astarter.io",
+  "bearsclub.io",
+  "beyondrockets.city",
+  "bingochain.io",
+  "bondly.finance",
+  "canucks-publishing.com",
+  "cardahub.io",
+  "cardano4speed.com",
+  "cardanotales.com",
+  "cardanowarriors.io",
+  "cardax.io",
+  "cardingo.io",
+  "cardstarter.io",
+  "centaurify.com",
+  "charli3.io",
+  "chibidangoheroes.com",
+  "cnft.io",
+  "cnft.tools",
+  "coinlink.finance",
+  "cornucopias.io",
+  "coti.io",
+  "credefi.finance",
+  "cryptodino.io",
+  "dcspark.io",
+  "defire.fi",
+  "do.exchange",
+  "don-key.finance",
+  "dracards.com",
+  "dripdropz.io",
+  "drunkendragon.games",
+  "duelistking.com",
+  "empowa.io",
+  "ergodex.io",
+  "everlens.io",
+  "flur.ee",
+  "gada.finance",
+  "galactico.app",
+  "galaxyof.art",
+  "gamingcardano.com",
+  "genesishouse.io",
+  "geniusyield.co",
+  "hashguardians.io",
+  "husky-swap.io",
+  "indigoprotocol.io",
+  "jpg.store",
+  "kick.io",
+  "koios.rest",
+  "kubecoin.org",
+  "lilgoats.io",
+  "liqwid.finance",
+  "liqwid.finance",
+  "lovada.art",
+  "maladex.com",
+  "martify.io",
+  "matrixswap.io",
+  "matrixswap.io",
+  "mechverse.co",
+  "meld.com",
+  "meowswap.fi",
+  "meowswap.fi",
+  "minswap.org",
+  "mirqur.io",
+  "muesliswap.com",
+  "myhomeplanet.io",
+  "nexo.io",
+  "nftjam.io",
+  "optim.finance",
+  "paribus.io",
+  "pavia.io",
+  "payment.nft-maker.io",
+  "pixellinks.golf",
+  "planetpalz.io",
+  "playermint.com",
+  "raynetwork.io",
+  "ridotto.io",
+  "rraayy.com",
+  "scatdao.com",
+  "spacetimemeta.io",
+  "spinada.cash",
+  "sundaeswap.finance",
+  "tangocrypto.com",
+  "theos.fi",
+  "tokhun.io",
+  "txgalactic.io",
+  "vyfi.io",
+  "wayacollective.com",
+  "worldmobile.io",
+  "worldofpirates.io",
+]
