@@ -173,7 +173,7 @@ class Wallet
   
   /**
    * 
-   * @param {symbol} wallet 
+   * @param {symbol} wallet member of the WalletName enum object
    * @returns {boolean} ```true``` if the extension has been injected, ```false``` otherwise
    */
   static has( wallet )
@@ -195,7 +195,7 @@ class Wallet
   
   /**
    * 
-   * @param {symbol} wallet 
+   * @param {symbol} wallet member of the WalletName enum object
    */
   static async enable( wallet )
   {
@@ -236,7 +236,7 @@ class Wallet
 
   /**
    * 
-   * @param {symbol} wallet
+   * @param {symbol} wallet member of the WalletName enum object
    * @returns {boolean} ```true``` if the user wallet is connected, ```false``` otherwise
    */
   static async isEnabled( wallet )
@@ -313,7 +313,7 @@ class Wallet
 
   /**
    * 
-   * @param {symbol} wallet 
+   * @param {symbol} wallet member of the WalletName enum object
    */
   static isAviable( wallet )
   {
@@ -399,8 +399,8 @@ class Wallet
 
   static get Nami()
   {
-    if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
-    if( !Wallet.namiHasBeenEnabled ) throw new NamiError("Wallet.enableNami has never been called before, can't access the Nami interface");
+    if( !Wallet.has( WalletName.Nami ) ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
+    if( !Wallet.isAviable( WalletName.Nami ) ) throw new NamiError("Wallet.enableNami has never been called before, can't access the Nami interface");
 
     if( Wallet._NamiInterface === undefined )
     {
@@ -478,8 +478,8 @@ class Wallet
 
   static get CCVault()
   {
-    if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
-    if( !Wallet.ccvaultHasBeenEnabled ) throw new CCVaultError("Wallet.enableCCVault has never been called before, can't access the CCVault interface");
+    if( !Wallet.has( WalletName.CCVault ) ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+    if( !Wallet.isAviable( WalletName.CCVault ) ) throw new CCVaultError("Wallet.enableCCVault has never been called before, can't access the CCVault interface");
 
     if( Wallet._CCVaultInterface === undefined )
     {
@@ -575,8 +575,8 @@ class Wallet
   static get FlintExperimental()
   {
     Wallet._assertFlintExperimentalOnly();
-    if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
-    if( !Wallet.flintExperimentalHasBeenEnabled ) throw new FlintExperimentalError("Wallet.enableFlintExperimental has never been called before, can't access the flintExperimental interface");
+    if( !Wallet.has( WalletName.FlintExperimental ) ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+    if( !Wallet.isAviable( WalletName.FlintExperimental ) ) throw new FlintExperimentalError("Wallet.enableFlintExperimental has never been called before, can't access the flintExperimental interface");
 
     if( Wallet._flintExperimentalInterface === undefined )
     {
@@ -676,8 +676,8 @@ class Wallet
 
   static get Yoroi()
   {
-    if( !Wallet.hasYoroi() ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi nigthly extension is not installed");
-    if( !Wallet.yoroiHasBeenEnabled ) throw new WalletInterfaceError("Wallet.enableYoroi has never been called before, can't access the Yoroi interface");
+    if( !Wallet.has( WalletName.Yoroi ) ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi nigthly extension is not installed");
+    if( !Wallet.isAviable( WalletName.Yoroi ) ) throw new WalletInterfaceError("Wallet.enableYoroi has never been called before, can't access the Yoroi interface");
 
     if( Wallet._yoroiInterface === undefined )
     {
@@ -768,8 +768,8 @@ class Wallet
 
   static get Gero()
   {
-    if( !Wallet.hasGero() ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
-    if( !Wallet.geroHasBeenEnabled ) throw new WalletInterfaceError("Wallet.enableGero has never been called before, can't access the Gero interface");
+    if( !Wallet.has( WalletName.Gero ) ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
+    if( !Wallet.isAviable( WalletName.Gero ) ) throw new WalletInterfaceError("Wallet.enableGero has never been called before, can't access the Gero interface");
 
     if( Wallet._geroInterface === undefined )
     {

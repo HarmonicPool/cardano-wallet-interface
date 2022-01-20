@@ -8,6 +8,17 @@ import {
     getStringFromWalletName,
     walletNames
 } from "./Wallet/WalletName/utils";
+import {
+    WalletInterfaceError,
+    StringFormatError,
+    WalletProcessError,
+    WalletError,
+    CCVaultError,
+    NamiError,
+    FlintExperimentalError,
+    YoroiError,
+    GeroError
+} from "./errors/index"
 
 export default Wallet;
 export {
@@ -15,5 +26,14 @@ export {
     WalletName,
     getWalletNameFromString,
     getStringFromWalletName,
-    walletNames
+    walletNames,
+    WalletInterfaceError,
+    StringFormatError,
+    WalletProcessError,
+    WalletError,
+    CCVaultError,
+    NamiError,
+    FlintExperimentalError,
+    YoroiError,
+    GeroError
 };

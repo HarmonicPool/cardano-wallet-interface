@@ -7,6 +7,11 @@
 - [Top level functions](#top_level_functions)
 - [Wallet common Interface](#wallet_common_interface)
     - [Making sure a wallet is aviable](#check_for_wallet)
+        - [has]
+        - [isAviable]
+        - [isEnabled]
+        - [enable]
+        - [WalletInterface]
     - [Wallet object](#wallet_object)
 - [Wallet specific](#wallet_specific)
     - [Nami](#nami_specific)
@@ -21,14 +26,14 @@
 
 since multiple functions behave similarly with the only difference for the wallet in use the following abstraction has benn introdced
 
-```Wallet``` ->  ```Nami``` | ```CCVault```  | ```FlintExperimental``` 
-```wallet``` ->  ```nami``` | ```ccvault```  | ```flintExperimental``` 
+```YourWallet``` ->  ```Nami``` | ```CCVault```  | ```FlintExperimental``` | ```Yoroi``` | ```Gero```
+```yourWallet``` ->  ```nami``` | ```ccvault```  | ```flintExperimental``` | ```yoroi``` | ```gero```
 
 **PLEASE PAY ATTENTION TO THE CAPITAL LETTERS**
 
-as an example then ```Wallet.{Wallet}``` here in the documentation will be intended as ```Wallet.Nami``` or ```Wallet.CCVault``` or ```Wallet.FlintExperimental``` depending from the desired wallet.
+as an example then ```Wallet.YourWallet``` here in the documentation will be intended as ```Wallet.Nami``` or ```Wallet.CCVault``` or ```Wallet.FlintExperimental``` depending from the desired wallet.
 
-and similarly ```Wallet.{wallet}IsEnabled()``` should be intended respectively ```Wallet.namiIsEnabled()```, ```Wallet.ccvaultIsEnabled()``` or ```Wallet.flintExperimentalIsEnabled()```.
+and similarly ```Wallet.YourWallet.isEnabled()``` should be intended respectively ```Wallet.Nami.isEnabled()```, ```Wallet.CCVautl.isEnabled()``` and so on.
 
 <a name="top_level_functions">
 </a>
@@ -100,55 +105,62 @@ the following methods / properties are accessible via the Wallet static class di
 
 > **_NOTE:_**  here in the documentation we'll use a generic "Wallet" as Wallet provider name, please be sure to substitute "Wallet" with the one you are willing to use; as an example "Wallet.enableWallet()" will be "Wallet.enableNami()" if you plan to use _Nami_, or "Wallet.enableCCValut()" if you use _ccvalut_ instead
 
-###### hasWallet
+###### has
 
 ```ts
-static has{Wallet}(): boolean
+static has( WalletName_member: symbol ): boolean
 ```
 
 checks if the extension for the wallet is aviable;
 returns ```true``` if the extension was found, ```false``` otherwise
 
-###### enableWallet
+
+###### isAviable
 
 ```ts
-static async enable{Wallet}(): void
+static isAviable( WalletName_member: symbol ): boolean
 ```
 
-tries to call ```.enable()``` on the chosen wallet, then makes aviable the accessor ```Wallet.{Wallet}```  
+returns ```true``` if the ```Wallet.YourWallet``` is accessible, ```false``` otherwise
 
-> **_SIDE EFFECT:_**  calling ```.enable()```([defined in the CIP30](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0030#cardanowalletnameenable-promiseapi)) will likely open a window asking for the user to connect the wallet,
-this wont appen if the wallet is already connected; you can check if that's the case via ```Wallet.{wallet}IsEnabled()```.
+> **_NOTE:_**  calling this accessor **is differtent** than calling Wallet.YourWalletInterface.isEnabled(), which internally calls ```window.cardano.yourWallet.isEnabled()``` defined in the CIP30.
 
-
-###### walletHasBeenEnabled
+###### isEnabled
 
 ```ts
-static get {wallet}HasBeenEnabled(): boolean
-```
-
-returns ```true``` if the ```Wallet.{Wallet}``` is accessible, ```false``` otherwise
-
-> **_NOTE:_**  calling this accessor **is differtent** than calling Wallet.{Wallet}.isEnabled(), defined in the CIP30.
-
-> **_REMINDER:_**  the name of the accessor becomes ```Wallet.namiHasBeenEnabled``` for **Nami**; ```Wallet.ccvalutHasBeenEnabled```for **ccvalut** and soo on
-
-###### {wallet}IsEnabled
-
-```ts
-static async Wallet.{wallet}IsEnabled(): boolean
+static async Wallet.isEnabled( WalletName_member: symbol ): boolean
 ```
 calls internally the ```isEnabled()``` [defined in the CIP-0030](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0030#cardanowalletnameisenabled-promisebool)
 
-if the promise result is true then the ```{Wallet}``` accessor will be aviable without the need to call ```Wallet.enable{Wallet}()```.
+if the promise result is true then the ```YourWallet``` accessor will be aviable without the need to call ```Wallet.YourWallet.enable()```.
 
 this method may be useful to understand when a user has already connected the given wallet to the website in a previous session
+
+
+###### enable
+
+```ts
+static async enable( WalletName_member: symbol )): void
+```
+
+tries to call ```.enable()``` on the chosen wallet, then makes aviable the accessor ```Wallet.YourWallet```  
+
+> **_SIDE EFFECT:_**  calling ```.enable()```([defined in the CIP30](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0030#cardanowalletnameenable-promiseapi)) will likely open a window asking for the user to connect the wallet,
+this wont appen if the wallet is already connected; you can check if that's the case via ```Wallet.YourWallet.isEnabled()```.
+
+###### WalletInterface
+
+```ts
+static get YourWalletInterface(): Wallet.WalletInterface
+```
+
+as you'll find tin the typedefinition below an object that respect the ```Wallet.WalletInterface``` interface simpli umplements the above four functions without the need to use ( and the to import ) the ```WalletName``` enum object
 
 
 ###### Wallet
 
 ```ts
-static get {Wallet}() : Wallet.WalletInterface // returns a Wallet object described below
+static get YourWallet() : Wallet.Wallet // returns a Wallet object described below
 ```
 
 access the wallet functionalities.
@@ -161,6 +173,7 @@ getting a Wallet object from the ```Wallet``` static class returns an istance of
 so defined:
 
 ```ts
+// defined in the Wallet namespace
 
 namespace CardanoTypes {
     export type BaseAddress = string
@@ -168,77 +181,42 @@ namespace CardanoTypes {
 
 interface RawCIP30WalletInterface
 {
-    enable: () => Promise<any>,
-    isEnabled: () => Promise<boolean>,
-    apiVersion?: string,
-    name?: string,
-    icon?: string,
+    // may vary depending from the extension
+    exerimental: object
     getNetworkId: () => Promise<number>,
-    getUtxos:(amount: cbor<value> = undefined, paginate: Paginate = undefined) => Promise<TransactionUnspentOutput[] | undefined>,
     getBalance: () => Promise<cbor<value>>,
-    getUsedAddresses: (paginate: Paginate = undefined) => Promise<cbor<address>[]>,
+    getUsedAddresses: (paginate?: Paginate) => Promise<cbor<address>[]>,
     getUnusedAddresses: () => Promise<cbor<address>[]>,
     getChangeAddress: () => Promise<cbor<address>>,
     getRewardAddresses: () => Promise<cbor<address>[]>,
-    signTx: (tx: cbor<transaction>, partialSign: bool = false) => Promise<cbor<transaction_witness_set>>,
+    getUtxos:(amount?: cbor<value>, paginate?: Paginate) => Promise<TransactionUnspentOutput[] | undefined>,
+    signTx: (tx: cbor<Transaction>, partialSign: boolean ) => Promise<cbor<TransactionWitnessSet>>,
     signData: (addr: cbor<address>, sigStructure: cbor<Sig_structure>) => Promise<Bytes>,
-    submitTx: (tx: cbor<transaction>) => Promise<hash32>
+    submitTx: (tx: cbor<Transaction>) => Promise<hash32>
 }
 
-interface WalletInterface extends RawCIP30WalletInterface
+interface WalletInterface
 {
-    // ...WalletProvider, <-- CIP30 
-    getCurrentUserDelegation: ( blockfrost_project_id?: string = undefined ) => Promise<object>,
-    createDelegagtionTransaction: ( targetPoolId?: string, blockfrost_project_id?: string = undefined ) => Promise<Transaction>,
+    apiVersion: string
+    icon:       string
+    name:       string
+    isInjected:     () => boolean
+    enable:         () => Promise<void>
+    isEnabled:      () => Promise<boolean>
+    isAviable:      () => boolean
+}
+
+interface Wallet
+{
+    raw: RawCIP30WalletInterface;
+    getCurrentUserDelegation: ( blockfrost_project_id?: string ) => Promise<object>,
+    createDelegagtionTransaction: ( targetPoolId?: string, blockfrost_project_id?: string) => Promise<Transaction>,
     signTransaction: ( transactionToSign: Transaction ) => Promise<Transaction>,
     submitTransaction:  ( signedTransaction: Transaction ) => Promise<string>,
-    delegateTo: ( targetPoolId: string, blockfrost_project_id?: string = undefined ) => Promise<string>
+    delegateTo: ( targetPoolId: string, blockfrost_project_id?: string ) => Promise<string>
 }
 
 ```
-so anything needed will be aviable using the syntax: ```Wallet.{YourWallet}```;
+so anything needed will be aviable using the syntax: ```Wallet.YourWallet```;
 
-for the ```Wallet.RawCIP30WalletInterface``` refer to the [CIP-0030](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0030) itself.
-
-<a name="wallet_specific">
-</a>
-<h2>Wallet specific</h2>
-
-
-<a name="nami_specific">
-</a>
-<h4>Nami</h4>
-
-###### Wallet Interface return object
-
-the Nami wallet interface is extended as follows
-
-```ts
-static get Nami() : Wallet.NamiInterface
-```
-
-```ts
-
-interface NamiEventController
-{
-    remove: () => void
-}
-
-interface NamiInterface extends WalletInterface
-{
-    onAccountChange: ( callback: (addresses : [CardanoTypes.BaseAddress]) => void ) => NamiEventController
-    onNetworkChange: ( callback: (network : number) => void ) => NamiEventController
-}
-
-```
-
-therfore it supports the ```onAccountChange``` and ```onNetworkChange``` event listeners;
-check out the [Nami wallet documentation](https://github.com/Berry-Pool/nami-wallet#cardanoonaccountchangeaddresses) for further informations.
-
-<a name="ccvalut_specific">
-</a>
-<h4>ccvalut</h4>
-
-<a name="flintExperimental_specific">
-</a>
-<h4>flintExperimental</h4>
+for the ```Wallet.RawCIP30WalletInterface``` documentation refer to [CIP-0030](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0030) itself.
