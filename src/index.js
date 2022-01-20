@@ -7,6 +7,18 @@ const {
     walletNames
 } =  require("./Wallet/WalletName/utils");
 
+const {
+    WalletInterfaceError,
+    StringFormatError,
+    WalletProcessError,
+    WalletError,
+    CCVaultError,
+    NamiError,
+    FlintExperimentalError,
+    YoroiError,
+    GeroError
+} = require("./errors/index")
+
 module.exports.default = Wallet
 
 module.exports = {
@@ -15,5 +27,14 @@ module.exports = {
     WalletName,
     getWalletNameFromString,
     getStringFromWalletName,
-    walletNames
+    walletNames,
+    WalletInterfaceError,
+    StringFormatError,
+    WalletProcessError,
+    WalletError,
+    CCVaultError,
+    NamiError,
+    FlintExperimentalError,
+    YoroiError,
+    GeroError
 }
