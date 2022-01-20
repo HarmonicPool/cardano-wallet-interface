@@ -18,23 +18,23 @@ declare class Wallet {
 
     private static _namiObj?: Wallet.RawCIP30WalletInterface;
 
-    private static _NamiInterface?: Wallet.WalletInterface;
+    private static _NamiInterface?: Wallet.Wallet;
 
     private static _ccvaultObj?: Wallet.RawCIP30WalletInterface;
     
-    private static _CCVaultInterface?: Wallet.WalletInterface;
+    private static _CCVaultInterface?: Wallet.Wallet;
 
     private static _flintExperimentalObj?: Wallet.RawCIP30WalletInterface;
     
-    private static _flintExperimentalInterface?: Wallet.WalletInterface;
+    private static _flintExperimentalInterface?: Wallet.Wallet;
 
     private static _yoroiObj?: Wallet.RawCIP30WalletInterface;
 
-    private static _yoroiInterface?: Wallet.WalletInterface;
+    private static _yoroiInterface?: Wallet.Wallet;
 
     private static _geroObj?: Wallet.RawCIP30WalletInterface;
 
-    private static _geroInterface?: Wallet.WalletInterface;
+    private static _geroInterface?: Wallet.Wallet;
 
 
     /**
@@ -99,7 +99,7 @@ declare class Wallet {
 
     /**
      * calls internally the ```isEnabled()``` defined in the CIP-0030
-     * if the promise result is true then the WalletInterface accessor will be aviable without the need to call ```Wallet.enable( WalletName.Wallet )```.
+     * if the promise result is true then the Wallet accessor will be aviable without the need to call ```Wallet.enable( WalletName.Wallet )```.
      * may be useful to understand when a user has already connected the given wallet to the website in a previous session
      * @param {Wallet.WalletName} wallet member of the WalletName enumerative object
      * @returns {Promise<boolean>} same as window.cardano.isEnabled()
@@ -109,7 +109,7 @@ declare class Wallet {
     /**
      * 
      * @param {Wallet.WalletName} wallet member of the WalletName enumerative object
-     * @returns {boolean} if the WalletInterface object is aviable
+     * @returns {boolean} if the Wallet object is aviable
      */
     static isAviable( wallet : Wallet.WalletName ) : boolean;
 
@@ -141,7 +141,12 @@ declare class Wallet {
     /**
      * 
      */
-    static get Nami() : Wallet.WalletInterface
+     static get NamiInterface() : Wallet.WalletInterface
+    
+    /**
+     * 
+     */
+    static get Nami() : Wallet.Wallet
 
     
     // ---------------------------------------- ccvault ---------------------------------------- //
@@ -170,7 +175,12 @@ declare class Wallet {
     /**
      * 
      */
-    static get CCVault(): Wallet.WalletInterface
+    static get CCVaultInterface() : Wallet.WalletInterface
+
+    /**
+     * 
+     */
+    static get CCVault(): Wallet.Wallet
 
     // ---------------------------------------- flintExperimental ---------------------------------------- //
 
@@ -202,7 +212,15 @@ declare class Wallet {
    */
     static flintExperimentalIsEnabled(): Promise<boolean>
 
-    static get FlintExperimental(): Wallet.WalletInterface
+    /**
+     * 
+     */
+    static get FlintExperimentalInterface() : Wallet.WalletInterface
+    
+    /**
+     * 
+     */
+    static get FlintExperimental(): Wallet.Wallet
 
 
     /**
@@ -227,7 +245,15 @@ declare class Wallet {
      */
     static yoroiIsEnabled(): Promise<boolean>
 
-    static get Yoroi(): Wallet.WalletInterface
+    /**
+     * 
+     */
+    static get YoroiInterface() : Wallet.WalletInterface
+
+    /**
+     * 
+     */
+    static get Yoroi(): Wallet.Wallet
 
     // ---------------------------------------- gerowallet ---------------------------------------- //
 
@@ -252,7 +278,15 @@ declare class Wallet {
      */
     static geroIsEnabled(): Promise<boolean>
 
-    static get Gero(): Wallet.WalletInterface
+    /**
+     * 
+     */
+     static get GeroInterface() : Wallet.WalletInterface
+    
+    /**
+     * 
+     */
+    static get Gero(): Wallet.Wallet
 }
 
 
@@ -303,6 +337,17 @@ declare namespace Wallet {
 
     export interface WalletInterface
     {
+        apiVersion: string
+        icon:       string
+        name:       string
+        isInjected:     () => boolean
+        enable:         () => Promise<void>
+        isEnabled:      () => Promise<boolean>
+        isAviable:      () => boolean
+    }
+    
+    export interface Wallet
+    {
         raw: RawCIP30WalletInterface;
         getCurrentUserDelegation: ( blockfrost_project_id?: string ) => Promise<object>,
         createDelegagtionTransaction: ( targetPoolId?: string, blockfrost_project_id?: string) => Promise<Transaction>,
@@ -318,7 +363,7 @@ declare namespace Wallet {
         remove: () => void
     }
 
-    export interface NamiInterface extends WalletInterface
+    export interface NamiInterface extends Wallet
     {
         onAccountChange: ( callback: (addresses : [CardanoTypes.BaseAddress]) => void ) => NamiEventController
         onNetworkChange: ( callback: (network : number) => void ) => NamiEventController
