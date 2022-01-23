@@ -44,6 +44,11 @@ class Wallet
   /**
    * @private
    */
+   static _namiInterface = undefined;
+
+  /**
+   * @private
+   */
   static _NamiWallet = undefined;
 
   // ---------------------------------------- ccvault objects ---------------------------------------- //
@@ -52,6 +57,11 @@ class Wallet
    * @private
    */
   static _ccvaultObj = undefined;
+
+  /**
+   * @private
+   */
+   static _ccvaultInterface = undefined;
   
   /**
    * @private
@@ -64,6 +74,11 @@ class Wallet
    * @private
    */
    static _flintExperimentalObj = undefined;
+
+   /**
+   * @private
+   */
+    static _flintExperimentalInterface = undefined;
   
    /**
     * @private
@@ -78,6 +93,11 @@ class Wallet
     static _yoroiObj = undefined;
 
     /**
+   * @private
+   */
+     static _yoroiInterface = undefined;
+
+    /**
     * @private
     */
     static _yoroiWallet = undefined;
@@ -88,6 +108,11 @@ class Wallet
    * @private
    */
    static _geroObj = undefined;
+
+   /**
+   * @private
+   */
+    static _geroInterface = undefined;
 
    /**
    * @private

@@ -18,21 +18,31 @@ declare class Wallet {
 
     private static _namiObj?: Wallet.RawCIP30WalletInterface;
 
+    private static _namiInterface?: Wallet.WalletInterface;
+
     private static _NamiWallet?: Wallet.Wallet;
 
     private static _ccvaultObj?: Wallet.RawCIP30WalletInterface;
+
+    private static _ccvaultInterface?: Wallet.WalletInterface;
     
     private static _CCVaultWallet?: Wallet.Wallet;
 
     private static _flintExperimentalObj?: Wallet.RawCIP30WalletInterface;
+
+    private static _flintExperimentalInterface?: Wallet.WalletInterface;
     
     private static _flintExperimentalWallet?: Wallet.Wallet;
 
     private static _yoroiObj?: Wallet.RawCIP30WalletInterface;
 
+    private static _yoroiInterface?: Wallet.WalletInterface;
+
     private static _yoroiWallet?: Wallet.Wallet;
 
     private static _geroObj?: Wallet.RawCIP30WalletInterface;
+
+    private static _geroInterface?: Wallet.WalletInterface;
 
     private static _geroWallet?: Wallet.Wallet;
 
@@ -223,6 +233,7 @@ declare class Wallet {
     static get FlintExperimental(): Wallet.Wallet
 
 
+    // ---------------------------------------- Yoroi ---------------------------------------- //
     /**
    * 
    * @deprecated use Wallet.has( WalletName.Yoroi ) instead
