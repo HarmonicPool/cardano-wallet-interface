@@ -44,7 +44,7 @@ class Wallet
   /**
    * @private
    */
-  static _NamiInterface = undefined;
+  static _NamiWallet = undefined;
 
   // ---------------------------------------- ccvault objects ---------------------------------------- //
   
@@ -56,7 +56,7 @@ class Wallet
   /**
    * @private
    */
-  static _CCVaultInterface = undefined;
+  static _CCVaultWallet = undefined;
 
   // ---------------------------------------- flint objects ---------------------------------------- //
 
@@ -68,7 +68,7 @@ class Wallet
    /**
     * @private
     */
-   static _flintExperimentalInterface = undefined;
+   static _flintExperimentalWallet = undefined;
 
    // ---------------------------------------- yoroi objects ---------------------------------------- //
 
@@ -80,7 +80,7 @@ class Wallet
     /**
     * @private
     */
-    static _yoroiInterface = undefined;
+    static _yoroiWallet = undefined;
 
     // ---------------------------------------- gero objects ---------------------------------------- //
 
@@ -92,7 +92,7 @@ class Wallet
    /**
    * @private
    */
-   static _geroInterface = undefined;
+   static _geroWallet = undefined;
 
   // ---------------------------------------- wallet utils ---------------------------------------- //
 
@@ -402,12 +402,12 @@ class Wallet
     if( !Wallet.has( WalletName.Nami ) ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
     if( !Wallet.isAviable( WalletName.Nami ) ) throw new NamiError("Wallet.enableNami has never been called before, can't access the Nami interface");
 
-    if( Wallet._NamiInterface === undefined )
+    if( Wallet._NamiWallet === undefined )
     {
-      Wallet._NamiInterface = private_makeWallet( Wallet._namiObj, Wallet._api_key )
+      Wallet._NamiWallet = private_makeWallet( Wallet._namiObj, Wallet._api_key )
     }
 
-    return Wallet._NamiInterface;
+    return Wallet._NamiWallet;
   }
   
   // ---------------------------------------- ccvault ---------------------------------------- //
@@ -481,12 +481,12 @@ class Wallet
     if( !Wallet.has( WalletName.CCVault ) ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
     if( !Wallet.isAviable( WalletName.CCVault ) ) throw new CCVaultError("Wallet.enableCCVault has never been called before, can't access the CCVault interface");
 
-    if( Wallet._CCVaultInterface === undefined )
+    if( Wallet._CCVaultWallet === undefined )
     {
-      Wallet._CCVaultInterface = private_makeWallet( Wallet._ccvaultObj, Wallet._api_key )
+      Wallet._CCVaultWallet = private_makeWallet( Wallet._ccvaultObj, Wallet._api_key )
     }
 
-    return Wallet._CCVaultInterface;
+    return Wallet._CCVaultWallet;
   }
 
   // ---------------------------------------- flintExperimental ---------------------------------------- //
@@ -578,12 +578,12 @@ class Wallet
     if( !Wallet.has( WalletName.FlintExperimental ) ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
     if( !Wallet.isAviable( WalletName.FlintExperimental ) ) throw new FlintExperimentalError("Wallet.enableFlintExperimental has never been called before, can't access the flintExperimental interface");
 
-    if( Wallet._flintExperimentalInterface === undefined )
+    if( Wallet._flintExperimentalWallet === undefined )
     {
-      Wallet._flintExperimentalInterface = private_makeWallet( Wallet._flintExperimentalObj, Wallet._api_key )
+      Wallet._flintExperimentalWallet = private_makeWallet( Wallet._flintExperimentalObj, Wallet._api_key )
     }
 
-    return Wallet._flintExperimentalInterface;
+    return Wallet._flintExperimentalWallet;
   }
 
   // ---------------------------------------- yoroi ---------------------------------------- //
@@ -679,12 +679,12 @@ class Wallet
     if( !Wallet.has( WalletName.Yoroi ) ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi nigthly extension is not installed");
     if( !Wallet.isAviable( WalletName.Yoroi ) ) throw new WalletInterfaceError("Wallet.enableYoroi has never been called before, can't access the Yoroi interface");
 
-    if( Wallet._yoroiInterface === undefined )
+    if( Wallet._yoroiWallet === undefined )
     {
-      Wallet._yoroiInterface = private_makeWallet( Wallet._yoroiObj, Wallet._api_key )
+      Wallet._yoroiWallet = private_makeWallet( Wallet._yoroiObj, Wallet._api_key )
     }
 
-    return Wallet._yoroiInterface;
+    return Wallet._yoroiWallet;
   }
 
   // ---------------------------------------- gerowallet ---------------------------------------- //
@@ -771,12 +771,12 @@ class Wallet
     if( !Wallet.has( WalletName.Gero ) ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
     if( !Wallet.isAviable( WalletName.Gero ) ) throw new WalletInterfaceError("Wallet.enableGero has never been called before, can't access the Gero interface");
 
-    if( Wallet._geroInterface === undefined )
+    if( Wallet._geroWallet === undefined )
     {
-      Wallet._geroInterface = private_makeWallet( Wallet._yoroiObj, Wallet._api_key )
+      Wallet._geroWallet = private_makeWallet( Wallet._yoroiObj, Wallet._api_key )
     }
 
-    return Wallet._geroInterface;
+    return Wallet._geroWallet;
   }
 
 }

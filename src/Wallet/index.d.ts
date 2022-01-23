@@ -18,23 +18,23 @@ declare class Wallet {
 
     private static _namiObj?: Wallet.RawCIP30WalletInterface;
 
-    private static _NamiInterface?: Wallet.Wallet;
+    private static _NamiWallet?: Wallet.Wallet;
 
     private static _ccvaultObj?: Wallet.RawCIP30WalletInterface;
     
-    private static _CCVaultInterface?: Wallet.Wallet;
+    private static _CCVaultWallet?: Wallet.Wallet;
 
     private static _flintExperimentalObj?: Wallet.RawCIP30WalletInterface;
     
-    private static _flintExperimentalInterface?: Wallet.Wallet;
+    private static _flintExperimentalWallet?: Wallet.Wallet;
 
     private static _yoroiObj?: Wallet.RawCIP30WalletInterface;
 
-    private static _yoroiInterface?: Wallet.Wallet;
+    private static _yoroiWallet?: Wallet.Wallet;
 
     private static _geroObj?: Wallet.RawCIP30WalletInterface;
 
-    private static _geroInterface?: Wallet.Wallet;
+    private static _geroWallet?: Wallet.Wallet;
 
 
     /**
