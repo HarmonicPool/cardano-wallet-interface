@@ -17,7 +17,11 @@
 export const WalletName : Readonly<{
     Nami: symbol;
     CCVault: symbol;
+    /**
+     * @deprecated
+     */
     FlintExperimental: symbol;
+    Flint: symbol;
     Yoroi: symbol;
     Gero: symbol;
 }>;

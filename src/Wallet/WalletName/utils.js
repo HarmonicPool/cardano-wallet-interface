@@ -5,6 +5,7 @@ const walletNames = Object.freeze([
     "Nami",
     "ccvault",
     "Flint Experimental",
+    "Flint",
     "yoroi",
     "GeroWallet"
 ]);
@@ -19,6 +20,7 @@ function getStringFromWalletName( walletNameEnum )
         case WalletName.Nami:               return "Nami";
         case WalletName.CCVault:            return "ccvault";
         case WalletName.FlintExperimental:  return "Flint Experimental";
+        case WalletName.Flint:              return "Flint";
         case WalletName.Yoroi:              return "yoroi";
         case WalletName.Gero:               return "GeroWallet";
 
@@ -39,6 +41,7 @@ function getWalletNameFromString( string )
         case "Nami":                return WalletName.Nami;
         case "ccvault":             return WalletName.CCVault;
         case "Flint Experimental":  return WalletName.FlintExperimental;
+        case "Flint":               return WalletName.Flint;
         case "yoroi":               return WalletName.Yoroi;
         case "GeroWallet":          return WalletName.Gero;
 

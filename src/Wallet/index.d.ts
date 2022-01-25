@@ -232,6 +232,17 @@ declare class Wallet {
      */
     static get FlintExperimental(): Wallet.Wallet
 
+    // ---------------------------------------- Yoroi ---------------------------------------- //
+
+    /**
+     * 
+     */
+    static get FlintInterface() : Wallet.WalletInterface
+
+    /**
+     * 
+     */
+    static get Flint() : Wallet.Wallet
 
     // ---------------------------------------- Yoroi ---------------------------------------- //
     /**
