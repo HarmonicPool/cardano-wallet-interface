@@ -1,12 +1,13 @@
 {
   "name": "@harmonicpool/cardano-wallet-interface",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "a package that makes easier to interact with wallets on cardano",
   "main": "src/index.js",
   "scripts": {
+    "test": "jest"
   },
   "publishConfig": {
-    "registry":"https://npm.pkg.github.com"
+    "registry": "https://npm.pkg.github.com"
   },
   "keywords": [
     "cardano",
@@ -26,5 +27,8 @@
   "dependencies": {
     "@emurgo/cardano-serialization-lib-browser": "^9.1.2",
     "buffer": "^6.0.3"
+  },
+  "devDependencies": {
+    "jest": "^27.4.7"
   }
 }
