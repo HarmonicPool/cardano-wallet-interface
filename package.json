@@ -28,7 +28,5 @@
     "@emurgo/cardano-serialization-lib-browser": "^9.1.2",
     "buffer": "^6.0.3"
   },
-  "devDependencies": {
-    "jest": "^27.4.7"
-  }
+  "devDependencies": {}
 }
