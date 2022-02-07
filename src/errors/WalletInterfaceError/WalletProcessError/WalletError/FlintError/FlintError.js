@@ -2,7 +2,7 @@
 
 const WalletError = require("../WalletError");
 
-class FlintExperimentalError extends WalletError
+class FlintError extends WalletError
 {
     constructor( message )
     {
@@ -10,4 +10,4 @@ class FlintExperimentalError extends WalletError
     }
 }
 
-module.exports = FlintExperimentalError;
+module.exports = FlintError;

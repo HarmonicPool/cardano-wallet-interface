@@ -10,7 +10,9 @@ const StringFormatError = require("../errors/WalletInterfaceError/StringFormatEr
 const WalletInterfaceError    = require("../errors/WalletInterfaceError/WalletInterfaceError");
 const NamiError               = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError");
 const CCVaultError            = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCVaultError");
-const FlintExperimentalError  = require("../errors/WalletInterfaceError/WalletProcessError//WalletError/FlintExperimentalError/FlintExperimentalError");
+const FlintError  = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/FlintError/FlintError");
+const YoroiError  = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/YoroiError/YoroiError");
+const GeroError  = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/GeroError/GeroError");
 const WalletError             = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError");
 const WalletProcessError      = require("../errors/WalletInterfaceError/WalletProcessError/WalletProcessError");
 
@@ -68,25 +70,6 @@ class Wallet
    */
   static _CCVaultWallet = undefined;
 
-  // ---------------------------------------- flint objects ---------------------------------------- //
-
-  /**
-   * @deprecated
-   * @private
-   */
-   static _flintExperimentalObj = undefined;
-
-   /**
-    * @deprecated
-   * @private
-   */
-    static _flintExperimentalInterface = undefined;
-  
-   /**
-    * @deprecated
-    * @private
-    */
-   static _flintExperimentalWallet = undefined;
 
    // ---------------------------------------- flint objects ---------------------------------------- //
 
@@ -226,9 +209,6 @@ class Wallet
     Wallet._assertBrowser();
     Wallet._assertWalletNameIsSym( wallet );
 
-    if( wallet === WalletName.FlintExperimental )
-    console.warn("flint experimental is will no mmore be supported as the non experimental version has been released\nplease consider using Flint instead")
-
     switch( wallet )
     {
       /*
@@ -237,7 +217,6 @@ class Wallet
       */
       case WalletName.Nami:               return !!window?.cardano?.nami;
       case WalletName.CCVault:            return !!window?.cardano?.ccvault;
-      case WalletName.FlintExperimental:  return !!window?.cardano?.flintExperimental;
       case WalletName.Flint:              return !!window?.cardano?.flint;
       case WalletName.Yoroi:              return !!window?.cardano?.yoroi;
       case WalletName.Gero:               return !!window?.cardano?.gerowallet;
@@ -266,17 +245,6 @@ class Wallet
 
       case WalletName.CCVault:            
         Wallet._ccvaultObj = await window.cardano.ccvault.enable();
-        return; break;
-
-      case WalletName.FlintExperimental:
-        Wallet._assertFlintExperimentalOnly();
-
-        // this should be the right piece of code however flin experimental 0.10.0 uses the global cardano object instead
-        // expected fix in 0.12.0
-        //Wallet._flintExperimentalObj = await window.cardano.flintExperimental.enable();
-        window.cardano.flintExperimental.enable();
-
-        Wallet._flintExperimentalObj = window.cardano;
         return; break;
 
       case WalletName.Flint:
@@ -320,11 +288,6 @@ class Wallet
         walletIsEnabled = await window.cardano.ccvault.isEnabled();
       break;
         
-      case WalletName.FlintExperimental:
-        Wallet._assertFlintExperimentalOnly();
-        walletIsEnabled = await window.cardano.flintExperimental.isEnabled();
-      break;
-      
       case WalletName.Flint:
         walletIsEnabled = await window.cardano.flint.isEnabled();
       break;
@@ -369,7 +332,6 @@ class Wallet
       */
       case WalletName.Nami:               return ( Wallet._namiObj !== undefined );
       case WalletName.CCVault:            return ( Wallet._ccvaultObj !== undefined );
-      case WalletName.FlintExperimental:  return ( Wallet._flintExperimentalObj !== undefined );
       case WalletName.Flint:              return ( Wallet._flintObj !== undefined );
       case WalletName.Yoroi:              return ( Wallet._yoroiObj !== undefined );
       case WalletName.Gero:               return ( Wallet._geroObj !== undefined );
@@ -379,64 +341,6 @@ class Wallet
   }
 
   // ---------------------------------------- Nami ---------------------------------------- //
-
-  /**
-   * @deprecated use Wallet.has( WalletName.Nami ) instead
-   * @returns {boolean} true if the nami extension has injected the window.cardano.enable function; false otherwise
-   */
-  static hasNami()
-  {
-    Wallet._assertBrowser();
-    private_warnDeprecated("Wallet.has( WalletName.Nami )");
-
-    return !!window?.cardano?.nami;
-  }
-
-  /**
-   * @deprecated use Wallet.enable( WalletName.Nami ) instead
-   */
-  static async enableNami()
-  {
-    if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
-    private_warnDeprecated("Wallet.enable( WalletName.Nami )")
-
-    try
-    {
-      Wallet._namiObj = await window.cardano.enable();
-    }
-    catch
-    {
-      Wallet._namiObj = undefined;
-    }
-  }
-
-  /**
-   * @deprecated use Wallet.isAviable( WalletName.Nami ) instead
-   */
-  static get namiHasBeenEnabled()
-  {
-    private_warnDeprecated("Wallet.isAviable( WalletName.Nami )");
-    return ( Wallet._namiObj !== undefined )
-  }
-
-  /**
-   * 
-   * @deprecated use Wallet.isEnabled( WalletName.Nami ) instead
-   */
-  static async namiIsEnabled()
-  {
-    if( !Wallet.hasNami() ) throw new NamiError("can't access the Nami object if the Nami extension is not installed");
-    private_warnDeprecated("Wallet.isEnabled( WalletName.Nami )")
-
-    if( await window.cardano?.isEnabled() )
-    {
-      // sets the _ccvaultObj static property
-      Wallet.enableNami();
-      return true;
-    }
-    else return false;
-
-  }
 
   static get NamiInterface()
   {
@@ -464,65 +368,6 @@ class Wallet
   }
   
   // ---------------------------------------- ccvault ---------------------------------------- //
-  /**
-   * @deprecated use Wallet.has( WalletName.CCVault ) instead
-   * @returns {boolean} true if the ccvault extension has injected the window.cardano.ccvault object; false otherwise
-   */
-  static hasCCVault()
-  {
-    Wallet._assertBrowser();
-    private_warnDeprecated("Wallet.has( WalletName.CCVault )");
-
-    return !!window.cardano?.ccvault;
-  }
-
-  /**
-   * @deprecated use Wallet.enable( WalletName.CCVault ) instead
-   */
-  static async enableCCVault()
-  {
-    if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
-    private_warnDeprecated("Wallet.enable( WalletName.CCVault )")
-
-    try
-    {
-      Wallet._ccvaultObj = await window.cardano.ccvault.enable();
-    }
-    catch (e)
-    {
-      console.warn("could not enable CCVault");
-      Wallet._ccvaultObj = undefined;
-      throw e;
-    }
-  }
-
-  /**
-   * @deprecated use Wallet.isAviable( WalletName.CCVault ) instead
-   */
-  static get ccvaultHasBeenEnabled()
-  {
-    private_warnDeprecated("Wallet.isAviable( WalletName.CCVault )")
-    return ( Wallet._ccvaultObj !== undefined )
-  }
-
-  /**
-   * 
-   * @deprecated use Wallet.isEnabled( WalletName.CCVault ) instead
-   */
-  static async ccvaultIsEnabled()
-  {
-    if( !Wallet.hasCCVault() ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
-    private_warnDeprecated("Wallet.isEnabled( WalletName.CCVault )")
-
-    if( await window.cardano?.ccvault.isEnabled() )
-    {
-      // sets the _ccvaultObj static property
-      Wallet.enableCCVault();
-      return true;
-    }
-    else return false;
-
-  }
 
   static get CCVaultInterface()
   {
@@ -549,115 +394,13 @@ class Wallet
     return Wallet._CCVaultWallet;
   }
 
-  // ---------------------------------------- flintExperimental ---------------------------------------- //
-
-  static _assertFlintExperimentalOnly()
-  {
-    if( Wallet.hasNami() || Wallet.hasCCVault() ||  Wallet.hasGero() || Wallet.hasYoroi() )
-    throw new FlintExperimentalError(
-      "flintExperimental only works if is the only extension injected, please ask to disable all other cardano wallets extension and to refresh the page in order to work with flintExperimental"
-    );
-  }
-
-  /**
-   * @deprecated use Wallet.has( WalletName.FlintExperimental ) instead
-   * @returns {boolean} true if the flintExperimental extension has injected the window.cardano.flintExperimental object; false otherwise
-   */
-  static hasFlintExperimental()
-  {
-    Wallet._assertBrowser();
-    Wallet._assertFlintExperimentalOnly();
-    private_warnDeprecated("Wallet.has( WalletName.FlintExperimental )");
-
-    return !!window.cardano?.flintExperimental;
-  }
  
-  /**
-   * @deprecated use Wallet.enable( WalletName.FlintExperimental ) instead
-   */
-  static async enableFlintExperimental()
-  {
-    Wallet._assertFlintExperimentalOnly();
-    if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
-    private_warnDeprecated("Wallet.enable( WalletName.FlintExperimental )")
-    try
-    {
-      let enableResult = await window.cardano?.flintExperimental.enable();
-
-      if(enableResult)
-      {
-        Wallet._flintExperimentalObj = window.cardano;
-      }
-    }
-    catch (e)
-    {
-      console.warn("could not enable flintExperimental");
-      Wallet._flintExperimentalObj = undefined;
-      throw e;
-    }
-  }
- 
-  /**
-   * @deprecated use Wallet.isAviable( WalletName.FlintExperimental ) instead
-   */
-  static get flintExperimentalHasBeenEnabled()
-  {
-    Wallet._assertFlintExperimentalOnly();
-    private_warnDeprecated("Wallet.isAviable( WalletName.FlintExperimental )")
-    return ( Wallet._flintExperimentalObj !== undefined )
-  }
-
-  /**
-   * 
-   * @deprecated use Wallet.isEnabled( WalletName.FlintExperimental ) instead
-   */
-  static async flintExperimentalIsEnabled()
-  {
-    Wallet._assertFlintExperimentalOnly();
-    if( !Wallet.hasFlintExperimental() ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
-    private_warnDeprecated("Wallet.isEnabled( WalletName.FlintExperimental )")
-
-    if( await window.cardano?.flintExperimental.isEnabled() )
-    {
-      // sets the _flintExperimentalObj static property
-      Wallet.enableFlintExperimental();
-      return true;
-    }
-    else return false;
-
-  }
-
-  static get FlintExperimentalInterface()
-  {
-    if( !Wallet.has( WalletName.FlintExperimental ) ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
-
-    if( Wallet._flintExperimentalInterface === undefined )
-    {
-      Wallet._flintExperimentalInterface = private_makeWalletInterface( WalletName.FlintExperimental );
-    }
-
-    return Wallet._flintExperimentalInterface;
-  }
-
-  static get FlintExperimental()
-  {
-    Wallet._assertFlintExperimentalOnly();
-    if( !Wallet.has( WalletName.FlintExperimental ) ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
-    if( !Wallet.isAviable( WalletName.FlintExperimental ) ) throw new FlintExperimentalError("Wallet.enableFlintExperimental has never been called before, can't access the flintExperimental wallet object");
-
-    if( Wallet._flintExperimentalWallet === undefined )
-    {
-      Wallet._flintExperimentalWallet = private_makeWallet( Wallet._flintExperimentalObj, Wallet._api_key )
-    }
-
-    return Wallet._flintExperimentalWallet;
-  }
 
   // ---------------------------------------- flint TODO ToDo todo ---------------------------------------- //
   
   static get FlintInterface()
   {
-    if( !Wallet.has( WalletName.Flint ) ) throw new FlintExperimentalError("can't access the flintExperimental object if the flintExperimental extension is not installed");
+    if( !Wallet.has( WalletName.Flint ) ) throw new FlintError("can't access the flint object if the flint extension is not installed");
 
     if( Wallet._flintInterface === undefined )
     {
@@ -669,9 +412,8 @@ class Wallet
 
   static get Flint()
   {
-    Wallet._assertFlintExperimentalOnly();
-    if( !Wallet.has( WalletName.FlintExperimental ) ) throw new WalletError("can't access the flintExperimental object if the flintExperimental extension is not installed");
-    if( !Wallet.isAviable( WalletName.FlintExperimental ) ) throw new WalletError("Wallet.enableFlintExperimental has never been called before, can't access the flintExperimental wallet object");
+    if( !Wallet.has( WalletName.Flint ) ) throw new FlintError("can't access the flint object if the flint extension is not installed");
+    if( !Wallet.isAviable( WalletName.Flint ) ) throw new FlintError("Wallet.enableFlint has never been called before, can't access the flint wallet object");
 
     if( Wallet._flintWallet === undefined )
     {
@@ -697,76 +439,9 @@ class Wallet
     }
   }
 
-  /**
-   * 
-   * @deprecated use Wallet.has( WalletName.Yoroi ) instead
-   */
-  static hasYoroi()
-  {
-    Wallet._assertBrowser();
-    private_warnDeprecated("Wallet.has( WalletName.Yoroi )")
-    
-    return !!window.cardano?.yoroi;
-  }
-
-  /**
-   * @deprecated use Wallet.enable( WalletName.Yoroi ) instead
-   */
-  static async enableYoroi()
-  {
-    if( !Wallet.hasYoroi() ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi extension is not installed");
-    private_warnDeprecated("Wallet.enable( WalletName.Yoroi )")
-
-    try
-    {
-      Wallet._makeSureYoroiIsInjectedCorrectly();
-      Wallet._yoroiObj = await window.cardano.yoroi.enable();
-      Wallet._yoroiObj = {
-        ...Wallet._yoroiObj,
-        enable: window.cardano.yoroi.enable,
-        isEnabled: window.cardano.yoroi.isEnabled
-      }
-    }
-    catch (e)
-    {
-      console.warn("could not enable Yoroi");
-      Wallet._yoroiObj = undefined;
-      throw e;
-    }
-  }
-
-  /**
-   * @deprecated use Wallet.isAviable( WalletName.Yoroi ) instead
-   */
-  static get yoroiHasBeenEnabled()
-  {
-    private_warnDeprecated("Wallet.isAviable( WalletName.Yoroi )")
-    return ( Wallet._yoroiObj !== undefined )
-  }
-
-  /**
-   * 
-   * @deprecated use Wallet.isEnabled( WalletName.Yoroi ) instead
-   */
-  static async yoroiIsEnabled()
-  {
-    if( !Wallet.hasYoroi() ) throw new WalletInterfaceError("can't access the flintExperimental object if the flintExperimental extension is not installed");
-    private_warnDeprecated("Wallet.isEnabled( WalletName.Yoroi )")
-
-    Wallet._makeSureYoroiIsInjectedCorrectly();
-    if( await window.cardano?.yoroi.isEnabled() )
-    {
-      // sets the _flintExperimentalObj static property
-      Wallet.enableYoroi();
-      return true;
-    }
-    else return false;
-
-  }
-
   static get YoroiInterface()
   {
-    if( !Wallet.has( WalletName.Yoroi ) ) throw new WalletError("can't access the yoroi object if the yoroi extension is not installed");
+    if( !Wallet.has( WalletName.Yoroi ) ) throw new YoroiError("can't access the yoroi object if the yoroi extension is not installed");
 
     if( Wallet._yoroiInterface === undefined )
     {
@@ -791,81 +466,9 @@ class Wallet
 
   // ---------------------------------------- gerowallet ---------------------------------------- //
 
-  /**
-   * 
-   * @deprecated use Wallet.has( WalletName.Gero ) instead
-   */
-  static hasGero()
-  {
-    Wallet._assertBrowser();
-    private_warnDeprecated("Wallet.has( WalletName.Gero )");
-    
-    return !!window.cardano?.gerowallet;
-  }
-
-  static pageIsGeroWalletFriendly()
-  {
-    const thisDomainSplitted = window.location.hostname
-    .split(".") ;
-
-    return geroWalletFriendlyDomains.includes(
-      thisDomainSplitted.filter( (_, i) => ( i === thisDomainSplitted.length - 1 || i === thisDomainSplitted.length - 2) ).join(".")
-    );
-  }
-
-  /**
-   * @deprecated use Wallet.enable( WalletName.Gero ) instead
-   */
-  static async enableGero()
-  {
-    // Wallet._assertBrowser(); include in Wallet.hasGero()
-    if( !Wallet.hasGero() ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
-    private_warnDeprecated("Wallet.enable( WalletName.Gero )")
-    try
-    {
-      
-      Wallet._geroObj = await window.cardano.gerowallet.enable();
-      Wallet._geroObj = {
-        ...Wallet._geroObj,
-        enable: window.cardano.gerowallet.enable,
-        isEnabled: window.cardano.gerowallet.isEnabled
-      }
-    }
-    catch (e)
-    {
-      console.warn("could not enable Gero");
-      Wallet._geroObj = undefined;
-      throw e;
-    }
-  }
-
-  static get geroHasBeenEnabled()
-  {
-    return ( Wallet._geroObj !== undefined )
-  }
-
-  /**
-   * 
-   * @deprecated use Wallet.isEnabled( WalleName.Gero ) instead
-   */
-  static async geroIsEnabled()
-  {
-    if( !Wallet.hasGero() ) throw new WalletInterfaceError("can't access the Gero object if the gero wallet extension is not installed");
-    private_warnDeprecated("Wallet.isEnabled( WalleName.Gero )")
-
-    if( await window.cardano?.gerowallet.isEnabled() )
-    {
-      // sets the _geroObj static property
-      Wallet.enableGero();
-      return true;
-    }
-    else return false;
-
-  }
-
   static get GeroInterface()
   {
-    if( !Wallet.has( WalletName.Gero ) ) throw new WalletError("can't access the gero object if the gerowallet extension is not installed");
+    if( !Wallet.has( WalletName.Gero ) ) throw new GeroError("can't access the gero object if the gerowallet extension is not installed");
 
     if( Wallet._geroInterface === undefined )
     {
@@ -908,7 +511,6 @@ function private_makeWalletInterface( walletSymbolName )
   if(
     walletSymbolName !== WalletName.Nami ||
     walletSymbolName !== WalletName.CCVault ||
-    walletSymbolName !== WalletName.FlintExperimental ||
     walletSymbolName !== WalletName.Flint ||
     walletSymbolName !== WalletName.Yoroi ||
     walletSymbolName !== WalletName.Gero
@@ -921,7 +523,6 @@ function private_makeWalletInterface( walletSymbolName )
     {
       case WalletName.Nami:              return window?.cardano?.nami?.apiVersion               ? window.cardano.nami.apiVersion : ""; 
       case WalletName.CCVault:           return window?.cardano?.ccvault?.apiVersion            ? window.cardano.ccvault.apiVersion : "";  
-      case WalletName.FlintExperimental: return window?.cardano?.flintExperimental?.apiVersion  ? window.cardano.flintExperimental.apiVersion : "";
       case WalletName.Flint:             return window?.cardano?.flint?.apiVersion              ? window.cardano.flint.apiVersion : ""; 
       case WalletName.Yoroi:             return window?.cardano?.yoroi?.apiVersion              ? window.cardano.yoroi.apiVersion : "";  
       case WalletName.Gero:              return window?.cardano?.gerowallet?.apiVersion         ? window.cardano.gerowallet.apiVersion : "";
@@ -936,7 +537,6 @@ function private_makeWalletInterface( walletSymbolName )
     {
       case WalletName.Nami:              return window?.cardano?.nami?.name               ? window.cardano.nami.name : ""; 
       case WalletName.CCVault:           return window?.cardano?.ccvault?.name            ? window.cardano.ccvault.name : "";  
-      case WalletName.FlintExperimental: return window?.cardano?.flintExperimental?.name  ? window.cardano.flintExperimental.name : "";  
       case WalletName.Flint:             return window?.cardano?.flint?.name              ? window.cardano.flint.name : ""; 
       case WalletName.Yoroi:             return window?.cardano?.yoroi?.name              ? window.cardano.yoroi.name : "";  
       case WalletName.Gero:              return window?.cardano?.gerowallet?.name         ? window.cardano.gerowallet.name : "";
@@ -951,7 +551,6 @@ function private_makeWalletInterface( walletSymbolName )
     {
       case WalletName.Nami:              return window?.cardano?.nami?.icon               ? window.cardano.nami.icon : ""; 
       case WalletName.CCVault:           return window?.cardano?.ccvault?.icon            ? window.cardano.ccvault.icon : "";  
-      case WalletName.FlintExperimental: return window?.cardano?.flintExperimental?.icon  ? window.cardano.flintExperimental.icon : "";  
       case WalletName.Flint:             return window?.cardano?.flint?.icon              ? window.cardano.flint.icon : ""; 
       case WalletName.Yoroi:             return window?.cardano?.yoroi?.icon              ? window.cardano.yoroi.icon : "";  
       case WalletName.Gero:              return window?.cardano?.gerowallet?.icon         ? window.cardano.gerowallet.icon : "";
@@ -1095,7 +694,7 @@ function private_getPoolId( bech32_poolId )
 async function private_getRewardAddress ( WalletProvider )
 {
   const getRewardAddress =
-  // nami || flintExperimental
+  // nami || flint
   WalletProvider.getRewardAddress || 
   // CCVault
   WalletProvider.getRewardAddresses
