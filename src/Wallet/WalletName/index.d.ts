@@ -20,7 +20,7 @@ export const WalletName : Readonly<{
     Flint: symbol;
     Yoroi: symbol;
     Gero: symbol;
-    //Typhon: symbol;
+    Typhon: symbol;
 }>;
 
 

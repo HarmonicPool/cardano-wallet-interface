@@ -13,6 +13,7 @@ const CCVaultError            = require("../errors/WalletInterfaceError/WalletPr
 const FlintError  = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/FlintError/FlintError");
 const YoroiError  = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/YoroiError/YoroiError");
 const GeroError  = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/GeroError/GeroError");
+const TyphonError = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/TyphonError/TyphonError");
 const WalletError             = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError");
 const WalletProcessError      = require("../errors/WalletInterfaceError/WalletProcessError/WalletProcessError");
 
@@ -122,6 +123,22 @@ class Wallet
    */
    static _geroWallet = undefined;
 
+   // ---------------------------------------- Typhon objects ---------------------------------------- //
+  /**
+   * @private
+   */
+  static _typhonObj = undefined;
+
+  /**
+   * @private
+   */
+   static _typhonInterface = undefined;
+
+  /**
+   * @private
+   */
+  static _TyphonWallet = undefined;
+
   // ---------------------------------------- wallet utils ---------------------------------------- //
 
   static _assertBrowser()
@@ -220,6 +237,7 @@ class Wallet
       case WalletName.Flint:              return !!window?.cardano?.flint;
       case WalletName.Yoroi:              return !!window?.cardano?.yoroi;
       case WalletName.Gero:               return !!window?.cardano?.gerowallet;
+      case WalletName.Typhon:             return !!window?.cardano?.typhon;
 
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }
@@ -258,6 +276,15 @@ class Wallet
       case WalletName.Gero:               
         Wallet._geroObj = await window.cardano.gerowallet.enable();
         return; break;
+
+      case WalletName.Typhon:
+        let tResult =  await window.cardano.typhon.enable();
+        if( tResult.satus )
+        {
+          Wallet._typhonObj = window.cardano.typhon
+        }
+        else throw TyphonError("user rejected typhon connection")
+      return;break;
 
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }
@@ -300,6 +327,11 @@ class Wallet
         walletIsEnabled = await window.cardano.gerowallet.isEnabled();
       break;
 
+      case WalletName.Typhon:
+        let {status, data} = await window.cardano.typhon.isEnabled();
+        walletIsEnabled = data && status;
+      break;
+
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }
 
@@ -335,6 +367,7 @@ class Wallet
       case WalletName.Flint:              return ( Wallet._flintObj !== undefined );
       case WalletName.Yoroi:              return ( Wallet._yoroiObj !== undefined );
       case WalletName.Gero:               return ( Wallet._geroObj !== undefined );
+      case WalletName.Typhon:             return ( Wallet._typhonObj !== undefined );
 
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }
@@ -485,12 +518,39 @@ class Wallet
 
     if( Wallet._geroWallet === undefined )
     {
-      Wallet._geroWallet = private_makeWallet( Wallet._yoroiObj, Wallet._api_key )
+      Wallet._geroWallet = private_makeWallet( Wallet._geroObj, Wallet._api_key )
     }
 
     return Wallet._geroWallet;
   }
 
+  // ---------------------------------------- typhon ---------------------------------------- //
+
+  
+  static get TyphonInterface()
+  {
+    if( !Wallet.has( WalletName.Typhon ) ) throw new TyphonError("can't access the Typhon object if the Typhon extension is not installed");
+
+    if( Wallet._typhonInterface === undefined )
+    {
+      Wallet._typhonInterface = private_makeWalletInterface( WalletName.Typhon );
+    }
+    
+    return Wallet._typhonInterface;
+  }
+
+  static get Typhon()
+  {
+    if( !Wallet.has( WalletName.Typhon ) ) throw new TyphonError("can't access the Typhon object if the Typhon Wallet extension is not installed");
+    if( !Wallet.isAviable( WalletName.Typhon ) ) throw new TyphonError("Wallet.enable( WalletName.Typhon ) has never been called before, can't access the Typhon interface");
+
+    if( Wallet._TyphonWallet === undefined )
+    {
+      Wallet._TyphonWallet = private_makeWallet( Wallet._typhonObj, Wallet._api_key )
+    }
+
+    return Wallet._TyphonWallet;
+  }
 }
 
 
@@ -513,7 +573,8 @@ function private_makeWalletInterface( walletSymbolName )
     walletSymbolName !== WalletName.CCVault ||
     walletSymbolName !== WalletName.Flint ||
     walletSymbolName !== WalletName.Yoroi ||
-    walletSymbolName !== WalletName.Gero
+    walletSymbolName !== WalletName.Gero ||
+    walletSymbolName !== WalletName.Typhon
   )
   throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object");
 
@@ -526,6 +587,7 @@ function private_makeWalletInterface( walletSymbolName )
       case WalletName.Flint:             return window?.cardano?.flint?.apiVersion              ? window.cardano.flint.apiVersion : ""; 
       case WalletName.Yoroi:             return window?.cardano?.yoroi?.apiVersion              ? window.cardano.yoroi.apiVersion : "";  
       case WalletName.Gero:              return window?.cardano?.gerowallet?.apiVersion         ? window.cardano.gerowallet.apiVersion : "";
+      case WalletName.Typhon:            return window?.cardano?.typhon?.apiVersion             ? window.cardano.typhon.apiVersion : "";
       
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }
@@ -540,7 +602,8 @@ function private_makeWalletInterface( walletSymbolName )
       case WalletName.Flint:             return window?.cardano?.flint?.name              ? window.cardano.flint.name : ""; 
       case WalletName.Yoroi:             return window?.cardano?.yoroi?.name              ? window.cardano.yoroi.name : "";  
       case WalletName.Gero:              return window?.cardano?.gerowallet?.name         ? window.cardano.gerowallet.name : "";
-      
+      case WalletName.Typhon:            return window?.cardano?.typhon?.name             ? window.cardano.typhon.name : "";
+
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }
   }
@@ -554,6 +617,7 @@ function private_makeWalletInterface( walletSymbolName )
       case WalletName.Flint:             return window?.cardano?.flint?.icon              ? window.cardano.flint.icon : ""; 
       case WalletName.Yoroi:             return window?.cardano?.yoroi?.icon              ? window.cardano.yoroi.icon : "";  
       case WalletName.Gero:              return window?.cardano?.gerowallet?.icon         ? window.cardano.gerowallet.icon : "";
+      case WalletName.Typhon:            return window?.cardano?.typhon?.icon             ? window.cardano.typhon.icon : "";
       
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }
