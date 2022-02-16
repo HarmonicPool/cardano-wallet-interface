@@ -8,7 +8,8 @@ const walletNames = Object.freeze([
     "Flint",
     "yoroi",
     "GeroWallet",
-    "Typhon Wallet"
+    "Typhon Wallet",
+    "CardWallet"
 ]);
 
 function getStringFromWalletName( walletNameEnum )
@@ -25,6 +26,7 @@ function getStringFromWalletName( walletNameEnum )
         case WalletName.Yoroi:              return "yoroi";
         case WalletName.Gero:               return "GeroWallet";
         case WalletName.Typhon:             return "Typhon Wallet";
+        case WalletName.Cardwallet:         return "CardWallet";
 
         default:
             throw invalidSymbolError;
@@ -47,6 +49,8 @@ function getWalletNameFromString( string )
         case "yoroi":               return WalletName.Yoroi;
         case "GeroWallet":          return WalletName.Gero;
         case "Typhon Wallet":       return WalletName.Typhon;
+        case "CardWallet":          return WalletName.Cardwallet;
+
 
         default: // should never get here
             throw invalidString;

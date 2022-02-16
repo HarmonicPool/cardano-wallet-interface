@@ -1,9 +1,21 @@
 # cardano-wallet-interface
 ##### brought to you by [Harmonic Pool](https://harmonicpool.on.fleek.co/)
 
+## Thank you
+
+**This softweare exists thanks to Harmonic delegators an supporters**
+
+### How can I support?
+
+- [delegate ADA to Harmonic Pool](https://harmonicpool.on.fleek.co/delegate/)
+- donate ADA to : ```addr1qxm09exmyl04yhh67rvvmp2zauq32p8g7v60wtv03ved7t8h2y992ly7znq5q8ckurcpum0dc8kaunpkysnlnzzhw0pqd875p8```
+- contribute building this repository
+- contribute building a greather Cardano with any repository of Harmonic Pool
+
 ## Contents
 - [Prerequisites](#Prerequisites)
 - [Installation](#Installation)
+- [supported wallets](#supported)
 - [Usage](#Usage)
     - [basic usage](#basic_delegation)
         - [nami delegation](#delegate_using_nami)
@@ -26,6 +38,20 @@ run the following in your project directory
 ```bash
 npm install https://github.com/HarmonicPool/cardano-wallet-interface
 ```
+
+<a name="basic_delegation">
+</a>
+<h2>supported wallets</h2>
+
+here's a list of supported wallet, if you notice a Cardano wallet that support dApp connector is missing, feel free to [send a mail here](mailto:harmonic.pool@protonmail.com)
+
+- [Nami](https://namiwallet.io/)
+- [CCVault](https://ccvault.io/)
+- [Flint](https://flint-wallet.com/)
+- [Yoroi](https://yoroi-wallet.com/#/)
+- [Gero Wallet](https://www.gerowallet.io/)
+- [Typhon](https://typhonwallet.io/#/)
+- [CardWallet](https://cardwallet.fi/)
 
 ## Usage
 

@@ -126,29 +126,6 @@ declare class Wallet {
     // ---------------------------------------- Nami ---------------------------------------- //
 
     /**
-   * @deprecated use Wallet.has( WalletName.Nami ) instead
-   * @returns {boolean} true if the nami extension has injected the window.cardano.enable function; false otherwise
-   */
-    static hasNami(): boolean
-    
-    /**
-   * @deprecated use Wallet.enable( WalletName.Nami ) instead
-   */
-    static enableNami(): Promise<void>
-
-    /**
-   * @deprecated use Wallet.isAviable( WalletName.Nami ) instead
-   */
-    static get namiHasBeenEnabled() : boolean
-
-    
-    /**
-   * 
-   * @deprecated use Wallet.isEnabled( WalletName.Nami ) instead
-   */
-    static namiIsEnabled(): Promise<boolean>
-
-    /**
      * 
      */
      static get NamiInterface() : Wallet.WalletInterface
@@ -161,28 +138,6 @@ declare class Wallet {
     
     // ---------------------------------------- ccvault ---------------------------------------- //
     /**
-   * @deprecated use Wallet.has( WalletName.CCVault ) instead
-   * @returns {boolean} true if the ccvault extension has injected the window.cardano.ccvault object; false otherwise
-   */
-    static hasCCVault(): boolean
-
-    /**
-   * @deprecated use Wallet.enable( WalletName.CCVault ) instead
-   */
-    static enableCCVault(): Promise<void>
-
-    /**
-   * @deprecated use Wallet.isAviable( WalletName.CCVault ) instead
-   */
-    static get ccvaultHasBeenEnabled(): boolean
-
-    /**
-   * 
-   * @deprecated use Wallet.isEnabled( WalletName.CCVault ) instead
-   */
-    static ccvaultIsEnabled(): Promise<boolean>
-
-    /**
      * 
      */
     static get CCVaultInterface() : Wallet.WalletInterface
@@ -192,45 +147,6 @@ declare class Wallet {
      */
     static get CCVault(): Wallet.Wallet
 
-    // ---------------------------------------- flintExperimental ---------------------------------------- //
-
-    /**
-     * checks for the others extension supported
-     * @throws {FlintExperimentalError} if either Wallet.hasNami() or Wallet.hasCCVault() evaluates to true.
-     */
-    static _assertFlintExperimentalOnly() : void
-
-    /**
-   * @deprecated use Wallet.has( WalletName.FlintExperimental ) instead
-   * @returns {boolean} true if the flintExperimental extension has injected the window.cardano.flintExperimental object; false otherwise
-   */
-    static hasFlintExperimental() : boolean
-
-    /**
-   * @deprecated use Wallet.enable( WalletName.FlintExperimental ) instead
-   */
-    static enableFlintExperimental(): Promise<void>
-
-    /**
-   * @deprecated use Wallet.isAviable( WalletName.FlintExperimental ) instead
-   */
-    static get flintExperimentalHasBeenEnabled(): boolean
-
-    /**
-   * 
-   * @deprecated use Wallet.isEnabled( WalletName.FlintExperimental ) instead
-   */
-    static flintExperimentalIsEnabled(): Promise<boolean>
-
-    /**
-     * 
-     */
-    static get FlintExperimentalInterface() : Wallet.WalletInterface
-    
-    /**
-     * 
-     */
-    static get FlintExperimental(): Wallet.Wallet
 
     // ---------------------------------------- Yoroi ---------------------------------------- //
 
@@ -246,28 +162,6 @@ declare class Wallet {
 
     // ---------------------------------------- Yoroi ---------------------------------------- //
     /**
-   * 
-   * @deprecated use Wallet.has( WalletName.Yoroi ) instead
-   */
-    static hasYoroi(): boolean
-        
-    /**
-     * @deprecated use Wallet.enable( WalletName.Yoroi ) instead
-     */
-    static enableYoroi(): Promise<void>
-
-    /**
-     * @deprecated use Wallet.isAviable( WalletName.Yoroi ) instead
-     */
-    static get yoroiHasBeenEnabled(): boolean
-
-    /**
-     * 
-     * @deprecated use Wallet.isEnabled( WalletName.Yoroi ) instead
-     */
-    static yoroiIsEnabled(): Promise<boolean>
-
-    /**
      * 
      */
     static get YoroiInterface() : Wallet.WalletInterface
@@ -278,27 +172,7 @@ declare class Wallet {
     static get Yoroi(): Wallet.Wallet
 
     // ---------------------------------------- gerowallet ---------------------------------------- //
-
-    /**
-     * 
-     * @deprecated use Wallet.has( WalletName.Gero ) instead
-     */
-    static hasGero(): boolean
-
     static pageIsGeroWalletFriendly(): boolean
-
-    /**
-     * @deprecated use Wallet.enable( WalletName.Gero ) instead
-     */
-    static enableGero(): Promise<void>
-
-    static get geroHasBeenEnabled(): boolean
-
-    /**
-     * 
-     * @deprecated use Wallet.isEnabled( WalleName.Gero ) instead
-     */
-    static geroIsEnabled(): Promise<boolean>
 
     /**
      * 
@@ -309,6 +183,20 @@ declare class Wallet {
      * 
      */
     static get Gero(): Wallet.Wallet
+
+  // ---------------------------------------- typhon ---------------------------------------- //
+
+  static get TyphonInterface() : Wallet.WalletInterface
+
+  static get Typhon() : Wallet.Wallet
+
+  // ---------------------------------------- cardwallet ---------------------------------------- //
+
+
+  static get CardwalletInterface() : Wallet.WalletInterface
+
+  static get Cardwallet() : Wallet.Wallet
+
 }
 
 
@@ -317,7 +205,15 @@ declare namespace Wallet {
 
     export type WalletName = symbol;
 
-    export type WalletStringName = "Nami" | "ccvault" | "Flint Experimental" | "yoroi" | "GeroWallet" ;
+    export type WalletStringName =
+        "Nami"          |
+        "ccvault"       |
+        "Flint"         |
+        "yoroi"         | 
+        "GeroWallet"    |
+        "Typhon Wallet" |
+        "CardWallet"
+    ;
 
     export namespace CardanoTypes {
         export type BaseAddress = string
@@ -333,6 +229,7 @@ declare namespace Wallet {
     export type Bytes = Buffer;
     export type Paginate = object
     export type value = any;
+    export type UTxO = cbor<value>
     export type Sig_structure = any;
 
     export interface RawCIP30WalletInterface {
@@ -355,6 +252,8 @@ declare namespace Wallet {
         signTx: (tx: cbor<Transaction>, partialSign: boolean ) => Promise<cbor<TransactionWitnessSet>>,
         signData: (addr: cbor<address>, sigStructure: cbor<Sig_structure>) => Promise<Bytes>,
         submitTx: (tx: cbor<Transaction>) => Promise<hash32>
+        // getCollateral is still experimental in some wallets
+        getCollateral: () => Promise<UTxO[]>
     }
 
     export interface WalletInterface

@@ -21,7 +21,10 @@ export const WalletName : Readonly<{
     Yoroi: symbol;
     Gero: symbol;
     Typhon: symbol;
+    Cardwallet: symbol;
 }>;
+
+
 
 
 export default WalletName;

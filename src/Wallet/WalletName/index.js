@@ -8,7 +8,8 @@ const WalletName = Object.freeze({
     Flint: Symbol("Flint"),
     Yoroi: Symbol("yoroi"),
     Gero: Symbol("GeroWallet"),
-    Typhon: Symbol("Typhon Wallet")
+    Typhon: Symbol("Typhon Wallet"),
+    Cardwallet: Symbol("CardWallet")
 })
 
 module.exports = WalletName;
