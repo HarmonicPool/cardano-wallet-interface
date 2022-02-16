@@ -1,6 +1,6 @@
 
-  const Loader = require("./WasmLoader");
-  /**
+const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
+/**
    * BerryPool implementation of the __Random-Improve__ coin selection algorithm.
    *
    * = Overview
@@ -193,14 +193,14 @@
      * @return {SelectionResult} - Coin Selection algorithm return
      */
     randomImprove: async (inputs, outputs, limit, minUTxOValue) => {
-      await Loader.load();
+      
       /** @type {UTxOSelection} */
       let utxoSelection = {
         selection: [],
         remaining: [...inputs], // Shallow copy
         subset: [],
-        amount: Loader.Cardano.Value.new(Loader.Cardano.BigNum.from_str("0")),
-        change: Loader.Cardano.Value.new(Loader.Cardano.BigNum.from_str("0")),
+        amount: SLib.Value.new(SLib.BigNum.from_str("0")),
+        change: SLib.Value.new(SLib.BigNum.from_str("0")),
       };
   
       let mergedOutputs = mergeOutputsAmounts(outputs);
@@ -243,13 +243,13 @@
         createSubSet(utxoSelection, output); // Narrow down for NatToken UTxO
   
         let range = {};
-        range.ideal = Loader.Cardano.Value.new(
-          Loader.Cardano.BigNum.from_str("0")
+        range.ideal = SLib.Value.new(
+          SLib.BigNum.from_str("0")
         )
           .checked_add(output)
           .checked_add(output);
-        range.maximum = Loader.Cardano.Value.new(
-          Loader.Cardano.BigNum.from_str("0")
+        range.maximum = SLib.Value.new(
+          SLib.BigNum.from_str("0")
         )
           .checked_add(range.ideal)
           .checked_add(output);
@@ -402,8 +402,8 @@
       .splice(Math.floor(Math.random() * nbFreeUTxO), 1)
       .pop();
   
-    const newAmount = Loader.Cardano.Value.new(
-      Loader.Cardano.BigNum.from_str("0")
+    const newAmount = SLib.Value.new(
+      SLib.BigNum.from_str("0")
     )
       .checked_add(utxo.output().amount())
       .checked_add(outputAmount);
@@ -432,8 +432,8 @@
    * @return {Value} - The compiled set of amounts requested for payment.
    */
   function mergeOutputsAmounts(outputs) {
-    let compiledAmountList = Loader.Cardano.Value.new(
-      Loader.Cardano.BigNum.from_str("0")
+    let compiledAmountList = SLib.Value.new(
+      SLib.BigNum.from_str("0")
     );
   
     for (let i = 0; i < outputs.len(); i++) {
@@ -466,8 +466,8 @@
     let splitAmounts = [];
   
     splitAmounts.push(
-      Loader.Cardano.Value.new(
-        Loader.Cardano.BigNum.from_bytes(amounts.coin().to_bytes())
+      SLib.Value.new(
+        SLib.BigNum.from_bytes(amounts.coin().to_bytes())
       )
     );
   
@@ -478,23 +478,23 @@
         let scriptHash = mA.keys().get(i);
   
         for (let j = 0; j < mA.get(scriptHash).keys().len(); j++) {
-          let _assets = Loader.Cardano.Assets.new();
+          let _assets = SLib.Assets.new();
           let assetName = mA.get(scriptHash).keys().get(j);
   
           _assets.insert(
-            Loader.Cardano.AssetName.from_bytes(assetName.to_bytes()),
-            Loader.Cardano.BigNum.from_bytes(
+            SLib.AssetName.from_bytes(assetName.to_bytes()),
+            SLib.BigNum.from_bytes(
               mA.get(scriptHash).get(assetName).to_bytes()
             )
           );
   
-          let _multiasset = Loader.Cardano.MultiAsset.new();
+          let _multiasset = SLib.MultiAsset.new();
           _multiasset.insert(
-            Loader.Cardano.ScriptHash.from_bytes(scriptHash.to_bytes()),
+            SLib.ScriptHash.from_bytes(scriptHash.to_bytes()),
             _assets
           );
-          let _value = Loader.Cardano.Value.new(
-            Loader.Cardano.BigNum.from_str("0")
+          let _value = SLib.Value.new(
+            SLib.BigNum.from_str("0")
           );
           _value.set_multiasset(_multiasset);
   
@@ -568,8 +568,8 @@
    */
   function calculateChange(selection, outputAmount) {
     const selectionAmountList = selection.map((utxo) => utxo.output().amount());
-    let selectionAmount = Loader.Cardano.Value.new(
-      Loader.Cardano.BigNum.from_str("0")
+    let selectionAmount = SLib.Value.new(
+      SLib.BigNum.from_str("0")
     );
   
     selectionAmountList.forEach(
@@ -590,14 +590,14 @@
     let amount = outputAmount;
   
     if (BigInt(amount.coin().to_str()) > 0) {
-      let minAmount = Loader.Cardano.Value.new(
-        Loader.Cardano.min_ada_required(
+      let minAmount = SLib.Value.new(
+        SLib.min_ada_required(
           cumulatedAmount,
-          Loader.Cardano.BigNum.from_str(minUTxOValue.toString())
+          SLib.BigNum.from_str(minUTxOValue.toString())
         )
       );
-      amount = Loader.Cardano.Value.new(
-        Loader.Cardano.BigNum.from_bytes(amount.coin().to_bytes())
+      amount = SLib.Value.new(
+        SLib.BigNum.from_bytes(amount.coin().to_bytes())
       );
       amount = amount.checked_add(minAmount);
     }
@@ -627,7 +627,7 @@
    */
   const cloneUTxOList = (utxoList) =>
     utxoList.map((utxo) =>
-      Loader.Cardano.TransactionUnspentOutput.from_bytes(utxo.to_bytes())
+      SLib.TransactionUnspentOutput.from_bytes(utxo.to_bytes())
     );
   
   /**
@@ -635,7 +635,7 @@
    * @param {Value} value
    * @return {Value} Cone - Deep copy
    */
-  const cloneValue = (value) => Loader.Cardano.Value.from_bytes(value.to_bytes());
+  const cloneValue = (value) => SLib.Value.from_bytes(value.to_bytes());
   
   // Helper
   function abs(big) {
