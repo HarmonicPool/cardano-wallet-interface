@@ -1,6 +1,6 @@
 {
   "name": "@harmonicpool/cardano-wallet-interface",
-  "version": "1.4.0",
+  "version": "1.5.1",
   "description": "a package that makes easier to interact with wallets on cardano",
   "main": "src/index.js",
   "scripts": {
@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/HarmonicPool/cardano-wallet-interface#readme",
   "dependencies": {
-    "@emurgo/cardano-serialization-lib-browser": "^9.1.2",
+    "@emurgo/cardano-serialization-lib-asmjs": "^10.0.4",
     "buffer": "^6.0.3"
   },
   "devDependencies": {}
