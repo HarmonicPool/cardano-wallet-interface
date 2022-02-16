@@ -1,8 +1,10 @@
 "use strict";
 
+const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
+
 const Buffer = require("buffer").Buffer;
 
-const Loader        = require("./WasmLoader");
+// const Loader        = require("./WasmLoader");
 const CoinSelection = require("./CoinSelection");
 
 const StringFormatError = require("../errors/WalletInterfaceError/StringFormatError/StringFormatError");
@@ -778,18 +780,18 @@ async function private_getProtocolParameters( blockfrost_project_id )
 {
   if( typeof blockfrost_project_id !== "string" ) throw Error;
 
-  await Loader.load();
+  // await Loader.load()
 
   const p = await private_blockfrostRequest( blockfrost_project_id,"/epochs/latest/parameters" );
 
   return {
-    linearFee: Loader.Cardano.LinearFee.new(
-      Loader.Cardano.BigNum.from_str(p.min_fee_a.toString()),
-      Loader.Cardano.BigNum.from_str(p.min_fee_b.toString())
+    linearFee: SLib.LinearFee.new(
+      SLib.BigNum.from_str(p.min_fee_a.toString()),
+      SLib.BigNum.from_str(p.min_fee_b.toString())
     ),
-    minUtxo: Loader.Cardano.BigNum.from_str(p.min_utxo),
-    poolDeposit: Loader.Cardano.BigNum.from_str(p.pool_deposit),
-    keyDeposit: Loader.Cardano.BigNum.from_str(p.key_deposit),
+    minUtxo: SLib.BigNum.from_str(p.min_utxo),
+    poolDeposit: SLib.BigNum.from_str(p.pool_deposit),
+    keyDeposit: SLib.BigNum.from_str(p.key_deposit),
     maxValueSize: p.max_val_size,
     maxTxSize: p.max_tx_size,
   };
@@ -798,7 +800,7 @@ async function private_getProtocolParameters( blockfrost_project_id )
 
 function private_getPoolId( bech32_poolId )
 {
-  return Buffer.from(Loader.Cardano.Ed25519KeyHash.from_bech32(poolId).to_bytes(), "hex").toString("hex")
+  return Buffer.from(SLib.Ed25519KeyHash.from_bech32(poolId).to_bytes(), "hex").toString("hex")
 }
 
 
@@ -836,7 +838,7 @@ async function private_getRewardAddress ( WalletProvider )
 
 async function private_delegationTransaction( blockfrost_project_id, WalletProvider, delegation, targetPoolId)
 {
-  await Loader.load();
+  // await Loader.load();
   const protocolParameters = await private_getProtocolParameters( blockfrost_project_id );
 
   let address = (await WalletProvider.getUsedAddresses())[0];
@@ -846,18 +848,18 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     throw new WalletProcessError("Seems like the user has no used addresses, please found the using wallet")
   }
 
-  address = Loader.Cardano.Address.from_bytes(Buffer.from(address, "hex"));
+  address = SLib.Address.from_bytes(Buffer.from(address, "hex"));
 
   const rewardAddress = await private_getRewardAddress( WalletProvider );
 
-  const stakeCredential = Loader.Cardano.RewardAddress.from_address(
-    Loader.Cardano.Address.from_bytes(Buffer.from(rewardAddress, "hex"))
+  const stakeCredential = SLib.RewardAddress.from_address(
+    SLib.Address.from_bytes(Buffer.from(rewardAddress, "hex"))
   ).payment_cred();
 
   let utxos = await WalletProvider.getUtxos();
 
   utxos = utxos.map((utxo) =>
-    Loader.Cardano.TransactionUnspentOutput.from_bytes(Buffer.from(utxo, "hex"))
+    SLib.TransactionUnspentOutput.from_bytes(Buffer.from(utxo, "hex"))
   );
 
   //estimated max multiasset size 5848
@@ -866,11 +868,11 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   const MULTIASSET_SIZE = 5848;
   const VALUE_SIZE = 5860;
 
-  const outputs = Loader.Cardano.TransactionOutputs.new();
+  const outputs = SLib.TransactionOutputs.new();
   outputs.add(
-    Loader.Cardano.TransactionOutput.new(
+    SLib.TransactionOutput.new(
       address,
-      Loader.Cardano.Value.new(protocolParameters.keyDeposit)
+      SLib.Value.new(protocolParameters.keyDeposit)
     )
   );
 
@@ -883,7 +885,7 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
   const inputs = selection.input;
 
-  const txBuilder = Loader.Cardano.TransactionBuilder.new(
+  const txBuilder = SLib.TransactionBuilder.new(
     protocolParameters.linearFee,
     protocolParameters.minUtxo,
     protocolParameters.poolDeposit,
@@ -901,19 +903,19 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     );
   }
 
-  const certificates = Loader.Cardano.Certificates.new();
+  const certificates = SLib.Certificates.new();
   if (!delegation.active)
     certificates.add(
-      Loader.Cardano.Certificate.new_stake_registration(
-        Loader.Cardano.StakeRegistration.new(stakeCredential)
+      SLib.Certificate.new_stake_registration(
+        SLib.StakeRegistration.new(stakeCredential)
       )
     );
 
   certificates.add(
-    Loader.Cardano.Certificate.new_stake_delegation(
-      Loader.Cardano.StakeDelegation.new(
+    SLib.Certificate.new_stake_delegation(
+      SLib.StakeDelegation.new(
         stakeCredential,
-        Loader.Cardano.Ed25519KeyHash.from_bech32(targetPoolId)
+        SLib.Ed25519KeyHash.from_bech32(targetPoolId)
       )
     )
   );
@@ -924,24 +926,24 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
   // check if change value is too big for single output
   if (changeMultiAssets && change.to_bytes().length * 2 > VALUE_SIZE) {
-    const partialChange = Loader.Cardano.Value.new(
-      Loader.Cardano.BigNum.from_str("0")
+    const partialChange = SLib.Value.new(
+      SLib.BigNum.from_str("0")
     );
 
-    const partialMultiAssets = Loader.Cardano.MultiAsset.new();
+    const partialMultiAssets = SLib.MultiAsset.new();
     const policies = changeMultiAssets.keys();
     const makeSplit = () => {
       for (let j = 0; j < changeMultiAssets.len(); j++) {
         const policy = policies.get(j);
         const policyAssets = changeMultiAssets.get(policy);
         const assetNames = policyAssets.keys();
-        const assets = Loader.Cardano.Assets.new();
+        const assets = SLib.Assets.new();
         for (let k = 0; k < assetNames.len(); k++) {
           const policyAsset = assetNames.get(k);
           const quantity = policyAssets.get(policyAsset);
           assets.insert(policyAsset, quantity);
           //check size
-          const checkMultiAssets = Loader.Cardano.MultiAsset.from_bytes(
+          const checkMultiAssets = SLib.MultiAsset.from_bytes(
             partialMultiAssets.to_bytes()
           );
           checkMultiAssets.insert(policy, assets);
@@ -955,22 +957,22 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     };
     makeSplit();
     partialChange.set_multiasset(partialMultiAssets);
-    const minAda = Loader.Cardano.min_ada_required(
+    const minAda = SLib.min_ada_required(
       partialChange,
       protocolParameters.minUtxo
     );
     partialChange.set_coin(minAda);
 
     txBuilder.add_output(
-      Loader.Cardano.TransactionOutput.new(address, partialChange)
+      SLib.TransactionOutput.new(address, partialChange)
     );
   }
 
   txBuilder.add_change_if_needed(address);
 
-  const transaction = Loader.Cardano.Transaction.new(
+  const transaction = SLib.Transaction.new(
     txBuilder.build(),
-    Loader.Cardano.TransactionWitnessSet.new()
+    SLib.TransactionWitnessSet.new()
   );
 
   const size = transaction.to_bytes().length * 2;
@@ -981,13 +983,13 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
 async function private_signTransaction( WalletProvider, transactionObj )
 {
-  await Loader.load();
+  // await Loader.load();
 
   // the transaction is signed ( by the witnesess )
-  return await Loader.Cardano.Transaction.new(
+  return await SLib.Transaction.new(
     transactionObj.body(),
     // get witnesses object
-    Loader.Cardano.TransactionWitnessSet.from_bytes(
+    SLib.TransactionWitnessSet.from_bytes(
       Buffer.from(
         // gets witnesses
         await WalletProvider.signTx(
@@ -1015,13 +1017,13 @@ async function private_submitTransaction( WalletProvider, signedTransaction )
 
 async function private_getRewardAddress_bech32( WalletProvider )
 {
-  return await Loader.Cardano.Address.from_bytes(
+  return await SLib.Address.from_bytes(
     Buffer.from( await private_getRewardAddress( WalletProvider ), "hex")
   ).to_bech32();
 }
 
 async function private_getCurrentUserDelegation( WalletProvider, blockfrost_project_id ){
-  await Loader.load();
+  // await Loader.load();
 
   const rewardAddress = await private_getRewardAddress_bech32( WalletProvider );
 
