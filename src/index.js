@@ -14,7 +14,6 @@ const {
     WalletError,
     CCVaultError,
     NamiError,
-    FlintExperimentalError,
     YoroiError,
     GeroError
 } = require("./errors/index")
@@ -34,7 +33,6 @@ module.exports = {
     WalletError,
     CCVaultError,
     NamiError,
-    FlintExperimentalError,
     YoroiError,
     GeroError
 }

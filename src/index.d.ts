@@ -15,7 +15,6 @@ import {
     WalletError,
     CCVaultError,
     NamiError,
-    FlintExperimentalError,
     YoroiError,
     GeroError
 } from "./errors/index"
@@ -33,7 +32,6 @@ export {
     WalletError,
     CCVaultError,
     NamiError,
-    FlintExperimentalError,
     YoroiError,
     GeroError
 };
