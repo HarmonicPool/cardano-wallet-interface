@@ -22,7 +22,6 @@ module.exports.default = Wallet
 
 module.exports = {
     Wallet,
-    ...WalletNameImport,
     WalletName,
     getWalletNameFromString,
     getStringFromWalletName,
