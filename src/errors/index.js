@@ -11,8 +11,7 @@ import GeroError from "./WalletInterfaceError/WalletProcessError/WalletError/Ger
 import FlintError from "./WalletInterfaceError/WalletProcessError/WalletError/FlintError/FlintError";
 import CardwalletError from "./WalletInterfaceError/WalletProcessError/WalletError/CardwalletError";
 
-
-module.exports = {
+export default {
     WalletInterfaceError,
     StringFormatError,
     WalletProcessError,
