@@ -9,7 +9,6 @@ const YoroiError                = require("./WalletInterfaceError/WalletProcessE
 const GeroError                 = require("./WalletInterfaceError/WalletProcessError/WalletError/GeroError/GeroError");
 
 
-
 module.exports = {
     WalletInterfaceError,
     StringFormatError,
