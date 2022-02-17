@@ -20,7 +20,6 @@ function getStringFromWalletName( walletNameEnum )
     {
         case Nami:               return "Nami";
         case CCVault:            return "ccvault";
-        //case WalletName.FlintExperimental:  return "Flint Experimental";
         case Flint:              return "Flint";
         case Yoroi:              return "yoroi";
         case Gero:               return "GeroWallet";
@@ -43,7 +42,6 @@ function getWalletNameFromString( string )
     {
         case "Nami":                return Nami;
         case "ccvault":             return CCVault;
-        //case "Flint Experimental":  return WalletName.FlintExperimental;
         case "Flint":               return Flint;
         case "yoroi":               return Yoroi;
         case "GeroWallet":          return Gero;

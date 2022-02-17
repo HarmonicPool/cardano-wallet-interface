@@ -5,7 +5,7 @@ import { LinearFee, BigNum, Ed25519KeyHash, Address, RewardAddress, TransactionU
 import { Buffer } from "buffer";
 
 // const Loader        = require("./WasmLoader");
-import { randomImprove } from "./CoinSelection";
+import CoinSelection from "./CoinSelection";
 
 import StringFormatError from "../errors/WalletInterfaceError/StringFormatError/StringFormatError";
 
@@ -876,7 +876,7 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     )
   );
 
-  const selection = await randomImprove(
+  const selection = await CoinSelection.randomImprove(
     utxos,
     outputs,
     20,
