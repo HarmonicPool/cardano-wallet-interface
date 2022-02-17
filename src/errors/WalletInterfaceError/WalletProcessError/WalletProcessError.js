@@ -1,5 +1,5 @@
 
-const WalletInterfaceError = require("../WalletInterfaceError");
+import WalletInterfaceError from "../WalletInterfaceError";
 
 class WalletProcessError extends WalletInterfaceError
 {
@@ -9,4 +9,4 @@ class WalletProcessError extends WalletInterfaceError
     }
 }
 
-module.exports = WalletProcessError;
+export default WalletProcessError;

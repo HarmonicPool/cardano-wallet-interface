@@ -1,29 +1,26 @@
 
-const Wallet = require("./Wallet/index");
-const WalletName = require("./Wallet/WalletName")
-const {
-    getWalletNameFromString,
-    getStringFromWalletName,
-    walletNames
-} =  require("./Wallet/WalletName/utils");
+import Wallet from "./Wallet/index";
+import WalletName from "./Wallet/WalletName";
+import { getWalletNameFromString, getStringFromWalletName, walletNames } from "./Wallet/WalletName/utils";
 
-const {
+import {
     WalletInterfaceError,
     StringFormatError,
     WalletProcessError,
     WalletError,
     CCVaultError,
     NamiError,
-    FlintExperimentalError,
     YoroiError,
     GeroError
-} = require("./errors/index")
+} from "./errors/index";
 
-module.exports.default = Wallet
+const WalletNameImport = {}; // for some reason the complier cryies
 
-module.exports = {
+const _default = Wallet;
+export { _default as default };
+
+export {
     Wallet,
-    ...WalletNameImport,
     WalletName,
     getWalletNameFromString,
     getStringFromWalletName,
@@ -34,7 +31,6 @@ module.exports = {
     WalletError,
     CCVaultError,
     NamiError,
-    FlintExperimentalError,
     YoroiError,
     GeroError
 }

@@ -1,5 +1,5 @@
 
-const WalletInterfaceError = require("../WalletInterfaceError");
+import WalletInterfaceError from "../WalletInterfaceError";
 
 class StringFormatError extends WalletInterfaceError
 {
@@ -9,4 +9,4 @@ class StringFormatError extends WalletInterfaceError
     }
 }
 
-module.exports = StringFormatError;
+export default StringFormatError;

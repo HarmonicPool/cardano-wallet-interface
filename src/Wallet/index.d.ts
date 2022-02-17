@@ -28,11 +28,11 @@ declare class Wallet {
     
     private static _CCVaultWallet?: Wallet.Wallet;
 
-    private static _flintExperimentalObj?: Wallet.RawCIP30WalletInterface;
+    private static _flintObj?: Wallet.RawCIP30WalletInterface;
 
-    private static _flintExperimentalInterface?: Wallet.WalletInterface;
+    private static _flintInterface?: Wallet.WalletInterface;
     
-    private static _flintExperimentalWallet?: Wallet.Wallet;
+    private static _flintWallet?: Wallet.Wallet;
 
     private static _yoroiObj?: Wallet.RawCIP30WalletInterface;
 

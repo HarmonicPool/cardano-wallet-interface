@@ -1,5 +1,5 @@
 
-const WalletError = require("../WalletError");
+import WalletError from "../WalletError";
 
 class CCVaultError extends WalletError
 {
@@ -9,4 +9,4 @@ class CCVaultError extends WalletError
     }
 }
 
-module.exports = CCVaultError;
+export default CCVaultError;

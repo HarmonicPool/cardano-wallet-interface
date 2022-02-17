@@ -1,4 +1,4 @@
-const WalletError = require("../WalletError");
+import WalletError from "../WalletError";
 
 class CardwalletError extends WalletError
 {
@@ -8,4 +8,4 @@ class CardwalletError extends WalletError
     }
 }
 
-module.exports = CardwalletError;
+export default CardwalletError;

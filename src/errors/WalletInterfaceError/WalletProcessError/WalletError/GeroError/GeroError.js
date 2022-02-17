@@ -1,5 +1,5 @@
 
-const WalletError = require("../WalletError");
+import WalletError from "../WalletError";
 
 class GeroError extends WalletError
 {
@@ -9,4 +9,4 @@ class GeroError extends WalletError
     }
 }
 
-module.exports = GeroError;
+export default GeroError;

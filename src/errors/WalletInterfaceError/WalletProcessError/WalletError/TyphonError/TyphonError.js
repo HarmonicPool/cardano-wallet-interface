@@ -1,5 +1,5 @@
 
-const WalletError = require("../WalletError");
+import WalletError from "../WalletError";
 
 class TyphonError extends WalletError
 {
@@ -9,4 +9,4 @@ class TyphonError extends WalletError
     }
 }
 
-module.exports = TyphonError;
+export default TyphonError;

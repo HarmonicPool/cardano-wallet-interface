@@ -7,4 +7,4 @@ class WalletInterfaceError extends Error
     }
 }
 
-module.exports = WalletInterfaceError;
+export default WalletInterfaceError;
