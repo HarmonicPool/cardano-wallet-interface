@@ -1,12 +1,15 @@
 
-const WalletInterfaceError      = require("./WalletInterfaceError/WalletInterfaceError");
-const StringFormatError         = require("./WalletInterfaceError/StringFormatError/StringFormatError");
-const WalletProcessError        = require("./WalletInterfaceError/WalletProcessError/WalletProcessError");
-const WalletError               = require("./WalletInterfaceError/WalletProcessError/WalletError/WalletError");
-const CCVaultError              = require("./WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCVaultError");
-const NamiError                 = require("./WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError");
-const YoroiError                = require("./WalletInterfaceError/WalletProcessError/WalletError/YoroiError/YoroiError");
-const GeroError                 = require("./WalletInterfaceError/WalletProcessError/WalletError/GeroError/GeroError");
+import StringFormatError from "./WalletInterfaceError/StringFormatError/StringFormatError";
+
+import WalletProcessError from "./WalletInterfaceError/WalletProcessError/WalletProcessError";
+import WalletInterfaceError from "./WalletInterfaceError/WalletInterfaceError";
+import WalletError from "./WalletInterfaceError/WalletProcessError/WalletError/WalletError";
+import NamiError from "./WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError";
+import CCVaultError from "./WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCVaultError";
+import YoroiError from "./WalletInterfaceError/WalletProcessError/WalletError/YoroiError/YoroiError";
+import GeroError from "./WalletInterfaceError/WalletProcessError/WalletError/GeroError/GeroError";
+import FlintError from "./WalletInterfaceError/WalletProcessError/WalletError/FlintError/FlintError";
+import CardwalletError from "./WalletInterfaceError/WalletProcessError/WalletError/CardwalletError";
 
 
 module.exports = {
@@ -17,5 +20,7 @@ module.exports = {
     CCVaultError,
     NamiError,
     YoroiError,
-    GeroError
+    GeroError,
+    FlintError,
+    CardwalletError
 }

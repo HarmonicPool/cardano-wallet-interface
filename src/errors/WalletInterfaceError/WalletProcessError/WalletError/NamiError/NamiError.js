@@ -1,5 +1,5 @@
 
-const WalletError = require("../WalletError");
+import WalletError from "../WalletError";
 
 class NamiError extends WalletError
 {
@@ -9,4 +9,4 @@ class NamiError extends WalletError
     }
 }
 
-module.exports = NamiError;
+export default NamiError;

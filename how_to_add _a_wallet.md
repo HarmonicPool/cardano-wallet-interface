@@ -1,7 +1,7 @@
 what to do when adding a new wallet:
 
 - implement WalletName  enum 
-- implement WalletNames exported string array
+- add wallet string name in WalletNames exported string array
 
 - implement Wallet.enable
 - implement Wallet.isEnabled

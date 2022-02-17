@@ -1,27 +1,27 @@
 "use strict";
 
-const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
+import { LinearFee, BigNum, Ed25519KeyHash, Address, RewardAddress, TransactionUnspentOutput, TransactionOutputs, TransactionOutput, Value, TransactionBuilder, Certificates, Certificate, StakeRegistration, StakeDelegation, MultiAsset, Assets, min_ada_required, Transaction as _Transaction, TransactionWitnessSet } from "@emurgo/cardano-serialization-lib-asmjs";
 
-const Buffer = require("buffer").Buffer;
+import { Buffer } from "buffer";
 
 // const Loader        = require("./WasmLoader");
-const CoinSelection = require("./CoinSelection");
+import { randomImprove } from "./CoinSelection";
 
-const StringFormatError = require("../errors/WalletInterfaceError/StringFormatError/StringFormatError");
+import StringFormatError from "../errors/WalletInterfaceError/StringFormatError/StringFormatError";
 
-const WalletInterfaceError    = require("../errors/WalletInterfaceError/WalletInterfaceError");
-const NamiError               = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError");
-const CCVaultError            = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCVaultError");
-const FlintError              = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/FlintError/FlintError");
-const YoroiError              = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/YoroiError/YoroiError");
-const GeroError               = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/GeroError/GeroError");
-const TyphonError             = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/TyphonError/TyphonError");
-const CardwalletError         = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/CardwalletError");
-const WalletError             = require("../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError");
-const WalletProcessError      = require("../errors/WalletInterfaceError/WalletProcessError/WalletProcessError");
+import WalletInterfaceError from "../errors/WalletInterfaceError/WalletInterfaceError";
+import NamiError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError";
+import CCVaultError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCVaultError";
+import FlintError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/FlintError/FlintError";
+import YoroiError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/YoroiError/YoroiError";
+import GeroError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/GeroError/GeroError";
+import TyphonError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/TyphonError/TyphonError";
+import CardwalletError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/CardwalletError";
+import WalletError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError";
+import WalletProcessError from "../errors/WalletInterfaceError/WalletProcessError/WalletProcessError";
 
-const { WalletName } = require("./WalletName")
-const { getStringFromWalletName, walletNames } =  require("./WalletName/utils");
+import { WalletName } from "./WalletName";
+import { getStringFromWalletName, walletNames } from "./WalletName/utils";
 
 function private_warnDeprecated(altSuggestion)
 {
@@ -785,13 +785,13 @@ async function private_getProtocolParameters( blockfrost_project_id )
   const p = await private_blockfrostRequest( blockfrost_project_id,"/epochs/latest/parameters" );
 
   return {
-    linearFee: SLib.LinearFee.new(
-      SLib.BigNum.from_str(p.min_fee_a.toString()),
-      SLib.BigNum.from_str(p.min_fee_b.toString())
+    linearFee: LinearFee.new(
+      BigNum.from_str(p.min_fee_a.toString()),
+      BigNum.from_str(p.min_fee_b.toString())
     ),
-    minUtxo: SLib.BigNum.from_str(p.min_utxo),
-    poolDeposit: SLib.BigNum.from_str(p.pool_deposit),
-    keyDeposit: SLib.BigNum.from_str(p.key_deposit),
+    minUtxo: BigNum.from_str(p.min_utxo),
+    poolDeposit: BigNum.from_str(p.pool_deposit),
+    keyDeposit: BigNum.from_str(p.key_deposit),
     maxValueSize: p.max_val_size,
     maxTxSize: p.max_tx_size,
   };
@@ -800,7 +800,7 @@ async function private_getProtocolParameters( blockfrost_project_id )
 
 function private_getPoolId( bech32_poolId )
 {
-  return Buffer.from(SLib.Ed25519KeyHash.from_bech32(poolId).to_bytes(), "hex").toString("hex")
+  return Buffer.from(Ed25519KeyHash.from_bech32(poolId).to_bytes(), "hex").toString("hex")
 }
 
 
@@ -848,18 +848,18 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     throw new WalletProcessError("Seems like the user has no used addresses, please found the using wallet")
   }
 
-  address = SLib.Address.from_bytes(Buffer.from(address, "hex"));
+  address = Address.from_bytes(Buffer.from(address, "hex"));
 
   const rewardAddress = await private_getRewardAddress( WalletProvider );
 
-  const stakeCredential = SLib.RewardAddress.from_address(
-    SLib.Address.from_bytes(Buffer.from(rewardAddress, "hex"))
+  const stakeCredential = RewardAddress.from_address(
+    Address.from_bytes(Buffer.from(rewardAddress, "hex"))
   ).payment_cred();
 
   let utxos = await WalletProvider.getUtxos();
 
   utxos = utxos.map((utxo) =>
-    SLib.TransactionUnspentOutput.from_bytes(Buffer.from(utxo, "hex"))
+    TransactionUnspentOutput.from_bytes(Buffer.from(utxo, "hex"))
   );
 
   //estimated max multiasset size 5848
@@ -868,15 +868,15 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   const MULTIASSET_SIZE = 5848;
   const VALUE_SIZE = 5860;
 
-  const outputs = SLib.TransactionOutputs.new();
+  const outputs = TransactionOutputs.new();
   outputs.add(
-    SLib.TransactionOutput.new(
+    TransactionOutput.new(
       address,
-      SLib.Value.new(protocolParameters.keyDeposit)
+      Value.new(protocolParameters.keyDeposit)
     )
   );
 
-  const selection = await CoinSelection.randomImprove(
+  const selection = await randomImprove(
     utxos,
     outputs,
     20,
@@ -885,7 +885,7 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
   const inputs = selection.input;
 
-  const txBuilder = SLib.TransactionBuilder.new(
+  const txBuilder = TransactionBuilder.new(
     protocolParameters.linearFee,
     protocolParameters.minUtxo,
     protocolParameters.poolDeposit,
@@ -903,19 +903,19 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     );
   }
 
-  const certificates = SLib.Certificates.new();
+  const certificates = Certificates.new();
   if (!delegation.active)
     certificates.add(
-      SLib.Certificate.new_stake_registration(
-        SLib.StakeRegistration.new(stakeCredential)
+      Certificate.new_stake_registration(
+        StakeRegistration.new(stakeCredential)
       )
     );
 
   certificates.add(
-    SLib.Certificate.new_stake_delegation(
-      SLib.StakeDelegation.new(
+    Certificate.new_stake_delegation(
+      StakeDelegation.new(
         stakeCredential,
-        SLib.Ed25519KeyHash.from_bech32(targetPoolId)
+        Ed25519KeyHash.from_bech32(targetPoolId)
       )
     )
   );
@@ -926,24 +926,24 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
   // check if change value is too big for single output
   if (changeMultiAssets && change.to_bytes().length * 2 > VALUE_SIZE) {
-    const partialChange = SLib.Value.new(
-      SLib.BigNum.from_str("0")
+    const partialChange = Value.new(
+      BigNum.from_str("0")
     );
 
-    const partialMultiAssets = SLib.MultiAsset.new();
+    const partialMultiAssets = MultiAsset.new();
     const policies = changeMultiAssets.keys();
     const makeSplit = () => {
       for (let j = 0; j < changeMultiAssets.len(); j++) {
         const policy = policies.get(j);
         const policyAssets = changeMultiAssets.get(policy);
         const assetNames = policyAssets.keys();
-        const assets = SLib.Assets.new();
+        const assets = Assets.new();
         for (let k = 0; k < assetNames.len(); k++) {
           const policyAsset = assetNames.get(k);
           const quantity = policyAssets.get(policyAsset);
           assets.insert(policyAsset, quantity);
           //check size
-          const checkMultiAssets = SLib.MultiAsset.from_bytes(
+          const checkMultiAssets = MultiAsset.from_bytes(
             partialMultiAssets.to_bytes()
           );
           checkMultiAssets.insert(policy, assets);
@@ -957,22 +957,22 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     };
     makeSplit();
     partialChange.set_multiasset(partialMultiAssets);
-    const minAda = SLib.min_ada_required(
+    const minAda = min_ada_required(
       partialChange,
       protocolParameters.minUtxo
     );
     partialChange.set_coin(minAda);
 
     txBuilder.add_output(
-      SLib.TransactionOutput.new(address, partialChange)
+      TransactionOutput.new(address, partialChange)
     );
   }
 
   txBuilder.add_change_if_needed(address);
 
-  const transaction = SLib.Transaction.new(
+  const transaction = _Transaction.new(
     txBuilder.build(),
-    SLib.TransactionWitnessSet.new()
+    TransactionWitnessSet.new()
   );
 
   const size = transaction.to_bytes().length * 2;
@@ -986,10 +986,10 @@ async function private_signTransaction( WalletProvider, transactionObj )
   // await Loader.load();
 
   // the transaction is signed ( by the witnesess )
-  return await SLib.Transaction.new(
+  return await _Transaction.new(
     transactionObj.body(),
     // get witnesses object
-    SLib.TransactionWitnessSet.from_bytes(
+    TransactionWitnessSet.from_bytes(
       Buffer.from(
         // gets witnesses
         await WalletProvider.signTx(
@@ -1017,7 +1017,7 @@ async function private_submitTransaction( WalletProvider, signedTransaction )
 
 async function private_getRewardAddress_bech32( WalletProvider )
 {
-  return await SLib.Address.from_bytes(
+  return await Address.from_bytes(
     Buffer.from( await private_getRewardAddress( WalletProvider ), "hex")
   ).to_bech32();
 }
@@ -1035,7 +1035,7 @@ async function private_getCurrentUserDelegation( WalletProvider, blockfrost_proj
 };
 
 // exports default
-module.exports = Wallet;
+export default Wallet;
 
 
 const geroWalletFriendlyDomains = [

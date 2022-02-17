@@ -1,5 +1,5 @@
 
-const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
+import { Value, BigNum, Assets, AssetName, MultiAsset, ScriptHash, min_ada_required, TransactionUnspentOutput } from "@emurgo/cardano-serialization-lib-asmjs";
 /**
    * BerryPool implementation of the __Random-Improve__ coin selection algorithm.
    *
@@ -199,8 +199,8 @@ const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
         selection: [],
         remaining: [...inputs], // Shallow copy
         subset: [],
-        amount: SLib.Value.new(SLib.BigNum.from_str("0")),
-        change: SLib.Value.new(SLib.BigNum.from_str("0")),
+        amount: Value.new(BigNum.from_str("0")),
+        change: Value.new(BigNum.from_str("0")),
       };
   
       let mergedOutputs = mergeOutputsAmounts(outputs);
@@ -243,13 +243,13 @@ const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
         createSubSet(utxoSelection, output); // Narrow down for NatToken UTxO
   
         let range = {};
-        range.ideal = SLib.Value.new(
-          SLib.BigNum.from_str("0")
+        range.ideal = Value.new(
+          BigNum.from_str("0")
         )
           .checked_add(output)
           .checked_add(output);
-        range.maximum = SLib.Value.new(
-          SLib.BigNum.from_str("0")
+        range.maximum = Value.new(
+          BigNum.from_str("0")
         )
           .checked_add(range.ideal)
           .checked_add(output);
@@ -402,8 +402,8 @@ const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
       .splice(Math.floor(Math.random() * nbFreeUTxO), 1)
       .pop();
   
-    const newAmount = SLib.Value.new(
-      SLib.BigNum.from_str("0")
+    const newAmount = Value.new(
+      BigNum.from_str("0")
     )
       .checked_add(utxo.output().amount())
       .checked_add(outputAmount);
@@ -432,8 +432,8 @@ const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
    * @return {Value} - The compiled set of amounts requested for payment.
    */
   function mergeOutputsAmounts(outputs) {
-    let compiledAmountList = SLib.Value.new(
-      SLib.BigNum.from_str("0")
+    let compiledAmountList = Value.new(
+      BigNum.from_str("0")
     );
   
     for (let i = 0; i < outputs.len(); i++) {
@@ -466,8 +466,8 @@ const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
     let splitAmounts = [];
   
     splitAmounts.push(
-      SLib.Value.new(
-        SLib.BigNum.from_bytes(amounts.coin().to_bytes())
+      Value.new(
+        BigNum.from_bytes(amounts.coin().to_bytes())
       )
     );
   
@@ -478,23 +478,23 @@ const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
         let scriptHash = mA.keys().get(i);
   
         for (let j = 0; j < mA.get(scriptHash).keys().len(); j++) {
-          let _assets = SLib.Assets.new();
+          let _assets = Assets.new();
           let assetName = mA.get(scriptHash).keys().get(j);
   
           _assets.insert(
-            SLib.AssetName.from_bytes(assetName.to_bytes()),
-            SLib.BigNum.from_bytes(
+            AssetName.from_bytes(assetName.to_bytes()),
+            BigNum.from_bytes(
               mA.get(scriptHash).get(assetName).to_bytes()
             )
           );
   
-          let _multiasset = SLib.MultiAsset.new();
+          let _multiasset = MultiAsset.new();
           _multiasset.insert(
-            SLib.ScriptHash.from_bytes(scriptHash.to_bytes()),
+            ScriptHash.from_bytes(scriptHash.to_bytes()),
             _assets
           );
-          let _value = SLib.Value.new(
-            SLib.BigNum.from_str("0")
+          let _value = Value.new(
+            BigNum.from_str("0")
           );
           _value.set_multiasset(_multiasset);
   
@@ -568,8 +568,8 @@ const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
    */
   function calculateChange(selection, outputAmount) {
     const selectionAmountList = selection.map((utxo) => utxo.output().amount());
-    let selectionAmount = SLib.Value.new(
-      SLib.BigNum.from_str("0")
+    let selectionAmount = Value.new(
+      BigNum.from_str("0")
     );
   
     selectionAmountList.forEach(
@@ -590,14 +590,14 @@ const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
     let amount = outputAmount;
   
     if (BigInt(amount.coin().to_str()) > 0) {
-      let minAmount = SLib.Value.new(
-        SLib.min_ada_required(
+      let minAmount = Value.new(
+        min_ada_required(
           cumulatedAmount,
-          SLib.BigNum.from_str(minUTxOValue.toString())
+          BigNum.from_str(minUTxOValue.toString())
         )
       );
-      amount = SLib.Value.new(
-        SLib.BigNum.from_bytes(amount.coin().to_bytes())
+      amount = Value.new(
+        BigNum.from_bytes(amount.coin().to_bytes())
       );
       amount = amount.checked_add(minAmount);
     }
@@ -627,7 +627,7 @@ const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
    */
   const cloneUTxOList = (utxoList) =>
     utxoList.map((utxo) =>
-      SLib.TransactionUnspentOutput.from_bytes(utxo.to_bytes())
+      TransactionUnspentOutput.from_bytes(utxo.to_bytes())
     );
   
   /**
@@ -635,11 +635,11 @@ const SLib = require("@emurgo/cardano-serialization-lib-asmjs");
    * @param {Value} value
    * @return {Value} Cone - Deep copy
    */
-  const cloneValue = (value) => SLib.Value.from_bytes(value.to_bytes());
+  const cloneValue = (value) => Value.from_bytes(value.to_bytes());
   
   // Helper
   function abs(big) {
     return big < 0 ? big * BigInt(-1) : big;
   }
   
-  module.exports = CoinSelection;
+  export default CoinSelection;

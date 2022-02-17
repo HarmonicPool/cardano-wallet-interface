@@ -1,5 +1,5 @@
 
-const WalletError = require("../WalletError");
+import WalletError from "../WalletError";
 
 class YoroiError extends WalletError
 {
@@ -9,4 +9,4 @@ class YoroiError extends WalletError
     }
 }
 
-module.exports = YoroiError;
+export default YoroiError;

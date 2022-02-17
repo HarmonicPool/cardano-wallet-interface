@@ -1,6 +1,6 @@
 
 
-const WalletError = require("../WalletError");
+import WalletError from "../WalletError";
 
 class FlintError extends WalletError
 {
@@ -10,4 +10,4 @@ class FlintError extends WalletError
     }
 }
 
-module.exports = FlintError;
+export default FlintError;

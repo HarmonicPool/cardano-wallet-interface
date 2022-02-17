@@ -1,10 +1,9 @@
-const WalletInterfaceError = require("../../errors/WalletInterfaceError/WalletInterfaceError");
-const WalletName =  require("./index");
+import WalletInterfaceError from "../../errors/WalletInterfaceError/WalletInterfaceError";
+import { Nami, CCVault, Flint, Yoroi, Gero, Typhon, Cardwallet } from "./index";
 
 const walletNames = Object.freeze([
     "Nami",
     "ccvault",
-    "Flint Experimental",
     "Flint",
     "yoroi",
     "GeroWallet",
@@ -19,14 +18,14 @@ function getStringFromWalletName( walletNameEnum )
 
     switch( walletNameEnum )
     {
-        case WalletName.Nami:               return "Nami";
-        case WalletName.CCVault:            return "ccvault";
-        case WalletName.FlintExperimental:  return "Flint Experimental";
-        case WalletName.Flint:              return "Flint";
-        case WalletName.Yoroi:              return "yoroi";
-        case WalletName.Gero:               return "GeroWallet";
-        case WalletName.Typhon:             return "Typhon Wallet";
-        case WalletName.Cardwallet:         return "CardWallet";
+        case Nami:               return "Nami";
+        case CCVault:            return "ccvault";
+        //case WalletName.FlintExperimental:  return "Flint Experimental";
+        case Flint:              return "Flint";
+        case Yoroi:              return "yoroi";
+        case Gero:               return "GeroWallet";
+        case Typhon:             return "Typhon Wallet";
+        case Cardwallet:         return "CardWallet";
 
         default:
             throw invalidSymbolError;
@@ -42,14 +41,14 @@ function getWalletNameFromString( string )
 
     switch( string )
     {
-        case "Nami":                return WalletName.Nami;
-        case "ccvault":             return WalletName.CCVault;
-        case "Flint Experimental":  return WalletName.FlintExperimental;
-        case "Flint":               return WalletName.Flint;
-        case "yoroi":               return WalletName.Yoroi;
-        case "GeroWallet":          return WalletName.Gero;
-        case "Typhon Wallet":       return WalletName.Typhon;
-        case "CardWallet":          return WalletName.Cardwallet;
+        case "Nami":                return Nami;
+        case "ccvault":             return CCVault;
+        //case "Flint Experimental":  return WalletName.FlintExperimental;
+        case "Flint":               return Flint;
+        case "yoroi":               return Yoroi;
+        case "GeroWallet":          return Gero;
+        case "Typhon Wallet":       return Typhon;
+        case "CardWallet":          return Cardwallet;
 
 
         default: // should never get here
@@ -57,7 +56,7 @@ function getWalletNameFromString( string )
     }
 }
 
-module.exports = {
+export default {
     getStringFromWalletName,
     getWalletNameFromString,
     walletNames
