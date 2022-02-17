@@ -7,6 +7,8 @@ const {
     walletNames
 } =  require("./Wallet/WalletName/utils");
 
+const WalletNameImports = {}; // for some reason the complier cryies
+
 const {
     WalletInterfaceError,
     StringFormatError,
