@@ -12,4 +12,4 @@ const WalletName = Object.freeze({
     Cardwallet: Symbol("CardWallet")
 })
 
-module.exports = WalletName;
+export default WalletName;

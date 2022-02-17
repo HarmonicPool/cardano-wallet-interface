@@ -24,7 +24,4 @@ export const WalletName : Readonly<{
     Cardwallet: symbol;
 }>;
 
-
-
-
 export default WalletName;

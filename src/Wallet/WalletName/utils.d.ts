@@ -1,4 +1,3 @@
-import Wallet from "..";
 
 /**
  * set of valid wallet names

@@ -53,6 +53,13 @@ declare class Wallet {
      */
     static _assertBrowser(): void
 
+    static names: Readonly<string[]>;
+
+    static utils: {
+        getStringFromWalletName: ( walletName: symbol ) => string ,
+        getWalletNameFromString: ( stringName: string ) => symbol
+      }
+
     /**
      * 
      * @param {string} blockfrost_project_id blockforst api key to be used

@@ -21,7 +21,7 @@ import WalletError from "../errors/WalletInterfaceError/WalletProcessError/Walle
 import WalletProcessError from "../errors/WalletInterfaceError/WalletProcessError/WalletProcessError";
 
 import { WalletName } from "./WalletName";
-import { getStringFromWalletName, walletNames } from "./WalletName/utils";
+import { getStringFromWalletName, getWalletNameFromString, walletNames } from "./WalletName/utils";
 
 function private_warnDeprecated(altSuggestion)
 {
@@ -163,6 +163,13 @@ class Wallet
   static _assertBrowser()
   {
     if( typeof window === "undefined" ) throw new WalletInterfaceError("can check for any cardano wallet extension only in a browser environment");
+  }
+
+  static names = walletNames;
+
+  static utils = {
+    getStringFromWalletName,
+    getWalletNameFromString
   }
 
   /**
