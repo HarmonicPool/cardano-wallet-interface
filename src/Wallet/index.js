@@ -165,12 +165,80 @@ class Wallet
     if( typeof window === "undefined" ) throw new WalletInterfaceError("can check for any cardano wallet extension only in a browser environment");
   }
 
-  static names = walletNames;
+  static Names = Object.freeze({
+    Nami: Symbol("Nami"),
+    CCVault: Symbol("ccvault"),
+    Flint: Symbol("Flint"),
+    Yoroi: Symbol("yoroi"),
+    Gero: Symbol("GeroWallet"),
+    Typhon: Symbol("Typhon Wallet"),
+    Cardwallet: Symbol("CardWallet")
+  });
+
+  static stringNames = Object.freeze([
+    "Nami",
+    "ccvault",
+    "Flint",
+    "yoroi",
+    "GeroWallet",
+    "Typhon Wallet",
+    "CardWallet"
+  ]);
 
   static utils = {
-    getStringFromWalletName,
-    getWalletNameFromString
+    getStringFromWalletName: Wallet._getStringFromWalletName,
+    getWalletNameFromString: Wallet._getWalletNameFromString
   }
+
+  static _getStringFromWalletName( walletNameEnum )
+  {
+      const invalidSymbolError = new WalletInterfaceError("walletNameEnum must be a property of the Wallet.Names enum object");;
+      if( typeof walletNameEnum !== "symbol" ) throw invalidSymbolError;
+
+      switch( walletNameEnum )
+      {
+          case Wallet.Names.Nami:               return "Nami";
+          case Wallet.Names.CCVault:            return "ccvault";
+          case Wallet.Names.Flint:              return "Flint";
+          case Wallet.Names.Yoroi:              return "yoroi";
+          case Wallet.Names.Gero:               return "GeroWallet";
+          case Wallet.Names.Typhon:             return "Typhon Wallet";
+          case Wallet.Names.Cardwallet:         return "CardWallet";
+
+          default:
+              throw invalidSymbolError;
+      }
+  }
+
+  static _getWalletNameFromString( string )
+  {
+      const invalidString = new WalletInterfaceError("getWalletNameFromString parameter must be a valid wallet string name");
+
+      if( typeof string !== "string" )    throw invalidString;
+      if( !Wallet.sringNames.includes(string) ) throw invalidString;
+
+      switch( string )
+      {
+          case "Nami":                return Wallet.Names.Nami;
+          case "ccvault":             return Wallet.Names.CCVault;
+          case "Flint":               return Wallet.Names.Flint;
+          case "yoroi":               return Wallet.Names.Yoroi;
+          case "GeroWallet":          return Wallet.Names.Gero;
+          case "Typhon Wallet":       return Wallet.Names.Typhon;
+          case "CardWallet":          return Wallet.Names.Cardwallet;
+
+
+          default: // should never get here
+              throw invalidString;
+      }
+  }
+
+
+
+
+
+
+  // --------------------------- WORLD INTERACTION ----------------------------- //
 
   /**
    * 
@@ -227,6 +295,14 @@ class Wallet
     return Wallet._protocolParameters;
   }
 
+
+
+
+
+
+
+
+
   // ----------------------------------------------- Wallet common --------------------------------------------------- //
 
   static _assertWalletNameIsSym( walletSymbol )
@@ -237,14 +313,16 @@ class Wallet
   static _assertWalletExtensionInjected( walletSymbol )
   {
     Wallet._assertWalletNameIsSym( walletSymbol );
-    const wName = getStringFromWalletName( walletSymbol );
+    const wName = Wallet.utils.getStringFromWalletName( walletSymbol );
 
     if( !Wallet.has( walletSymbol ) ) throw new WalletError("can't access the "+wName+" object if the "+wName+" extension is not installed");
   }
   
+
+
   /**
    * 
-   * @param {symbol} wallet member of the WalletName enum object
+   * @param {symbol} wallet member of the Wallet.Names enum object
    * @returns {boolean} ```true``` if the extension has been injected, ```false``` otherwise
    */
   static has( wallet )
@@ -256,23 +334,79 @@ class Wallet
     {
       /*
       if you need to modify the cases please make sure
-      any change is made also in the WalletName object
+      any change is made also in the Wallet.Names object
       */
-      case WalletName.Nami:               return !!window?.cardano?.nami;
-      case WalletName.CCVault:            return !!window?.cardano?.ccvault;
-      case WalletName.Flint:              return !!window?.cardano?.flint;
-      case WalletName.Yoroi:              return !!window?.cardano?.yoroi;
-      case WalletName.Gero:               return !!window?.cardano?.gerowallet;
-      case WalletName.Typhon:             return !!window?.cardano?.typhon;
-      case WalletName.Cardwallet:         return !!window?.cardano?.cardwallet;
+      case Wallet.Names.Nami:               return !!window?.cardano?.nami;
+      case Wallet.Names.CCVault:            return !!window?.cardano?.ccvault;
+      case Wallet.Names.Flint:              return !!window?.cardano?.flint;
+      case Wallet.Names.Yoroi:              return !!window?.cardano?.yoroi;
+      case Wallet.Names.Gero:               return !!window?.cardano?.gerowallet;
+      case Wallet.Names.Typhon:             return !!window?.cardano?.typhon;
+      case Wallet.Names.Cardwallet:         return !!window?.cardano?.cardwallet;
 
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+
+  /**
+   * 
+   * @param {symbol} wallet: element of Wallet.name enumerative object 
+   * @returns {Wallet.Wallet} the dApp connecctor corresponding to the name
+   */
+  static get( wallet )
+  {
+    Wallet._assertBrowser();
+    Wallet._assertWalletNameIsSym( wallet );
+   
+    switch( wallet )
+    {
+      /*
+      if you need to modify the cases please make sure
+      any change is made also in the Wallet.Names object
+      */
+      case Wallet.Names.Nami:               return Wallet.Nami;
+      case Wallet.Names.CCVault:            return Wallet.CCVault;
+      case Wallet.Names.Flint:              return Wallet.Flint;
+      case Wallet.Names.Yoroi:              return Wallet.Yoroi;
+      case Wallet.Names.Gero:               return Wallet.Gero;
+      case Wallet.Names.Typhon:             return Wallet.Typhon;
+      case Wallet.Names.Cardwallet:         return Wallet.Cardwallet;
+
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+    }
+  }
+
+  /**
+   * 
+   * @param {symbol} wallet: element of Wallet.name enumerative object
+   * @returns {Wallet.WalletInterface} initial API that allows enabling wallet
+   */
+  static getInterface( wallet )
+  {
+    Wallet._assertBrowser();
+    Wallet._assertWalletNameIsSym( wallet );
+   
+    switch( wallet )
+    {
+      /*
+      if you need to modify the cases please make sure
+      any change is made also in the Wallet.Names object
+      */
+      case Wallet.Names.Nami:               return Wallet.NamiInterface;
+      case Wallet.Names.CCVault:            return Wallet.CCVaultInterface;
+      case Wallet.Names.Flint:              return Wallet.FlintInterface;
+      case Wallet.Names.Yoroi:              return Wallet.YoroiInterface;
+      case Wallet.Names.Gero:               return Wallet.GeroInterface;
+      case Wallet.Names.Typhon:             return Wallet.TyphonInterface;
+      case Wallet.Names.Cardwallet:         return Wallet.CardwalletInterface;
+
+      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the Wallet.Names enumeration object")
     }
   }
   
   /**
    * 
-   * @param {symbol} wallet member of the WalletName enum object
+   * @param {symbol} wallet member of the Wallet.Names enum object
    */
   static async enable( wallet )
   {
@@ -282,29 +416,29 @@ class Wallet
     {
       /*
       if you need to modify the cases please make sure
-      any change is made also in the WalletName object
+      any change is made also in the Wallet.Names object
       */
-      case WalletName.Nami:               
+      case Wallet.Names.Nami:               
         Wallet._namiObj = await window.cardano.nami.enable();
         return; break;
 
-      case WalletName.CCVault:            
+      case Wallet.Names.CCVault:            
         Wallet._ccvaultObj = await window.cardano.ccvault.enable();
         return; break;
 
-      case WalletName.Flint:
+      case Wallet.Names.Flint:
         Wallet._flintObj = await window.cardano.flint.enable();
       return; break;
 
-      case WalletName.Yoroi:              
+      case Wallet.Names.Yoroi:              
         Wallet._yoroiObj = await window.cardano.yoroi.enable();
         return; break;
 
-      case WalletName.Gero:               
+      case Wallet.Names.Gero:               
         Wallet._geroObj = await window.cardano.gerowallet.enable();
         return; break;
 
-      case WalletName.Typhon:
+      case Wallet.Names.Typhon:
         let tResult =  await window.cardano.typhon.enable();
         if( tResult.satus )
         {
@@ -313,7 +447,7 @@ class Wallet
         else throw TyphonError("user rejected typhon connection")
       return;
       break;
-      case WalletName.Cardwallet:
+      case Wallet.Names.Cardwallet:
         Wallet._cardWalletObj = await window.cardano.cardwallet.enable();
         return;
       break;
@@ -324,7 +458,7 @@ class Wallet
 
   /**
    * 
-   * @param {symbol} wallet member of the WalletName enum object
+   * @param {symbol} wallet member of the Wallet.Names enum object
    * @returns {boolean} ```true``` if the user wallet is connected, ```false``` otherwise
    */
   static async isEnabled( wallet )
@@ -337,34 +471,34 @@ class Wallet
     {
       /*
       if you need to modify the cases please make sure
-      any change is made also in the WalletName object
+      any change is made also in the Wallet.Names object
       */
-      case WalletName.Nami:               
+      case Wallet.Names.Nami:               
         walletIsEnabled = await window.cardano.nami.isEnabled();
       break;
         
-      case WalletName.CCVault:            
+      case Wallet.Names.CCVault:            
         walletIsEnabled = await window.cardano.ccvault.isEnabled();
       break;
         
-      case WalletName.Flint:
+      case Wallet.Names.Flint:
         walletIsEnabled = await window.cardano.flint.isEnabled();
       break;
         
-      case WalletName.Yoroi:              
+      case Wallet.Names.Yoroi:              
         walletIsEnabled = await window.cardano.yoroi.isEnabled();
       break;
         
-      case WalletName.Gero:               
+      case Wallet.Names.Gero:               
         walletIsEnabled = await window.cardano.gerowallet.isEnabled();
       break;
 
-      case WalletName.Typhon:
+      case Wallet.Names.Typhon:
         let {status, data} = await window.cardano.typhon.isEnabled();
         walletIsEnabled = data && status;
       break;
 
-      case WalletName.Cardwallet:
+      case Wallet.Names.Cardwallet:
         walletIsEnabled = await window.cardano.cardwallet.isEnabled();
       break;
 
@@ -385,7 +519,7 @@ class Wallet
 
   /**
    * 
-   * @param {symbol} wallet member of the WalletName enum object
+   * @param {symbol} wallet member of the Wallet.Names enum object
    */
   static isAviable( wallet )
   {
@@ -396,29 +530,38 @@ class Wallet
     {
       /*
       if you need to modify the cases please make sure
-      any change is made also in the WalletName object
+      any change is made also in the Wallet.Names object
       */
-      case WalletName.Nami:               return ( Wallet._namiObj !== undefined );
-      case WalletName.CCVault:            return ( Wallet._ccvaultObj !== undefined );
-      case WalletName.Flint:              return ( Wallet._flintObj !== undefined );
-      case WalletName.Yoroi:              return ( Wallet._yoroiObj !== undefined );
-      case WalletName.Gero:               return ( Wallet._geroObj !== undefined );
-      case WalletName.Typhon:             return ( Wallet._typhonObj !== undefined );
-      case WalletName.Cardwallet:         return ( Wallet._cardWalletObj !== undefined )
+      case Wallet.Names.Nami:               return ( Wallet._namiObj !== undefined );
+      case Wallet.Names.CCVault:            return ( Wallet._ccvaultObj !== undefined );
+      case Wallet.Names.Flint:              return ( Wallet._flintObj !== undefined );
+      case Wallet.Names.Yoroi:              return ( Wallet._yoroiObj !== undefined );
+      case Wallet.Names.Gero:               return ( Wallet._geroObj !== undefined );
+      case Wallet.Names.Typhon:             return ( Wallet._typhonObj !== undefined );
+      case Wallet.Names.Cardwallet:         return ( Wallet._cardWalletObj !== undefined )
 
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }
   }
 
+
+
+
+
+
+
+
+
+
   // ---------------------------------------- Nami ---------------------------------------- //
 
   static get NamiInterface()
   {
-    if( !Wallet.has( WalletName.Nami ) ) throw new NamiError("can't access the nami object if the nami extension is not installed");
+    if( !Wallet.has( Wallet.Names.Nami ) ) throw new NamiError("can't access the nami object if the nami extension is not installed");
 
     if( Wallet._namiInterface === undefined )
     {
-      Wallet._namiInterface = private_makeWalletInterface( WalletName.Nami );
+      Wallet._namiInterface = private_makeWalletInterface( Wallet.Names.Nami );
     }
     
     return Wallet._namiInterface;
@@ -426,8 +569,8 @@ class Wallet
 
   static get Nami()
   {
-    if( !Wallet.has( WalletName.Nami ) ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
-    if( !Wallet.isAviable( WalletName.Nami ) ) throw new NamiError("Wallet.enableNami has never been called before, can't access the Nami wallet object");
+    if( !Wallet.has( Wallet.Names.Nami ) ) throw new NamiError("can't access the Nami object if the nami extension is not installed");
+    if( !Wallet.isAviable( Wallet.Names.Nami ) ) throw new NamiError("Wallet.enableNami has never been called before, can't access the Nami wallet object");
 
     if( Wallet._NamiWallet === undefined )
     {
@@ -441,11 +584,11 @@ class Wallet
 
   static get CCVaultInterface()
   {
-    if( !Wallet.has( WalletName.CCVault ) ) throw new CCVaultError("can't access the ccvault object if the ccvault extension is not installed");
+    if( !Wallet.has( Wallet.Names.CCVault ) ) throw new CCVaultError("can't access the ccvault object if the ccvault extension is not installed");
 
     if( Wallet._ccvaultInterface === undefined )
     {
-      Wallet._ccvaultInterface = private_makeWalletInterface( WalletName.CCVault );
+      Wallet._ccvaultInterface = private_makeWalletInterface( Wallet.Names.CCVault );
     }
     
     return Wallet._ccvaultInterface;
@@ -453,8 +596,8 @@ class Wallet
 
   static get CCVault()
   {
-    if( !Wallet.has( WalletName.CCVault ) ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
-    if( !Wallet.isAviable( WalletName.CCVault ) ) throw new CCVaultError("Wallet.enableCCVault has never been called before, can't access the CCVault wallet object");
+    if( !Wallet.has( Wallet.Names.CCVault ) ) throw new CCVaultError("can't access the CCVault object if the CCVault extension is not installed");
+    if( !Wallet.isAviable( Wallet.Names.CCVault ) ) throw new CCVaultError("Wallet.enableCCVault has never been called before, can't access the CCVault wallet object");
 
     if( Wallet._CCVaultWallet === undefined )
     {
@@ -470,11 +613,11 @@ class Wallet
   
   static get FlintInterface()
   {
-    if( !Wallet.has( WalletName.Flint ) ) throw new FlintError("can't access the flint object if the flint extension is not installed");
+    if( !Wallet.has( Wallet.Names.Flint ) ) throw new FlintError("can't access the flint object if the flint extension is not installed");
 
     if( Wallet._flintInterface === undefined )
     {
-      Wallet._flintInterface = private_makeWalletInterface( WalletName.Flint );
+      Wallet._flintInterface = private_makeWalletInterface( Wallet.Names.Flint );
     }
     
     return Wallet._flintInterface;
@@ -482,8 +625,8 @@ class Wallet
 
   static get Flint()
   {
-    if( !Wallet.has( WalletName.Flint ) ) throw new FlintError("can't access the flint object if the flint extension is not installed");
-    if( !Wallet.isAviable( WalletName.Flint ) ) throw new FlintError("Wallet.enableFlint has never been called before, can't access the flint wallet object");
+    if( !Wallet.has( Wallet.Names.Flint ) ) throw new FlintError("can't access the flint object if the flint extension is not installed");
+    if( !Wallet.isAviable( Wallet.Names.Flint ) ) throw new FlintError("Wallet.enableFlint has never been called before, can't access the flint wallet object");
 
     if( Wallet._flintWallet === undefined )
     {
@@ -497,11 +640,11 @@ class Wallet
 
   static get YoroiInterface()
   {
-    if( !Wallet.has( WalletName.Yoroi ) ) throw new YoroiError("can't access the yoroi object if the yoroi extension is not installed");
+    if( !Wallet.has( Wallet.Names.Yoroi ) ) throw new YoroiError("can't access the yoroi object if the yoroi extension is not installed");
 
     if( Wallet._yoroiInterface === undefined )
     {
-      Wallet._yoroiInterface = private_makeWalletInterface( WalletName.Yoroi );
+      Wallet._yoroiInterface = private_makeWalletInterface( Wallet.Names.Yoroi );
     }
     
     return Wallet._yoroiInterface;
@@ -509,8 +652,8 @@ class Wallet
 
   static get Yoroi()
   {
-    if( !Wallet.has( WalletName.Yoroi ) ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi nigthly extension is not installed");
-    if( !Wallet.isAviable( WalletName.Yoroi ) ) throw new WalletInterfaceError("Wallet.enableYoroi has never been called before, can't access the Yoroi interface");
+    if( !Wallet.has( Wallet.Names.Yoroi ) ) throw new WalletInterfaceError("can't access the Yoroi object if the Yoroi nigthly extension is not installed");
+    if( !Wallet.isAviable( Wallet.Names.Yoroi ) ) throw new WalletInterfaceError("Wallet.enableYoroi has never been called before, can't access the Yoroi interface");
 
     if( Wallet._yoroiWallet === undefined )
     {
@@ -524,11 +667,11 @@ class Wallet
 
   static get GeroInterface()
   {
-    if( !Wallet.has( WalletName.Gero ) ) throw new GeroError("can't access the gero object if the gerowallet extension is not installed");
+    if( !Wallet.has( Wallet.Names.Gero ) ) throw new GeroError("can't access the gero object if the gerowallet extension is not installed");
 
     if( Wallet._geroInterface === undefined )
     {
-      Wallet._geroInterface = private_makeWalletInterface( WalletName.Gero );
+      Wallet._geroInterface = private_makeWalletInterface( Wallet.Names.Gero );
     }
     
     return Wallet._geroInterface;
@@ -536,8 +679,8 @@ class Wallet
 
   static get Gero()
   {
-    if( !Wallet.has( WalletName.Gero ) ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
-    if( !Wallet.isAviable( WalletName.Gero ) ) throw new WalletInterfaceError("Wallet.enableGero has never been called before, can't access the Gero interface");
+    if( !Wallet.has( Wallet.Names.Gero ) ) throw new WalletInterfaceError("can't access the Gero object if the Gero Wallet extension is not installed");
+    if( !Wallet.isAviable( Wallet.Names.Gero ) ) throw new WalletInterfaceError("Wallet.enableGero has never been called before, can't access the Gero interface");
 
     if( Wallet._geroWallet === undefined )
     {
@@ -552,11 +695,11 @@ class Wallet
   
   static get TyphonInterface()
   {
-    if( !Wallet.has( WalletName.Typhon ) ) throw new TyphonError("can't access the Typhon object if the Typhon extension is not installed");
+    if( !Wallet.has( Wallet.Names.Typhon ) ) throw new TyphonError("can't access the Typhon object if the Typhon extension is not installed");
 
     if( Wallet._typhonInterface === undefined )
     {
-      Wallet._typhonInterface = private_makeWalletInterface( WalletName.Typhon );
+      Wallet._typhonInterface = private_makeWalletInterface( Wallet.Names.Typhon );
     }
     
     return Wallet._typhonInterface;
@@ -564,8 +707,8 @@ class Wallet
 
   static get Typhon()
   {
-    if( !Wallet.has( WalletName.Typhon ) ) throw new TyphonError("can't access the Typhon object if the Typhon Wallet extension is not installed");
-    if( !Wallet.isAviable( WalletName.Typhon ) ) throw new TyphonError("Wallet.enable( WalletName.Typhon ) has never been called before, can't access the Typhon interface");
+    if( !Wallet.has( Wallet.Names.Typhon ) ) throw new TyphonError("can't access the Typhon object if the Typhon Wallet extension is not installed");
+    if( !Wallet.isAviable( Wallet.Names.Typhon ) ) throw new TyphonError("Wallet.enable( Wallet.Names.Typhon ) has never been called before, can't access the Typhon interface");
 
     if( Wallet._TyphonWallet === undefined )
     {
@@ -580,11 +723,11 @@ class Wallet
 
   static get CardwalletInterface()
   {
-    if( !Wallet.has( WalletName.Cardwallet ) ) throw new CardwalletError("can't access the Cardwallet object if the Cardwallet extension is not installed");
+    if( !Wallet.has( Wallet.Names.Cardwallet ) ) throw new CardwalletError("can't access the Cardwallet object if the Cardwallet extension is not installed");
 
     if( Wallet._cardWalletInterface === undefined )
     {
-      Wallet._cardWalletInterface = private_makeWalletInterface( WalletName.Cardwallet );
+      Wallet._cardWalletInterface = private_makeWalletInterface( Wallet.Names.Cardwallet );
     }
     
     return Wallet._cardWalletInterface;
@@ -592,8 +735,8 @@ class Wallet
 
   static get Cardwallet()
   {
-    if( !Wallet.has( WalletName.Cardwallet ) ) throw new CardwalletError("can't access the Cardwallet object if the Cardwallet Wallet extension is not installed");
-    if( !Wallet.isAviable( WalletName.Cardwallet ) ) throw new CardwalletError("Wallet.enable( WalletName.Cardwallet ) has never been called before, can't access the Cardwallet interface");
+    if( !Wallet.has( Wallet.Names.Cardwallet ) ) throw new CardwalletError("can't access the Cardwallet object if the Cardwallet Wallet extension is not installed");
+    if( !Wallet.isAviable( Wallet.Names.Cardwallet ) ) throw new CardwalletError("Wallet.enable( Wallet.Names.Cardwallet ) has never been called before, can't access the Cardwallet interface");
 
     if( Wallet._CardWalletWallet === undefined )
     {
@@ -607,11 +750,21 @@ class Wallet
 
 
 
+
+
+
+
+
+
+
+
+
+
 // ---------------------------------------------------- private --------------------------------------------------------- //
 
 /**
  * 
- * @param {symbol} walletSymbolName member of the WalletNameobject which you can import by ```inport { WalletName } from "@harmonicpool/cardano-wallet-interface"```
+ * @param {symbol} walletSymbolName member of the Wallet.Names bject which you can import by ```inport { Wallet.Names } from "@harmonicpool/cardano-wallet-interface"```
  * @returns {Wallet.WalletInterface}
 1 */
 function private_makeWalletInterface( walletSymbolName )
@@ -621,13 +774,13 @@ function private_makeWalletInterface( walletSymbolName )
   Wallet._assertWalletNameIsSym( walletSymbolName );
 
   if(
-    walletSymbolName !== WalletName.Nami ||
-    walletSymbolName !== WalletName.CCVault ||
-    walletSymbolName !== WalletName.Flint ||
-    walletSymbolName !== WalletName.Yoroi ||
-    walletSymbolName !== WalletName.Gero ||
-    walletSymbolName !== WalletName.Typhon ||
-    walletSymbolName !== WalletName.Cardwallet
+    walletSymbolName !== Wallet.Names.Nami ||
+    walletSymbolName !== Wallet.Names.CCVault ||
+    walletSymbolName !== Wallet.Names.Flint ||
+    walletSymbolName !== Wallet.Names.Yoroi ||
+    walletSymbolName !== Wallet.Names.Gero ||
+    walletSymbolName !== Wallet.Names.Typhon ||
+    walletSymbolName !== Wallet.Names.Cardwallet
   )
   throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object");
 
@@ -635,13 +788,13 @@ function private_makeWalletInterface( walletSymbolName )
   {
     switch( walletSymbolName )
     {
-      case WalletName.Nami:              return window?.cardano?.nami?.apiVersion               ? window.cardano.nami.apiVersion : ""; 
-      case WalletName.CCVault:           return window?.cardano?.ccvault?.apiVersion            ? window.cardano.ccvault.apiVersion : "";  
-      case WalletName.Flint:             return window?.cardano?.flint?.apiVersion              ? window.cardano.flint.apiVersion : ""; 
-      case WalletName.Yoroi:             return window?.cardano?.yoroi?.apiVersion              ? window.cardano.yoroi.apiVersion : "";  
-      case WalletName.Gero:              return window?.cardano?.gerowallet?.apiVersion         ? window.cardano.gerowallet.apiVersion : "";
-      case WalletName.Typhon:            return window?.cardano?.typhon?.apiVersion             ? window.cardano.typhon.apiVersion : "";
-      case WalletName.Cardwallet:        return window?.cardano?.cardwallet?.apiVersion         ? window.cardano.cardwallet.apiVersion : "";
+      case Wallet.Names.Nami:              return window?.cardano?.nami?.apiVersion               ? window.cardano.nami.apiVersion : ""; 
+      case Wallet.Names.CCVault:           return window?.cardano?.ccvault?.apiVersion            ? window.cardano.ccvault.apiVersion : "";  
+      case Wallet.Names.Flint:             return window?.cardano?.flint?.apiVersion              ? window.cardano.flint.apiVersion : ""; 
+      case Wallet.Names.Yoroi:             return window?.cardano?.yoroi?.apiVersion              ? window.cardano.yoroi.apiVersion : "";  
+      case Wallet.Names.Gero:              return window?.cardano?.gerowallet?.apiVersion         ? window.cardano.gerowallet.apiVersion : "";
+      case Wallet.Names.Typhon:            return window?.cardano?.typhon?.apiVersion             ? window.cardano.typhon.apiVersion : "";
+      case Wallet.Names.Cardwallet:        return window?.cardano?.cardwallet?.apiVersion         ? window.cardano.cardwallet.apiVersion : "";
       
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }
@@ -651,13 +804,13 @@ function private_makeWalletInterface( walletSymbolName )
   {
     switch( walletSymbolName )
     {
-      case WalletName.Nami:              return window?.cardano?.nami?.name               ? window.cardano.nami.name : ""; 
-      case WalletName.CCVault:           return window?.cardano?.ccvault?.name            ? window.cardano.ccvault.name : "";  
-      case WalletName.Flint:             return window?.cardano?.flint?.name              ? window.cardano.flint.name : ""; 
-      case WalletName.Yoroi:             return window?.cardano?.yoroi?.name              ? window.cardano.yoroi.name : "";  
-      case WalletName.Gero:              return window?.cardano?.gerowallet?.name         ? window.cardano.gerowallet.name : "";
-      case WalletName.Typhon:            return window?.cardano?.typhon?.name             ? window.cardano.typhon.name : "";
-      case WalletName.Cardwallet:        return window?.cardano?.cardwallet?.name         ? window.cardano.cardwallet.name : "";
+      case Wallet.Names.Nami:              return window?.cardano?.nami?.name               ? window.cardano.nami.name : ""; 
+      case Wallet.Names.CCVault:           return window?.cardano?.ccvault?.name            ? window.cardano.ccvault.name : "";  
+      case Wallet.Names.Flint:             return window?.cardano?.flint?.name              ? window.cardano.flint.name : ""; 
+      case Wallet.Names.Yoroi:             return window?.cardano?.yoroi?.name              ? window.cardano.yoroi.name : "";  
+      case Wallet.Names.Gero:              return window?.cardano?.gerowallet?.name         ? window.cardano.gerowallet.name : "";
+      case Wallet.Names.Typhon:            return window?.cardano?.typhon?.name             ? window.cardano.typhon.name : "";
+      case Wallet.Names.Cardwallet:        return window?.cardano?.cardwallet?.name         ? window.cardano.cardwallet.name : "";
 
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }
@@ -667,13 +820,13 @@ function private_makeWalletInterface( walletSymbolName )
   {
     switch( walletSymbolName )
     {
-      case WalletName.Nami:              return window?.cardano?.nami?.icon               ? window.cardano.nami.icon : ""; 
-      case WalletName.CCVault:           return window?.cardano?.ccvault?.icon            ? window.cardano.ccvault.icon : "";  
-      case WalletName.Flint:             return window?.cardano?.flint?.icon              ? window.cardano.flint.icon : ""; 
-      case WalletName.Yoroi:             return window?.cardano?.yoroi?.icon              ? window.cardano.yoroi.icon : "";  
-      case WalletName.Gero:              return window?.cardano?.gerowallet?.icon         ? window.cardano.gerowallet.icon : "";
-      case WalletName.Typhon:            return window?.cardano?.typhon?.icon             ? window.cardano.typhon.icon : "";
-      case WalletName.Cardwallet:        return window?.cardano?.cardwallet?.icon         ? window.cardano.cardwallet.icon : "";
+      case Wallet.Names.Nami:              return window?.cardano?.nami?.icon               ? window.cardano.nami.icon : ""; 
+      case Wallet.Names.CCVault:           return window?.cardano?.ccvault?.icon            ? window.cardano.ccvault.icon : "";  
+      case Wallet.Names.Flint:             return window?.cardano?.flint?.icon              ? window.cardano.flint.icon : ""; 
+      case Wallet.Names.Yoroi:             return window?.cardano?.yoroi?.icon              ? window.cardano.yoroi.icon : "";  
+      case Wallet.Names.Gero:              return window?.cardano?.gerowallet?.icon         ? window.cardano.gerowallet.icon : "";
+      case Wallet.Names.Typhon:            return window?.cardano?.typhon?.icon             ? window.cardano.typhon.icon : "";
+      case Wallet.Names.Cardwallet:        return window?.cardano?.cardwallet?.icon         ? window.cardano.cardwallet.icon : "";
       
       default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
     }

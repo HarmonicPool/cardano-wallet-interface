@@ -13,6 +13,7 @@
 /**
  * enum object to keep track of the wallet used
  * @readonly
+ * @deprecated use ```Wallet.Names``` instead
  */
 export const WalletName : Readonly<{
     Nami: symbol;

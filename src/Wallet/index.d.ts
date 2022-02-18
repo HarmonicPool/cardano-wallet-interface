@@ -53,12 +53,32 @@ declare class Wallet {
      */
     static _assertBrowser(): void
 
-    static names: Readonly<string[]>;
 
+    /**
+     * wallets enumerative object
+     */
+    static Names: Readonly<{
+        Nami: symbol,
+        CCVault: symbol,
+        Flint: symbol,
+        Yoroi: symbol,
+        Gero: symbol,
+        Typhon: symbol,
+        Cardwallet: symbol
+    }>;
+    
+    /**
+     * wallet names in string type
+     */
+    static stringNames: Readonly<Wallet.WalletStringName[]>;
+    
+    /**
+     * allows symbol and string interoperability
+     */
     static utils: {
-        getStringFromWalletName: ( walletName: symbol ) => string ,
-        getWalletNameFromString: ( stringName: string ) => symbol
-      }
+        getStringFromWalletName: ( walletName: symbol ) => Wallet.WalletStringName ,
+        getWalletNameFromString: ( stringName: Wallet.WalletStringName ) => symbol
+    }
 
     /**
      * 
@@ -107,6 +127,20 @@ declare class Wallet {
      * @returns {boolean} ```true``` of the extension has been injected, ```false``` otherwise
      */
     static has( wallet : Wallet.WalletName ) : boolean;
+
+    /**
+     * 
+     * @param {symbol} wallet: element of Wallet.name enumerative object 
+     * @returns {Wallet.Wallet} the dApp connecctor corresponding to the name
+     */
+    static get( wallet: symbol ): Wallet.Wallet
+
+    /**
+     * 
+     * @param {symbol} wallet: element of Wallet.name enumerative object
+     * @returns {Wallet.WalletInterface} initial API that allows enabling wallet
+     */
+    static getInterface( wallet: symbol ): Wallet.WalletInterface
 
     /**
      * 
