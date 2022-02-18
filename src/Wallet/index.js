@@ -215,7 +215,7 @@ class Wallet
       const invalidString = new WalletInterfaceError("getWalletNameFromString parameter must be a valid wallet string name");
 
       if( typeof string !== "string" )    throw invalidString;
-      if( !Wallet.sringNames.includes(string) ) throw invalidString;
+      if( !Wallet.stringNames.includes(string) ) throw invalidString;
 
       switch( string )
       {
