@@ -21,7 +21,8 @@ import {
   Assets,
   min_ada_required,
   Transaction as _Transaction,
-  TransactionWitnessSet
+  TransactionWitnessSet,
+  TransactionBuilderConfigBuilder
 } from "@emurgo/cardano-serialization-lib-asmjs";
 
 import { Buffer } from "buffer";
@@ -1076,13 +1077,24 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
   //const inputs = selection.input;
 
+  let cfgBuilder = TransactionBuilderConfigBuilder.new()
+
+  cfgBuilder = cfgBuilder.fee_algo( protocolParameters.linearFee );
+  cfgBuilder = cfgBuilder.coins_per_utxo_word( protocolParameters.minUtxo );
+  cfgBuilder = cfgBuilder.pool_deposit( protocolParameters.poolDeposit );
+  cfgBuilder = cfgBuilder.key_deposit( protocolParameters.keyDeposit );
+  cfgBuilder = cfgBuilder.max_value_size( protocolParameters.maxValueSize );
+  cfgBuilder = cfgBuilder.max_tx_size( protocolParameters.maxValueSize );
+  cfgBuilder = cfgBuilder.prefer_pure_change(true);
+
   const txBuilder = TransactionBuilder.new(
-    protocolParameters.linearFee,
+    /*protocolParameters.linearFee,
     protocolParameters.minUtxo,
     protocolParameters.poolDeposit,
     protocolParameters.keyDeposit,
     protocolParameters.maxValueSize,
-    protocolParameters.maxTxSize
+    protocolParameters.maxTxSize*/
+    cfgBuilder.build()
   );
 
   /*
