@@ -1087,6 +1087,8 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   cfgBuilder = cfgBuilder.max_tx_size( protocolParameters.maxValueSize );
   cfgBuilder = cfgBuilder.prefer_pure_change(true);
 
+  return cfgBuilder;
+  
   const txBuilder = TransactionBuilder.new(
     /*protocolParameters.linearFee,
     protocolParameters.minUtxo,
