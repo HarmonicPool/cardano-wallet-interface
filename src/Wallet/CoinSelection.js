@@ -593,6 +593,7 @@ import { Value, BigNum, Assets, AssetName, MultiAsset, ScriptHash, min_ada_requi
       let minAmount = Value.new(
         min_ada_required(
           cumulatedAmount,
+          false,
           BigNum.from_str(minUTxOValue.toString())
         )
       );
