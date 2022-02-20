@@ -1,6 +1,28 @@
 "use strict";
 
-import { LinearFee, BigNum, Ed25519KeyHash, Address, RewardAddress, TransactionUnspentOutput, TransactionOutputs, TransactionOutput, Value, TransactionBuilder, Certificates, Certificate, StakeRegistration, StakeDelegation, MultiAsset, Assets, min_ada_required, Transaction as _Transaction, TransactionWitnessSet } from "@emurgo/cardano-serialization-lib-asmjs";
+import {
+  LinearFee,
+  BigNum,
+  Ed25519KeyHash,
+  Address,
+  RewardAddress,
+  TransactionUnspentOutput,
+  TransactionUnspentOutputs,
+  CoinSelectionStrategyCIP2,
+  TransactionOutputs,
+  TransactionOutput,
+  Value,
+  TransactionBuilder,
+  Certificates,
+  Certificate,
+  StakeRegistration,
+  StakeDelegation,
+  MultiAsset,
+  Assets,
+  min_ada_required,
+  Transaction as _Transaction,
+  TransactionWitnessSet
+} from "@emurgo/cardano-serialization-lib-asmjs";
 
 import { Buffer } from "buffer";
 
@@ -1028,6 +1050,7 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   const MULTIASSET_SIZE = 5848;
   const VALUE_SIZE = 5860;
 
+  /*
   const outputs = TransactionOutputs.new();
   outputs.add(
     TransactionOutput.new(
@@ -1035,15 +1058,23 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
       Value.new(protocolParameters.keyDeposit)
     )
   );
+  // */
 
-  const selection = await CoinSelection.randomImprove(
+  const UTxOs = TransactionUnspentOutputs.new()
+
+  utxos.forEach( u => UTxOs.add(u) )
+
+  //const selection = 
+  /*
+  await CoinSelection.randomImprove(
     utxos,
     outputs,
     20,
     protocolParameters.minUtxo.to_str()
   );
+  //*/
 
-  const inputs = selection.input;
+  //const inputs = selection.input;
 
   const txBuilder = TransactionBuilder.new(
     protocolParameters.linearFee,
@@ -1054,6 +1085,7 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     protocolParameters.maxTxSize
   );
 
+  /*
   for (let i = 0; i < inputs.length; i++) {
     const utxo = inputs[i];
     txBuilder.add_input(
@@ -1062,6 +1094,9 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
       utxo.output().amount()
     );
   }
+  //*/
+
+  txBuilder.add_inputs_from( UTxOs, CoinSelectionStrategyCIP2.RandomImprove );
 
   const certificates = Certificates.new();
   if (!delegation.active)
@@ -1081,6 +1116,7 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   );
   txBuilder.set_certs(certificates);
 
+  /*
   const change = selection.change;
   const changeMultiAssets = change.multiasset();
 
@@ -1127,6 +1163,7 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
       TransactionOutput.new(address, partialChange)
     );
   }
+  //*/
 
   txBuilder.add_change_if_needed(address);
 
