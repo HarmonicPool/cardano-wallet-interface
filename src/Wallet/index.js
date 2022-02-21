@@ -1022,8 +1022,6 @@ async function private_getRewardAddress ( WalletProvider )
 async function private_delegationTransaction( blockfrost_project_id, WalletProvider, delegation, targetPoolId)
 {
   // await Loader.load();
-  console.log("no error entering private_delegationTransaction");
-
   const protocolParameters = await fetch(
     `https://cardano-mainnet.blockfrost.io/api/v0` + "/epochs/latest/parameters",
     {
@@ -1031,11 +1029,7 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     }
   ).then((res) => res.json());
 
-  console.log("got protocol params: ", protocolParameters );
-
   let address = (await WalletProvider.getUsedAddresses())[0];
-
-  console.log("got user address: " + JSON.stringify(address));
 
   if( address === undefined )
   {
@@ -1046,16 +1040,11 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
   const rewardAddress = await private_getRewardAddress( WalletProvider );
 
-  console.log("got reward_address: " + JSON.stringify(rewardAddress));
-  
   const stakeCredential = RewardAddress.from_address(
     Address.from_bytes(Buffer.from(rewardAddress, "hex"))
   ).payment_cred();
 
   let utxos = await WalletProvider.getUtxos();
-
-  console.log("got utxos strings: " + JSON.stringify(utxos));
-
 
   utxos = utxos.map((utxo) =>
     TransactionUnspentOutput.from_bytes(Buffer.from(utxo, "hex"))
@@ -1067,44 +1056,17 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   const MULTIASSET_SIZE = 5848;
   const VALUE_SIZE = 5860;
 
-  /*
-  const outputs = TransactionOutputs.new();
-  outputs.add(
-    TransactionOutput.new(
-      address,
-      Value.new(protocolParameters.keyDeposit)
-    )
-  );
-  // */
-
   const UTxOs = TransactionUnspentOutputs.new()
 
-  utxos.forEach( u => UTxOs.add(u) )
-
-  console.log("convered utxos to s-lib: " + JSON.stringify(UTxOs));
-
-  //const selection = 
-  /*
-  await CoinSelection.randomImprove(
-    utxos,
-    outputs,
-    20,
-    protocolParameters.minUtxo.to_str()
-  );
-  //*/
-
-  console.log("starting txBuilder construction");
+  utxos.forEach( u => UTxOs.add(u) );
 
   //const inputs = selection.input;
   let txBuilderConfig = TransactionBuilderConfigBuilder.new();
-  console.log("built new txBuilderCfg");
 
-  console.log("txBuilderCfg going to set coins_per_utxo", protocolParameters.coins_per_utxo_word);
   txBuilderConfig = txBuilderConfig.coins_per_utxo_word(
     BigNum.from_str(protocolParameters.coins_per_utxo_word)
   );
 
-  console.log("txBuilderCfg going to set linear_fee", protocolParameters.min_fee_a.toString(), protocolParameters.min_fee_b.toString() );
   txBuilderConfig = txBuilderConfig.fee_algo(
     LinearFee.new(
       BigNum.from_str(protocolParameters.min_fee_a.toString()) ,
@@ -1112,38 +1074,24 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     )
   );
 
-
-  console.log("txBuilderCfg going to set key_deposit", protocolParameters.key_deposit);
   txBuilderConfig = txBuilderConfig.key_deposit(BigNum.from_str(protocolParameters.key_deposit))
 
-  console.log("txBuilderCfg going to set key_deposit", protocolParameters.key_deposit);
   txBuilderConfig = txBuilderConfig.pool_deposit(
     BigNum.from_str(protocolParameters.pool_deposit)
   );
 
-  console.log("txBuilderCfg going to set max_tx_size",parseInt( protocolParameters.max_tx_size ));
   txBuilderConfig = txBuilderConfig.max_tx_size( parseInt( protocolParameters.max_tx_size ) );
 
-  console.log("txBuilderCfg going to set max_value_size", parseInt(protocolParameters.max_val_size));
   txBuilderConfig = txBuilderConfig.max_value_size( parseInt(protocolParameters.max_val_size) );
 
-  console.log("txBuilderCfg going to set prefer_pure_change", true);
   txBuilderConfig = txBuilderConfig.prefer_pure_change(true);
 
-  console.log("going to build");
   txBuilderConfig = txBuilderConfig.build();
-
-  console.log("build txBuilder config completed !!!!!!!!!!! ");
-
 
 
 const txBuilder = TransactionBuilder.new(txBuilderConfig);
 
-console.log("txBuilder built ");
-
 txBuilder.add_inputs_from( UTxOs, CoinSelectionStrategyCIP2.RandomImprove );
-
-console.log("added inputs fromconverted UTxOs");
 
   const certificates = Certificates.new();
   if (!delegation.active)
@@ -1162,55 +1110,6 @@ console.log("added inputs fromconverted UTxOs");
     )
   );
   txBuilder.set_certs(certificates);
-
-  /*
-  const change = selection.change;
-  const changeMultiAssets = change.multiasset();
-
-  // check if change value is too big for single output
-  if (changeMultiAssets && change.to_bytes().length * 2 > VALUE_SIZE) {
-    const partialChange = Value.new(
-      BigNum.from_str("0")
-    );
-
-    const partialMultiAssets = MultiAsset.new();
-    const policies = changeMultiAssets.keys();
-    const makeSplit = () => {
-      for (let j = 0; j < changeMultiAssets.len(); j++) {
-        const policy = policies.get(j);
-        const policyAssets = changeMultiAssets.get(policy);
-        const assetNames = policyAssets.keys();
-        const assets = Assets.new();
-        for (let k = 0; k < assetNames.len(); k++) {
-          const policyAsset = assetNames.get(k);
-          const quantity = policyAssets.get(policyAsset);
-          assets.insert(policyAsset, quantity);
-          //check size
-          const checkMultiAssets = MultiAsset.from_bytes(
-            partialMultiAssets.to_bytes()
-          );
-          checkMultiAssets.insert(policy, assets);
-          if (checkMultiAssets.to_bytes().length * 2 >= MULTIASSET_SIZE) {
-            partialMultiAssets.insert(policy, assets);
-            return;
-          }
-        }
-        partialMultiAssets.insert(policy, assets);
-      }
-    };
-    makeSplit();
-    partialChange.set_multiasset(partialMultiAssets);
-    const minAda = min_ada_required(
-      partialChange,
-      protocolParameters.minUtxo
-    );
-    partialChange.set_coin(minAda);
-
-    txBuilder.add_output(
-      TransactionOutput.new(address, partialChange)
-    );
-  }
-  //*/
 
   txBuilder.add_change_if_needed(address);
 
