@@ -1091,26 +1091,42 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   console.log("starting txBuilder construction");
 
   //const inputs = selection.input;
-  const txBuilderConfig = TransactionBuilderConfigBuilder.new()
-  .coins_per_utxo_word(
+  let txBuilderConfig = TransactionBuilderConfigBuilder.new();
+  console.log("built new txBuilderCfg");
+
+  console.log("txBuilderCfg going to set coins_per_utxo", protocolParameters.coinsPerUtxoWord);
+  txBuilderConfig = txBuilderConfig.coins_per_utxo_word(
     BigNum.from_str(protocolParameters.coinsPerUtxoWord || "34482")
-  )
-  .fee_algo(
+  );
+
+  console.log("txBuilderCfg going to set linear_fee", protocolParameters.linearFee.minFeeA, protocolParameters.linearFee.minFeeB );
+  txBuilderConfig = txBuilderConfig.fee_algo(
     LinearFee.new(
       BigNum.from_str(protocolParameters.linearFee.minFeeA || "44") ,
       BigNum.from_str(protocolParameters.linearFee.minFeeB || "133381")
     )
-  )
-  .key_deposit(BigNum.from_str(protocolParameters.keyDeposit || "2000000"))
+  );
+
+  console.log("txBuilderCfg going to set key_deposit", protocolParameters.poolDeposit);
+  txBuilderConfig = txBuilderConfig.key_deposit(BigNum.from_str(protocolParameters.keyDeposit || "2000000"))
   .pool_deposit(
     BigNum.from_str(protocolParameters.poolDeposit || "500000000")
-  )
-  .max_tx_size(protocolParameters.maxTxSize || 16384)
-  .max_value_size(protocolParameters.maxValueSize || 5000)
-  .prefer_pure_change(true)
-  .build();
+  );
+
+  console.log("txBuilderCfg going to set max_tx_size", protocolParameters.maxTxSize);
+  txBuilderConfig = txBuilderConfig.max_tx_size(protocolParameters.maxTxSize || 16384);
+
+  console.log("txBuilderCfg going to set max_value_size", protocolParameters.maxValueSize);
+  txBuilderConfig = txBuilderConfig.max_value_size(protocolParameters.maxValueSize || 5000);
+
+  console.log("txBuilderCfg going to set prefer_pure_change", true);
+  txBuilderConfig = txBuilderConfig.prefer_pure_change(true);
+
+  console.log("going to build");
+  txBuilderConfig = txBuilderConfig.build();
 
   console.log("build txBuilder config completed !!!!!!!!!!! ");
+
 
 
 const txBuilder = TransactionBuilder.new(txBuilderConfig);
