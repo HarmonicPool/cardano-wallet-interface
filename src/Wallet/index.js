@@ -1079,17 +1079,17 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
   const txBuilderConfig = TransactionBuilderConfigBuilder.new()
     .coins_per_utxo_word(
-      Loader.Cardano.BigNum.from_str(protocolParameters.coinsPerUtxoWord)
+      BigNum.from_str(protocolParameters.coinsPerUtxoWord)
     )
     .fee_algo(
-      Loader.Cardano.LinearFee.new(
-        Loader.Cardano.BigNum.from_str(protocolParameters.linearFee.minFeeA),
-        Loader.Cardano.BigNum.from_str(protocolParameters.linearFee.minFeeB)
+      LinearFee.new(
+        BigNum.from_str(protocolParameters.linearFee.minFeeA),
+        BigNum.from_str(protocolParameters.linearFee.minFeeB)
       )
     )
-    .key_deposit(Loader.Cardano.BigNum.from_str(protocolParameters.keyDeposit))
+    .key_deposit(BigNum.from_str(protocolParameters.keyDeposit))
     .pool_deposit(
-      Loader.Cardano.BigNum.from_str(protocolParameters.poolDeposit)
+      BigNum.from_str(protocolParameters.poolDeposit)
     )
     .max_tx_size(protocolParameters.maxTxSize)
     .max_value_size(protocolParameters.maxValSize)
