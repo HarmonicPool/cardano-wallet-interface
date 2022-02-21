@@ -983,7 +983,7 @@ async function private_getProtocolParameters( blockfrost_project_id )
 
 function private_getPoolId( bech32_poolId )
 {
-  return Buffer.from(Ed25519KeyHash.from_bech32(poolId).to_bytes(), "hex").toString("hex")
+  return Buffer.from(Ed25519KeyHash.from_bech32(bech32_poolId).to_bytes(), "hex").toString("hex")
 }
 
 
@@ -1024,9 +1024,14 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   // await Loader.load();
   console.log("no error entering private_delegationTransaction");
 
-  const protocolParameters = await private_getProtocolParameters( blockfrost_project_id );
+  const protocolParameters = await fetch(
+    `https://cardano-mainnet.blockfrost.io/api/v0` + "/epochs/latest/parameters",
+    {
+      headers: { project_id: blockfrost_project_id },
+    }
+  ).then((res) => res.json());
 
-  console.log("got protocol params: " + JSON.stringify(protocolParameters));
+  console.log("got protocol params: ", protocolParameters );
 
   let address = (await WalletProvider.getUsedAddresses())[0];
 
@@ -1094,33 +1099,33 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   let txBuilderConfig = TransactionBuilderConfigBuilder.new();
   console.log("built new txBuilderCfg");
 
-  console.log("txBuilderCfg going to set coins_per_utxo", protocolParameters.coinsPerUtxoWord);
+  console.log("txBuilderCfg going to set coins_per_utxo", protocolParameters.coins_per_utxo_word);
   txBuilderConfig = txBuilderConfig.coins_per_utxo_word(
-    BigNum.from_str("34482")
+    BigNum.from_str(protocolParameters.coins_per_utxo_word)
   );
 
-  console.log("txBuilderCfg going to set linear_fee", protocolParameters.linearFee.minFeeA, protocolParameters.linearFee.minFeeB );
+  console.log("txBuilderCfg going to set linear_fee", protocolParameters.min_fee_a.toString(), protocolParameters.min_fee_b.toString() );
   txBuilderConfig = txBuilderConfig.fee_algo(
     LinearFee.new(
-      BigNum.from_str("44") ,
-      BigNum.from_str("133381")
+      BigNum.from_str(protocolParameters.min_fee_a.toString()) ,
+      BigNum.from_str(protocolParameters.min_fee_b.toString())
     )
   );
 
 
-  console.log("txBuilderCfg going to set key_deposit", "2000000");
-  txBuilderConfig = txBuilderConfig.key_deposit(BigNum.from_str("2000000"))
+  console.log("txBuilderCfg going to set key_deposit", protocolParameters.key_deposit);
+  txBuilderConfig = txBuilderConfig.key_deposit(BigNum.from_str(protocolParameters.key_deposit))
 
-  console.log("txBuilderCfg going to set key_deposit", "500000000");
+  console.log("txBuilderCfg going to set key_deposit", protocolParameters.key_deposit);
   txBuilderConfig = txBuilderConfig.pool_deposit(
-    BigNum.from_str("500000000")
+    BigNum.from_str(protocolParameters.pool_deposit)
   );
 
   console.log("txBuilderCfg going to set max_tx_size",16384);
-  txBuilderConfig = txBuilderConfig.max_tx_size(16384);
+  txBuilderConfig = txBuilderConfig.max_tx_size( pparseInt( protocolParameters.max_tx_size ) );
 
-  console.log("txBuilderCfg going to set max_value_size", 5000);
-  txBuilderConfig = txBuilderConfig.max_value_size(5000);
+  console.log("txBuilderCfg going to set max_value_size", parseInt(protocolParameters.max_val_size));
+  txBuilderConfig = txBuilderConfig.max_value_size( parseInt(protocolParameters.max_val_size) );
 
   console.log("txBuilderCfg going to set prefer_pure_change", true);
   txBuilderConfig = txBuilderConfig.prefer_pure_change(true);
