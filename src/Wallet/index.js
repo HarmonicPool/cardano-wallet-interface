@@ -1076,29 +1076,28 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   //*/
 
   //const inputs = selection.input;
-
   const txBuilderConfig = TransactionBuilderConfigBuilder.new()
-    .coins_per_utxo_word(
-      BigNum.from_str(protocolParameters.coinsPerUtxoWord)
+  .coins_per_utxo_word(
+    BigNum.from_str(protocolParameters.coinsPerUtxoWord || "34482")
+  )
+  .fee_algo(
+    LinearFee.new(
+      BigNum.from_str(protocolParameters.linearFee.minFeeA || "44") ,
+      BigNum.from_str(protocolParameters.linearFee.minFeeB || "133381")
     )
-    .fee_algo(
-      LinearFee.new(
-        BigNum.from_str(protocolParameters.linearFee.minFeeA),
-        BigNum.from_str(protocolParameters.linearFee.minFeeB)
-      )
-    )
-    .key_deposit(BigNum.from_str(protocolParameters.keyDeposit))
-    .pool_deposit(
-      BigNum.from_str(protocolParameters.poolDeposit)
-    )
-    .max_tx_size(protocolParameters.maxTxSize)
-    .max_value_size(protocolParameters.maxValSize)
-    .prefer_pure_change(true)
-    .build();
+  )
+  .key_deposit(BigNum.from_str(protocolParameters.keyDeposit || "2000000"))
+  .pool_deposit(
+    BigNum.from_str(protocolParameters.poolDeposit || "500000000")
+  )
+  .max_tx_size(protocolParameters.maxTxSize || 16384)
+  .max_value_size(protocolParameters.maxValueSize || 5000)
+  .prefer_pure_change(true)
+  .build();
 
-  const txBuilder = TransactionBuilder.new(txBuilderConfig);
+const txBuilder = TransactionBuilder.new(txBuilderConfig);
 
-  txBuilder.add_inputs_from( UTxOs, CoinSelectionStrategyCIP2.RandomImprove );
+txBuilder.add_inputs_from( UTxOs, CoinSelectionStrategyCIP2.RandomImprove );
 
   const certificates = Certificates.new();
   if (!delegation.active)
