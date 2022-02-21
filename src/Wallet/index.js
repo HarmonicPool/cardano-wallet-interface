@@ -1022,9 +1022,15 @@ async function private_getRewardAddress ( WalletProvider )
 async function private_delegationTransaction( blockfrost_project_id, WalletProvider, delegation, targetPoolId)
 {
   // await Loader.load();
+  console.log("no error entering private_delegationTransaction");
+
   const protocolParameters = await private_getProtocolParameters( blockfrost_project_id );
 
+  console.log("got protocol params: " + JSON.stringify(protocolParameters));
+
   let address = (await WalletProvider.getUsedAddresses())[0];
+
+  console.log("got user address: " + JSON.stringify(address));
 
   if( address === undefined )
   {
@@ -1035,11 +1041,16 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
   const rewardAddress = await private_getRewardAddress( WalletProvider );
 
+  console.log("got reward_address: " + JSON.stringify(rewardAddress));
+  
   const stakeCredential = RewardAddress.from_address(
     Address.from_bytes(Buffer.from(rewardAddress, "hex"))
   ).payment_cred();
 
   let utxos = await WalletProvider.getUtxos();
+
+  console.log("got utxos strings: " + JSON.stringify(utxos));
+
 
   utxos = utxos.map((utxo) =>
     TransactionUnspentOutput.from_bytes(Buffer.from(utxo, "hex"))
@@ -1065,6 +1076,8 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
   utxos.forEach( u => UTxOs.add(u) )
 
+  console.log("convered utxos to s-lib: " + JSON.stringify(UTxOs));
+
   //const selection = 
   /*
   await CoinSelection.randomImprove(
@@ -1074,6 +1087,8 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     protocolParameters.minUtxo.to_str()
   );
   //*/
+
+  console.log("starting txBuilder construction");
 
   //const inputs = selection.input;
   const txBuilderConfig = TransactionBuilderConfigBuilder.new()
@@ -1095,9 +1110,16 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
   .prefer_pure_change(true)
   .build();
 
+  console.log("build txBuilder config completed !!!!!!!!!!! ");
+
+
 const txBuilder = TransactionBuilder.new(txBuilderConfig);
 
+console.log("txBuilder built ");
+
 txBuilder.add_inputs_from( UTxOs, CoinSelectionStrategyCIP2.RandomImprove );
+
+console.log("added inputs fromconverted UTxOs");
 
   const certificates = Certificates.new();
   if (!delegation.active)
