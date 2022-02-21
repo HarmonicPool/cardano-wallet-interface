@@ -1,6 +1,6 @@
 {
   "name": "@harmonicpool/cardano-wallet-interface",
-  "version": "1.5.10",
+  "version": "0.1.11",
   "description": "a package that makes easier to interact with wallets on cardano",
   "main": "src/index.js",
   "scripts": {

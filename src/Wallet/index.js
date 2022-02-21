@@ -408,23 +408,36 @@ class Wallet
   {
     Wallet._assertBrowser();
     Wallet._assertWalletNameIsSym( wallet );
-   
-    switch( wallet )
-    {
-      /*
-      if you need to modify the cases please make sure
-      any change is made also in the Wallet.Names object
-      */
-      case Wallet.Names.Nami:               return Wallet.NamiInterface;
-      case Wallet.Names.CCVault:            return Wallet.CCVaultInterface;
-      case Wallet.Names.Flint:              return Wallet.FlintInterface;
-      case Wallet.Names.Yoroi:              return Wallet.YoroiInterface;
-      case Wallet.Names.Gero:               return Wallet.GeroInterface;
-      case Wallet.Names.Typhon:             return Wallet.TyphonInterface;
-      case Wallet.Names.Cardwallet:         return Wallet.CardwalletInterface;
 
-      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the Wallet.Names enumeration object")
+    if( wallet === Wallet.Names.Nami )
+    {
+      return Wallet.NamiInterface;
     }
+    else if( wallet === Wallet.Names.CCVault )
+    {
+      return Wallet.CCVaultInterface;
+    }
+    else if( wallet === Wallet.Names.Flint )
+    {
+      return Wallet.FlintInterface;
+    }
+    else if( wallet === Wallet.Names.Gero )
+    {
+      return Wallet.GeroInterface;
+    }
+    else if( wallet === Wallet.Names.Typhon )
+    {
+      return Wallet.TyphonInterface;
+    }
+    else if( wallet === Wallet.Names.Yoroi )
+    {
+      return Wallet.YoroiInterface;
+    }
+    else if( wallet === Wallet.Names,Cardwallet )
+    {
+      return Wallet.CardwalletInterface;
+    }
+    else throw new WalletProcessError("invalid argument; wallet name MUST be a member of the Wallet.Names enumeration object")
   }
   
   /**
