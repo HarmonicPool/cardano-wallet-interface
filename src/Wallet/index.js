@@ -1121,8 +1121,8 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
     BigNum.from_str(protocolParameters.pool_deposit)
   );
 
-  console.log("txBuilderCfg going to set max_tx_size",16384);
-  txBuilderConfig = txBuilderConfig.max_tx_size( pparseInt( protocolParameters.max_tx_size ) );
+  console.log("txBuilderCfg going to set max_tx_size",parseInt( protocolParameters.max_tx_size ));
+  txBuilderConfig = txBuilderConfig.max_tx_size( parseInt( protocolParameters.max_tx_size ) );
 
   console.log("txBuilderCfg going to set max_value_size", parseInt(protocolParameters.max_val_size));
   txBuilderConfig = txBuilderConfig.max_value_size( parseInt(protocolParameters.max_val_size) );
