@@ -1077,41 +1077,26 @@ async function private_delegationTransaction( blockfrost_project_id, WalletProvi
 
   //const inputs = selection.input;
 
-  let cfgBuilder = TransactionBuilderConfigBuilder.new()
+  const txBuilderConfig = TransactionBuilderConfigBuilder.new()
+    .coins_per_utxo_word(
+      Loader.Cardano.BigNum.from_str(protocolParameters.coinsPerUtxoWord)
+    )
+    .fee_algo(
+      Loader.Cardano.LinearFee.new(
+        Loader.Cardano.BigNum.from_str(protocolParameters.linearFee.minFeeA),
+        Loader.Cardano.BigNum.from_str(protocolParameters.linearFee.minFeeB)
+      )
+    )
+    .key_deposit(Loader.Cardano.BigNum.from_str(protocolParameters.keyDeposit))
+    .pool_deposit(
+      Loader.Cardano.BigNum.from_str(protocolParameters.poolDeposit)
+    )
+    .max_tx_size(protocolParameters.maxTxSize)
+    .max_value_size(protocolParameters.maxValSize)
+    .prefer_pure_change(true)
+    .build();
 
-  cfgBuilder = cfgBuilder.fee_algo( protocolParameters.linearFee );
-  cfgBuilder = cfgBuilder.coins_per_utxo_word( protocolParameters.minUtxo );
-  cfgBuilder = cfgBuilder.pool_deposit( protocolParameters.poolDeposit );
-  cfgBuilder = cfgBuilder.key_deposit( protocolParameters.keyDeposit );
-  cfgBuilder = cfgBuilder.max_value_size( protocolParameters.maxValueSize );
-  cfgBuilder = cfgBuilder.max_tx_size( protocolParameters.maxValueSize );
-  cfgBuilder = cfgBuilder.prefer_pure_change(true);
-  
-  const cfg = cfgBuilder.build();
-  console.log("just testing: ", cfgBuilder, cfg, cfg instanceof TransactionBuilderConfig); 
-
-  return cfgBuilder;
-  
-  const txBuilder = TransactionBuilder.new(
-    /*protocolParameters.linearFee,
-    protocolParameters.minUtxo,
-    protocolParameters.poolDeposit,
-    protocolParameters.keyDeposit,
-    protocolParameters.maxValueSize,
-    protocolParameters.maxTxSize*/
-    cfg
-  );
-
-  /*
-  for (let i = 0; i < inputs.length; i++) {
-    const utxo = inputs[i];
-    txBuilder.add_input(
-      utxo.output().address(),
-      utxo.input(),
-      utxo.output().amount()
-    );
-  }
-  //*/
+  const txBuilder = TransactionBuilder.new(txBuilderConfig);
 
   txBuilder.add_inputs_from( UTxOs, CoinSelectionStrategyCIP2.RandomImprove );
 
