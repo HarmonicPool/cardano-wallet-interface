@@ -267,7 +267,7 @@ class Wallet
    */
   static setBlockfrost( blockfrost_project_id )
   {    
-    if( typeof blockfrost_project_id !== "string" ) throw StringFormatError("blockfrost_project_id must be a string")
+    if( typeof blockfrost_project_id !== "string" ) throw new StringFormatError("blockfrost_project_id must be a string")
     
     Wallet._api_key = blockfrost_project_id;
     
@@ -494,11 +494,11 @@ class Wallet
 
       case Wallet.Names.Typhon:
         let tResult =  await window.cardano.typhon.enable();
-        if( tResult.satus )
+        if( tResult.status )
         {
-          Wallet._typhonObj = window.cardano.typhon
+          Wallet._typhonObj = window.cardano.typhon;
         }
-        else throw TyphonError("user rejected typhon connection")
+        else throw new TyphonError("user rejected typhon connection")
       return;
       break;
       case Wallet.Names.Cardwallet:
@@ -818,7 +818,7 @@ class Wallet
 
 /**
  * 
- * @param {Wallet.WalletStringName} walletSymbolName member of the Wallet.Names bject which you can import by ```inport { Wallet.Names } from "@harmonicpool/cardano-wallet-interface"```
+ * @param {Wallet.WalletStringName} walletStringName member of the Wallet.Names bject which you can import by ```inport { Wallet.Names } from "@harmonicpool/cardano-wallet-interface"```
  * @returns {Wallet.WalletInterface}
 1 */
 function private_makeWalletInterface( walletStringName )
@@ -829,7 +829,7 @@ function private_makeWalletInterface( walletStringName )
 
   function getApiVersion()
   {
-    switch( walletSymbolName )
+    switch( walletStringName )
     {
       case Wallet.Names.Nami:              return window?.cardano?.nami?.apiVersion               ? window.cardano.nami.apiVersion : ""; 
       case Wallet.Names.CCVault:           return window?.cardano?.ccvault?.apiVersion            ? window.cardano.ccvault.apiVersion : "";  
@@ -845,7 +845,7 @@ function private_makeWalletInterface( walletStringName )
 
   function getName()
   {
-    switch( walletSymbolName )
+    switch( walletStringName )
     {
       case Wallet.Names.Nami:              return window?.cardano?.nami?.name               ? window.cardano.nami.name : ""; 
       case Wallet.Names.CCVault:           return window?.cardano?.ccvault?.name            ? window.cardano.ccvault.name : "";  
@@ -861,7 +861,7 @@ function private_makeWalletInterface( walletStringName )
 
   function getIcon()
   {
-    switch( walletSymbolName )
+    switch( walletStringName )
     {
       case Wallet.Names.Nami:              return window?.cardano?.nami?.icon               ? window.cardano.nami.icon : ""; 
       case Wallet.Names.CCVault:           return window?.cardano?.ccvault?.icon            ? window.cardano.ccvault.icon : "";  
@@ -879,10 +879,10 @@ function private_makeWalletInterface( walletStringName )
     apiVersion: getApiVersion(),
     icon:       getIcon(),
     name:       getName(),
-    isInjected: () => Wallet.has( walletSymbolName ),
-    isAviable:  () => Wallet.isAviable( walletSymbolName ),
-    isEnabled:  () => Wallet.isEnabled( walletSymbolName ),
-    enable:     () => Wallet.enable( walletSymbolName )
+    isInjected: () => Wallet.has( walletStringName ),
+    isAviable:  () => Wallet.isAviable( walletStringName ),
+    isEnabled:  () => Wallet.isEnabled( walletStringName ),
+    enable:     () => Wallet.enable( walletStringName )
   };
 
 }
@@ -912,8 +912,8 @@ function private_makeWallet( WalletProvider, defaultBlockfrost_api_key )
   }
 
   const createDelegagtionTransaction = async ( targetPoolId, blockfrost_project_id = undefined ) => {
-    if( typeof targetPoolId !== "string" ) throw StringFormatError("in order to delegate to a pool you must provvide a valid pool id string;  pool id was: " + targetPoolId );
-    if( !targetPoolId.startsWith("pool") ) throw StringFormatError("you must use the bech 32 pool id, perhaps you provvided the hex pool id? input was: " + targetPoolId );
+    if( typeof targetPoolId !== "string" ) throw new StringFormatError("in order to delegate to a pool you must provvide a valid pool id string;  pool id was: " + targetPoolId );
+    if( !targetPoolId.startsWith("pool") ) throw new StringFormatError("you must use the bech 32 pool id, perhaps you provvided the hex pool id? input was: " + targetPoolId );
 
     return await private_delegationTransaction(
       blockfrost_project_id,
