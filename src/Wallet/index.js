@@ -27,9 +27,6 @@ import {
 
 import { Buffer } from "buffer";
 
-// const Loader        = require("./WasmLoader");
-import CoinSelection from "./CoinSelection";
-
 import StringFormatError from "../errors/WalletInterfaceError/StringFormatError/StringFormatError";
 
 import WalletInterfaceError from "../errors/WalletInterfaceError/WalletInterfaceError";
