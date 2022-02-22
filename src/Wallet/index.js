@@ -1044,6 +1044,24 @@ async function private_getRewardAddress ( WalletProvider )
 
 async function private_delegationTransaction( blockfrost_project_id, WalletProvider, delegation, targetPoolId)
 {
+  if( !!WalletProvider?.delegationTransaction)
+  {
+    // Typhon specific
+
+    const { status, data } = await WalletProvider.delegationTransaction({
+      poolId: targetPoolId
+    })
+
+    if( status === true )
+    {
+      return data.transactionId;
+    }
+    else
+    {
+      throw new TyphonError("delegation transaction rejected")
+    }
+
+  }
   // await Loader.load();
   const protocolParameters = await fetch(
     `https://cardano-mainnet.blockfrost.io/api/v0` + "/epochs/latest/parameters",
