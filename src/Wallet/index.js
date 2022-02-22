@@ -915,6 +915,24 @@ function private_makeWallet( WalletProvider, defaultBlockfrost_api_key )
     if( typeof targetPoolId !== "string" ) throw new StringFormatError("in order to delegate to a pool you must provvide a valid pool id string;  pool id was: " + targetPoolId );
     if( !targetPoolId.startsWith("pool") ) throw new StringFormatError("you must use the bech 32 pool id, perhaps you provvided the hex pool id? input was: " + targetPoolId );
 
+    if( WalletProvider.name === "Typhon Wallet")
+    {
+      // Typhon specific
+      const { status, data } = await window.cardano.typhon.delegationTransaction({
+        poolId: targetPoolId
+      })
+
+      if( status === true )
+      {
+        return data.transactionId;
+      }
+      else
+      {
+        throw new TyphonError("delegation transaction rejected")
+      }
+
+    }
+
     return await private_delegationTransaction(
       blockfrost_project_id,
       WalletProvider,
@@ -1044,28 +1062,7 @@ async function private_getRewardAddress ( WalletProvider )
 
 async function private_delegationTransaction( blockfrost_project_id, WalletProvider, delegation, targetPoolId)
 {
-  const dLog = ( (...any) => console.log("delegation transaction: " , any ) );
-
-  dLog( WalletProvider.name, WalletProvider );
-
-  if( WalletProvider.name === "Typhon Wallet")
-  {
-    dLog("using typhon")
-    // Typhon specific
-    const { status, data } = await window.cardano.typhon.delegationTransaction({
-      poolId: targetPoolId
-    })
-
-    if( status === true )
-    {
-      return data.transactionId;
-    }
-    else
-    {
-      throw new TyphonError("delegation transaction rejected")
-    }
-
-  }
+  
   // await Loader.load();
   const protocolParameters = await fetch(
     `https://cardano-mainnet.blockfrost.io/api/v0` + "/epochs/latest/parameters",
