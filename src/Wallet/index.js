@@ -451,7 +451,7 @@ class Wallet
     {
       return Wallet.YoroiInterface;
     }
-    else if( wallet === Wallet.Names,Cardwallet )
+    else if( wallet === Wallet.Names.Cardwallet )
     {
       return Wallet.CardwalletInterface;
     }
