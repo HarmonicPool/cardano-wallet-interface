@@ -1044,11 +1044,10 @@ async function private_getRewardAddress ( WalletProvider )
 
 async function private_delegationTransaction( blockfrost_project_id, WalletProvider, delegation, targetPoolId)
 {
-  if( !!WalletProvider?.delegationTransaction)
+  if( WalletProvider.name === "Typhon Wallet")
   {
     // Typhon specific
-
-    const { status, data } = await WalletProvider.delegationTransaction({
+    const { status, data } = await window.cardano.typhon.delegationTransaction({
       poolId: targetPoolId
     })
 
