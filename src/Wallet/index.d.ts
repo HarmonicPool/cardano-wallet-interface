@@ -58,13 +58,13 @@ declare class Wallet {
      * wallets enumerative object
      */
     static Names: Readonly<{
-        Nami: symbol,
-        CCVault: symbol,
-        Flint: symbol,
-        Yoroi: symbol,
-        Gero: symbol,
-        Typhon: symbol,
-        Cardwallet: symbol
+        Nami: Wallet.WalletStringName,
+        CCVault: Wallet.WalletStringName,
+        Flint: Wallet.WalletStringName,
+        Yoroi: Wallet.WalletStringName,
+        Gero: Wallet.WalletStringName,
+        Typhon: Wallet.WalletStringName,
+        Cardwallet: Wallet.WalletStringName
     }>;
     
     /**
@@ -73,11 +73,17 @@ declare class Wallet {
     static stringNames: Readonly<Wallet.WalletStringName[]>;
     
     /**
-     * allows symbol and string interoperability
-     */
+         * uselesshere unly for retro compatibility
+         */
     static utils: {
-        getStringFromWalletName: ( walletName: symbol ) => Wallet.WalletStringName ,
-        getWalletNameFromString: ( stringName: Wallet.WalletStringName ) => symbol
+        /**
+         * uselesshere unly for retro compatibility
+         */
+        getStringFromWalletName: ( walletName: Wallet.WalletStringName ) => Wallet.WalletStringName ,
+        /**
+         * uselesshere unly for retro compatibility
+         */
+        getWalletNameFromString: ( stringName: Wallet.WalletStringName ) => Wallet.WalletStringName
     }
 
     /**
@@ -130,17 +136,17 @@ declare class Wallet {
 
     /**
      * 
-     * @param {symbol} wallet: element of Wallet.name enumerative object 
+     * @param {Wallet.WalletStringName} wallet: element of Wallet.name enumerative object 
      * @returns {Wallet.Wallet} the dApp connecctor corresponding to the name
      */
-    static get( wallet: symbol ): Wallet.Wallet
+    static get( wallet: Wallet.WalletStringName ): Wallet.Wallet
 
     /**
      * 
-     * @param {symbol} wallet: element of Wallet.name enumerative object
+     * @param {Wallet.WalletStringName} wallet: element of Wallet.name enumerative object
      * @returns {Wallet.WalletInterface} initial API that allows enabling wallet
      */
-    static getInterface( wallet: symbol ): Wallet.WalletInterface
+    static getInterface( wallet: Wallet.WalletStringName ): Wallet.WalletInterface
 
     /**
      * 
