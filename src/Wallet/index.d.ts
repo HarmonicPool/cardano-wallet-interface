@@ -123,10 +123,10 @@ declare class Wallet {
    
     /**
      * 
-     * @param {Wallet.WalletName} wallet member of the WalletName enumerative object
+     * @param {Wallet.WalletStringName} wallet member of the WalletStringName enumerative object
      * @returns {boolean} ```true``` of the extension has been injected, ```false``` otherwise
      */
-    static has( wallet : Wallet.WalletName ) : boolean;
+    static has( wallet : Wallet.Wallet.WalletStringName ) : boolean;
 
     /**
      * 
@@ -144,25 +144,25 @@ declare class Wallet {
 
     /**
      * 
-     * @param {Wallet.WalletName} wallet member of the WalletName enumerative object
+     * @param {Wallet.WalletStringName} wallet member of the WalletStringName enumerative object
      */
-    static enable( wallet : Wallet.WalletName ) : Promise<void>;
+    static enable( wallet : Wallet.WalletStringName ) : Promise<void>;
 
     /**
      * calls internally the ```isEnabled()``` defined in the CIP-0030
-     * if the promise result is true then the Wallet accessor will be aviable without the need to call ```Wallet.enable( WalletName.Wallet )```.
+     * if the promise result is true then the Wallet accessor will be aviable without the need to call ```Wallet.enable( WalletStringName.Wallet )```.
      * may be useful to understand when a user has already connected the given wallet to the website in a previous session
-     * @param {Wallet.WalletName} wallet member of the WalletName enumerative object
+     * @param {Wallet.WalletStringName} wallet member of the WalletStringName enumerative object
      * @returns {Promise<boolean>} same as window.cardano.isEnabled()
      */
-    static isEnabled( wallet : Wallet.WalletName ) : Promise<boolean>;
+    static isEnabled( wallet : Wallet.WalletStringName ) : Promise<boolean>;
 
     /**
      * 
-     * @param {Wallet.WalletName} wallet member of the WalletName enumerative object
+     * @param {Wallet.WalletStringName} wallet member of the WalletStringName enumerative object
      * @returns {boolean} if the Wallet object is aviable
      */
-    static isAviable( wallet : Wallet.WalletName ) : boolean;
+    static isAviable( wallet : Wallet.WalletStringName ) : boolean;
 
     // ---------------------------------------- Nami ---------------------------------------- //
 

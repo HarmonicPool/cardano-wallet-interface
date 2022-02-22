@@ -189,13 +189,13 @@ class Wallet
   }
 
   static Names = Object.freeze({
-    Nami: Symbol("Nami"),
-    CCVault: Symbol("ccvault"),
-    Flint: Symbol("Flint"),
-    Yoroi: Symbol("yoroi"),
-    Gero: Symbol("GeroWallet"),
-    Typhon: Symbol("Typhon Wallet"),
-    Cardwallet: Symbol("CardWallet")
+    Nami: "Nami",
+    CCVault: "ccvault",
+    Flint: "Flint",
+    Yoroi: "yoroi",
+    Gero: "GeroWallet",
+    Typhon: "Typhon Wallet",
+    Cardwallet: "CardWallet"
   });
 
   static stringNames = Object.freeze([
@@ -216,7 +216,8 @@ class Wallet
   static _getStringFromWalletName( walletNameEnum )
   {
       const invalidSymbolError = new WalletInterfaceError("walletNameEnum must be a property of the Wallet.Names enum object");;
-      if( typeof walletNameEnum !== "symbol" ) throw invalidSymbolError;
+      // if( typeof walletNameEnum !== "symbol" ) throw invalidSymbolError;
+      if( !Wallet.stringNames.includes( walletNameEnum ) ) throw invalidSymbolError;
 
       switch( walletNameEnum )
       {
@@ -328,30 +329,50 @@ class Wallet
 
   // ----------------------------------------------- Wallet common --------------------------------------------------- //
 
-  static _assertWalletNameIsSym( walletSymbol )
+  /**
+   * 
+   * @deprecated library is no more basedon symbols
+   */
+  static _assertWalletNameIsSym( wallet )
   {
-    if( typeof walletSymbol !== "symbol" ) throw WalletProcessError("a wallet identifier must be a member of the WalletName enumeration");
+    // if( typeof walletName !== "symbol" ) throw new WalletProcessError("a wallet identifier should be a member of the ```Wallet.Names``` enumeration");
+    if( typeof wallet !== "string" )
+      throw new WalletProcessError("a wallet identifier should be a member of the ```Wallet.Names``` enumeration");
+    if( !Wallet.stringNames.includes( wallet ) )
+      throw new WalletProcessError("a wallet identifier should be a member of the ```Wallet.Names``` enumeration");
   }
 
-  static _assertWalletExtensionInjected( walletSymbol )
+  /**
+   * 
+   * @param {string} walletName
+   * @throws {WalletProcessError} if the string passed is not included in the Wallet.stringNames array 
+   */
+  static _assertWalletNameIsValid( walletName )
   {
-    Wallet._assertWalletNameIsSym( walletSymbol );
-    const wName = Wallet.utils.getStringFromWalletName( walletSymbol );
+    if( typeof walletName !== "string" )
+      throw new WalletProcessError("a wallet identifier should be a member of the ```Wallet.Names``` enumeration");
+    if( !Wallet.stringNames.includes( walletName ) )
+      throw new WalletProcessError("a wallet identifier should be a member of the ```Wallet.Names``` enumeration");
+  }
 
-    if( !Wallet.has( walletSymbol ) ) throw new WalletError("can't access the "+wName+" object if the "+wName+" extension is not installed");
+  static _assertWalletExtensionInjected( walletName )
+  {
+    Wallet._assertWalletNameIsValid( walletName );
+
+    if( !Wallet.has( walletName ) ) throw new WalletError("can't access the "+wName+" object if the "+wName+" extension is not installed");
   }
   
 
 
   /**
    * 
-   * @param {symbol} wallet member of the Wallet.Names enum object
+   * @param {Wallet.WalletStringName} wallet member of the Wallet.Names enum object
    * @returns {boolean} ```true``` if the extension has been injected, ```false``` otherwise
    */
   static has( wallet )
   {
     Wallet._assertBrowser();
-    Wallet._assertWalletNameIsSym( wallet );
+    Wallet._assertWalletNameIsValid( wallet );
 
     switch( wallet )
     {
@@ -367,19 +388,19 @@ class Wallet
       case Wallet.Names.Typhon:             return !!window?.cardano?.typhon;
       case Wallet.Names.Cardwallet:         return !!window?.cardano?.cardwallet;
 
-      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+      default: throw new WalletProcessError("invalid argument; wallet name should be a member of the WalleName enumeration object")
     }
   }
 
   /**
    * 
-   * @param {symbol} wallet: element of Wallet.name enumerative object 
+   * @param {Wallet.WalletStringName} wallet: element of Wallet.name enumerative object 
    * @returns {Wallet.Wallet} the dApp connecctor corresponding to the name
    */
   static get( wallet )
   {
     Wallet._assertBrowser();
-    Wallet._assertWalletNameIsSym( wallet );
+    Wallet._assertWalletNameIsValid( wallet );
    
     switch( wallet )
     {
@@ -395,19 +416,19 @@ class Wallet
       case Wallet.Names.Typhon:             return Wallet.Typhon;
       case Wallet.Names.Cardwallet:         return Wallet.Cardwallet;
 
-      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+      default: throw new WalletProcessError("invalid argument; wallet name should be a member of the WalleName enumeration object")
     }
   }
 
   /**
    * 
-   * @param {symbol} wallet: element of Wallet.name enumerative object
+   * @param {Wallet.WalletStringName} wallet: element of Wallet.name enumerative object
    * @returns {Wallet.WalletInterface} initial API that allows enabling wallet
    */
   static getInterface( wallet )
   {
     Wallet._assertBrowser();
-    Wallet._assertWalletNameIsSym( wallet );
+    Wallet._assertWalletNameIsValid( wallet );
 
     if( wallet === Wallet.Names.Nami )
     {
@@ -437,12 +458,12 @@ class Wallet
     {
       return Wallet.CardwalletInterface;
     }
-    else throw new WalletProcessError("invalid argument; wallet name MUST be a member of the Wallet.Names enumeration object")
+    else throw new WalletProcessError("invalid argument; wallet name should be a member of the Wallet.Names enumeration object")
   }
   
   /**
    * 
-   * @param {symbol} wallet member of the Wallet.Names enum object
+   * @param {Wallet.WalletStringName} wallet member of the Wallet.Names enum object
    */
   static async enable( wallet )
   {
@@ -488,13 +509,13 @@ class Wallet
         return;
       break;
 
-      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+      default: throw new WalletProcessError("invalid argument; wallet name should be a member of the WalleName enumeration object")
     }
   }
 
   /**
    * 
-   * @param {symbol} wallet member of the Wallet.Names enum object
+   * @param {Wallet.WalletStringName} wallet member of the Wallet.Names enum object
    * @returns {boolean} ```true``` if the user wallet is connected, ```false``` otherwise
    */
   static async isEnabled( wallet )
@@ -538,7 +559,7 @@ class Wallet
         walletIsEnabled = await window.cardano.cardwallet.isEnabled();
       break;
 
-      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+      default: throw new WalletProcessError("invalid argument; wallet name should be a member of the WalleName enumeration object")
     }
 
     if( walletIsEnabled )
@@ -555,12 +576,12 @@ class Wallet
 
   /**
    * 
-   * @param {symbol} wallet member of the Wallet.Names enum object
+   * @param {Wallet.WalletStringName} wallet member of the Wallet.Names enum object
    */
   static isAviable( wallet )
   {
     // Wallet._assertBrowser() not needed since checks into the Wallet class only
-    Wallet._assertWalletNameIsSym( wallet );
+    Wallet._assertWalletNameIsValid( wallet );
 
     switch( wallet )
     {
@@ -576,7 +597,7 @@ class Wallet
       case Wallet.Names.Typhon:             return ( Wallet._typhonObj !== undefined );
       case Wallet.Names.Cardwallet:         return ( Wallet._cardWalletObj !== undefined )
 
-      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+      default: throw new WalletProcessError("invalid argument; wallet name should be a member of the WalleName enumeration object")
     }
   }
 
@@ -800,25 +821,14 @@ class Wallet
 
 /**
  * 
- * @param {symbol} walletSymbolName member of the Wallet.Names bject which you can import by ```inport { Wallet.Names } from "@harmonicpool/cardano-wallet-interface"```
+ * @param {Wallet.WalletStringName} walletSymbolName member of the Wallet.Names bject which you can import by ```inport { Wallet.Names } from "@harmonicpool/cardano-wallet-interface"```
  * @returns {Wallet.WalletInterface}
 1 */
-function private_makeWalletInterface( walletSymbolName )
+function private_makeWalletInterface( walletStringName )
 {
   // I know is private but I don't trust myself
   Wallet._assertBrowser();
-  Wallet._assertWalletNameIsSym( walletSymbolName );
-
-  if(
-    walletSymbolName !== Wallet.Names.Nami ||
-    walletSymbolName !== Wallet.Names.CCVault ||
-    walletSymbolName !== Wallet.Names.Flint ||
-    walletSymbolName !== Wallet.Names.Yoroi ||
-    walletSymbolName !== Wallet.Names.Gero ||
-    walletSymbolName !== Wallet.Names.Typhon ||
-    walletSymbolName !== Wallet.Names.Cardwallet
-  )
-  throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object");
+  Wallet._assertWalletNameIsValid( walletStringName );
 
   function getApiVersion()
   {
@@ -832,7 +842,7 @@ function private_makeWalletInterface( walletSymbolName )
       case Wallet.Names.Typhon:            return window?.cardano?.typhon?.apiVersion             ? window.cardano.typhon.apiVersion : "";
       case Wallet.Names.Cardwallet:        return window?.cardano?.cardwallet?.apiVersion         ? window.cardano.cardwallet.apiVersion : "";
       
-      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+      default: throw new WalletProcessError("invalid argument; wallet name should be a member of the WalleName enumeration object")
     }
   }
 
@@ -848,7 +858,7 @@ function private_makeWalletInterface( walletSymbolName )
       case Wallet.Names.Typhon:            return window?.cardano?.typhon?.name             ? window.cardano.typhon.name : "";
       case Wallet.Names.Cardwallet:        return window?.cardano?.cardwallet?.name         ? window.cardano.cardwallet.name : "";
 
-      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+      default: throw new WalletProcessError("invalid argument; wallet name should be a member of the WalleName enumeration object")
     }
   }
 
@@ -864,7 +874,7 @@ function private_makeWalletInterface( walletSymbolName )
       case Wallet.Names.Typhon:            return window?.cardano?.typhon?.icon             ? window.cardano.typhon.icon : "";
       case Wallet.Names.Cardwallet:        return window?.cardano?.cardwallet?.icon         ? window.cardano.cardwallet.icon : "";
       
-      default: throw new WalletProcessError("invalid argument; wallet name MUST be a member of the WalleName enumeration object")
+      default: throw new WalletProcessError("invalid argument; wallet name should be a member of the WalleName enumeration object")
     }
   }
 
