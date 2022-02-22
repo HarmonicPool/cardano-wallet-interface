@@ -1016,23 +1016,26 @@ async function private_getRewardAddress ( WalletProvider )
   WalletProvider.getRewardAddresses
 
   if( typeof getRewardAddress !== "function" )
-  throw WalletProcessError(
+  throw new WalletProcessError(
   "could not find reward address or addresses, probably this is not your fault and the package may need mainatainance, \
   please open an issue at https://github.com/HarmonicPool/cardano-wallet-interface/issues"
   );
 
   let rawAddress = await getRewardAddress();
 
-  if (rawAddress === undefined)
-  console.warn("GOT YA")
 
   if( Array.isArray(rawAddress) )
   {
     rawAddress = rawAddress[0];
   }
+  else if( typeof rawAddress === "object" )
+  {
+    // typhon
+    rawAddress = rawAddress.data;
+  }
   
   if( typeof rawAddress !== "string" )
-  throw WalletProcessError(
+  throw new WalletProcessError(
     "bad request for getting user reward address, probably not your fault, pleas open an issue explaining what appened here: https://github.com/HarmonicPool/cardano-wallet-interface/issues"
   );
 
