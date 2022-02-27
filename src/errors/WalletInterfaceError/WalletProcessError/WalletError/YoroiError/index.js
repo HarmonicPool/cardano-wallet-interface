@@ -1,5 +1,5 @@
 
-import WalletError from "../WalletError";
+import WalletError from "..";
 
 class YoroiError extends WalletError
 {

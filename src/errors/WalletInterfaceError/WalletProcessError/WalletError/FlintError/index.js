@@ -1,6 +1,6 @@
 
 
-import WalletError from "../WalletError";
+import WalletError from "..";
 
 class FlintError extends WalletError
 {

@@ -1,7 +1,5 @@
 
 import Wallet from "./Wallet/index";
-import WalletName from "./Wallet/WalletName";
-import { getWalletNameFromString, getStringFromWalletName, walletNames } from "./Wallet/WalletName/utils";
 
 import {
     WalletInterfaceError,
@@ -21,10 +19,7 @@ export { _default as default };
 
 export {
     Wallet,
-    WalletName,
-    getWalletNameFromString,
-    getStringFromWalletName,
-    walletNames,
+    
     WalletInterfaceError,
     StringFormatError,
     WalletProcessError,

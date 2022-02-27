@@ -1,4 +1,4 @@
-import WalletError from "../WalletError";
+import WalletError from "..";
 
 class CardwalletError extends WalletError
 {

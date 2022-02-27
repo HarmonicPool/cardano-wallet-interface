@@ -27,21 +27,18 @@ import {
 
 import { Buffer } from "buffer";
 
-import StringFormatError from "../errors/WalletInterfaceError/StringFormatError/StringFormatError";
+import StringFormatError from "../errors/WalletInterfaceError/StringFormatError";
 
-import WalletInterfaceError from "../errors/WalletInterfaceError/WalletInterfaceError";
-import NamiError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/NamiError/NamiError";
-import CCVaultError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/CCVaultError/CCVaultError";
-import FlintError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/FlintError/FlintError";
-import YoroiError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/YoroiError/YoroiError";
-import GeroError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/GeroError/GeroError";
-import TyphonError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/TyphonError/TyphonError";
+import WalletInterfaceError from "../errors/WalletInterfaceError";
+import NamiError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/NamiError";
+import CCVaultError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/CCVaultError";
+import FlintError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/FlintError";
+import YoroiError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/YoroiError";
+import GeroError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/GeroError";
+import TyphonError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/TyphonError";
 import CardwalletError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/CardwalletError";
-import WalletError from "../errors/WalletInterfaceError/WalletProcessError/WalletError/WalletError";
-import WalletProcessError from "../errors/WalletInterfaceError/WalletProcessError/WalletProcessError";
-
-import { WalletName } from "./WalletName";
-import { getStringFromWalletName, getWalletNameFromString, walletNames } from "./WalletName/utils";
+import WalletError from "../errors/WalletInterfaceError/WalletProcessError/WalletError";
+import WalletProcessError from "../errors/WalletInterfaceError/WalletProcessError";
 
 function private_warnDeprecated(altSuggestion)
 {

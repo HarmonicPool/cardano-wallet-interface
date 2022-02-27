@@ -1,4 +1,5 @@
 
+
 import StringFormatError    from "./WalletInterfaceError/StringFormatError";
 
 import WalletInterfaceError from "./WalletInterfaceError";
@@ -11,6 +12,19 @@ import YoroiError           from "./WalletInterfaceError/WalletProcessError/Wall
 import GeroError            from "./WalletInterfaceError/WalletProcessError/WalletError/GeroError";
 import FlintError           from "./WalletInterfaceError/WalletProcessError/WalletError/FlintError";
 import CardwalletError      from "./WalletInterfaceError/WalletProcessError/WalletError/CardwalletError";
+
+/*
+export type StringFormatError       = StringFormatError;
+export type WalletInterfaceError    = WalletInterfaceError;
+export type WalletProcessError      = WalletProcessError;
+export type WalletError             = WalletError;
+export type CCVaultError            = CCVaultError;
+export type NamiError               = NamiError;
+export type YoroiError              = YoroiError;
+export type GeroError               = GeroError;
+export type FlintError              = FlintError;
+export type CardwalletError         = CardwalletError;
+//*/
 
 export {
     StringFormatError,

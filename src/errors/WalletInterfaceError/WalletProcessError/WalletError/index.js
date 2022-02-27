@@ -1,5 +1,5 @@
 
-import WalletProcessError from "../WalletProcessError";
+import WalletProcessError from "..";
 
 class WalletError extends WalletProcessError
 {
