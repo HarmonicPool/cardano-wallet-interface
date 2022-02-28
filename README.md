@@ -65,15 +65,15 @@ here's a list of supported wallet, if you notice a Cardano wallet that support d
 ##### using Nami
 ```js
 /*... other imports ...*/
-import Wallet, { WalletName } from "@harmonicpool/cardano-wallet-interface";
+import Wallet from "@harmonicpool/cardano-wallet-interface";
 
 /*...*/
 
-if( Wallet.has( WalletName.Nami ) )
+if( Wallet.has( Wallet.Names.Nami ) )
 {
-    if( !Wallet.isEnabled( WalletName.Nami ) )
+    if( !Wallet.isEnabled( Wallet.Names.Nami ) )
     {
-        Wallet.enable( WalletName.Nami )
+        Wallet.enable( Wallet.Names.Nami )
         .then(
             () => {
                 Wallet.Nami.delegateTo(
