@@ -1,12 +1,16 @@
 import React from 'react'
 
-import { Wallet } from "@harmonicpool/cardano-wallet-interface";
+// import Wallet from "@harmonicpool/cardano-wallet-interface";
+import Wallet from '../../src';
 
 export default class Home extends React.Component
 {
   constructor(props)
   {
     super(props);
+
+    // set your key once then you are free to go
+    Wallet.setBlockfrost("<your blockforst api key>");
 
     this.state = {
       currentDelegation: {},
@@ -16,10 +20,9 @@ export default class Home extends React.Component
 
   async componentDidMount()
   {
-    await Wallet.enableCCVault();
-
-    // set your key once then you are free to go
-    Wallet.setBlockfrost("<your blockforst api key>");
+    
+    await Wallet.enable( Wallet.Names.CCVault );
+    // now Wallet.CCVault is accessible
 
     this.setState({
       currentDelegation: await Wallet.CCVault.getCurrentUserDelegation(),
@@ -32,40 +35,25 @@ export default class Home extends React.Component
 
     return (
       <div
-      style={{
-        position: "absolute",
-        height: "100vh",
-        width: "100vw",
-        top: 0,
-        left: 0,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-      }}
+      style={containerSty}
       >
 
         {
           !this.state.ccvaultHasBeenInitialized ?
             <p
-            style={{
-              fontFamily: "Arial, sans-serif",
-              fontSize: "5vh"
-            }}
+            style={txtSty}
             >looking for CCVault... 👀</p>
           :
             (
             this.state.currentDelegation.pool_id === "<your pool id>" ?
               <p
-              style={{
-                fontFamily: "Arial, sans-serif",
-                fontSize: "5vh"
-              }}
+              style={txtSty}
               >Thank you for your support &#9829;</p>
             :
               <button 
               onClick={() => Wallet.CCVault.delegateTo(
                 "<your pool id>"
-                // no need for api key since it has been setted in the componentDidMount() call
+                // no need for api key since it has been setted in the component constructor() call
               )}
               >
                 Delegate
@@ -77,3 +65,19 @@ export default class Home extends React.Component
     )
   }
 }
+
+const containerSty = {
+  position: "absolute",
+  height: "100vh",
+  width: "100vw",
+  top: 0,
+  left: 0,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center"
+};
+
+const txtSty = {
+  fontFamily: "Arial, sans-serif",
+  fontSize: "5vh"
+};

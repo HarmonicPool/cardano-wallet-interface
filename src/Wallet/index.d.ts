@@ -2,6 +2,7 @@
 // Project: cardano-wallet-interface
 // Definitions by: Michele Nuzzi [michele.nuzzi.2014@gmail.com]
 
+//@ts-ignore
 import { Transaction, TransactionUnspentOutput, TransactionWitnessSet } from "@emurgo/cardano-serialization-lib-browser";
 import { Buffer } from "buffer";
 
@@ -132,7 +133,7 @@ declare class Wallet {
      * @param {Wallet.WalletStringName} wallet member of the WalletStringName enumerative object
      * @returns {boolean} ```true``` of the extension has been injected, ```false``` otherwise
      */
-    static has( wallet : Wallet.Wallet.WalletStringName ) : boolean;
+    static has( wallet : Wallet.WalletStringName ) : boolean;
 
     /**
      * 
@@ -295,7 +296,7 @@ declare namespace Wallet {
         getUnusedAddresses: () => Promise<cbor<address>[]>,
         getChangeAddress: () => Promise<cbor<address>>,
         getRewardAddresses: () => Promise<cbor<address>[]>,
-        getUtxos:(amount?: cbor<value>, paginate?: Paginate) => Promise<TransactionUnspentOutput[] | undefined>,
+        getUtxos:(amount?: cbor<value>, paginate?: Paginate) => Promise<cbor<TransactionUnspentOutput>[] | undefined>,
         signTx: (tx: cbor<Transaction>, partialSign: boolean ) => Promise<cbor<TransactionWitnessSet>>,
         signData: (addr: cbor<address>, sigStructure: cbor<Sig_structure>) => Promise<Bytes>,
         submitTx: (tx: cbor<Transaction>) => Promise<hash32>

@@ -1,18 +1,16 @@
 # Documentation
 
-## How to use the documentation
+### Index
 
-If a section called ```How to use the {documentation section name} documentation``` is included please make sure to have a look at it for a better understanding of what follows.
+> **_NOTE:_** is suggested to read the docs in the order shown in this index
 
-### How to use general rules
-
-anything between the the curly brackets ({}) is intended as an abstraction to the actual name, an indication on how to interpret the abstraction is included in the ```How to use the {documentation section name} documentation``` section.
-
-## Index
+- [Blockchain related]()
+- [```Wallet.Names```](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/Wallet.Names)
+- [static methods]()
+- [Wallet.WalletInterface](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/Wallet.WalletInterface)
+- [Wallet.Wallet](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/Wallet.Wallet)
+- [errors](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/errors)
 - [examples](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/examples)
-    - [simple react page using nami](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/examples/SimpleReactPage_Nami.js)
-    - [simple react page using ccvault](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/examples/SimpleReactPage_CCVault.js)
-- [known issues](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/known_issues)
-    - [allowing webassembly](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/known_issues/allowing_webassembly.md)
-- [Wallet](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/Wallet.md)
-- [Errors](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/errors.md)
+- [miscellaneous](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/miscellaneous)
+
+
