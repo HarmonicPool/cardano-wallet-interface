@@ -1,4 +1,4 @@
-# Wallets iterationd
+# Wallets iteration
 
 Often you may want to be able an action on all wallets aviable (eg. checking if it has been ingected );
 
