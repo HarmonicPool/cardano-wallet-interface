@@ -16,9 +16,9 @@
 - [Installation](#Installation)
 - [supported wallets](#supported)
 - [Usage](#Usage)
-    - [basic usage](#basic_delegation)
+    - [basic usage](#basic_usage)
         - [access a generic wallet](#acces_wallet)
-        - [nami delegation](#delegate_using_nami)
+        - [simple delegation](#simple_delegation)
     - [other examples](#oth_examples)
 - [Documentation](#docs_link)
 
@@ -30,7 +30,7 @@ run the following in your project directory
 npm install https://github.com/HarmonicPool/cardano-wallet-interface
 ```
 
-<a name="basic_delegation">
+<a name="supported">
 </a>
 <h2>supported wallets</h2>
 
@@ -44,11 +44,12 @@ here's a list of supported wallet, if you notice a Cardano wallet that support d
 - [Typhon](https://typhonwallet.io/#/)
 - [CardWallet](https://cardwallet.fi/)
 
+
 ## Usage
 
-<a name="basic_delegation">
+<a name="basic_usage">
 </a>
-<h4>basic delegation functionality</h4>
+<h4>basic usage</h4>
 
 
 <a name="acces_wallet">
@@ -80,17 +81,17 @@ else // async code needed
     }
     else
     {
-        await Wallet.enable( Wallet.Names.Typhon );
+        await Wallet.enable( Wallet.Names.Typhon ); // makes the object aviable
         Typhon = Wallet.Typhon; // same as before
     }
 }
 ```
 
 
-<a name="delegate_using_nami">
+<a name="simple_delegation">
 </a>
 
-##### using Nami
+##### simple delegation
 
 > **_NOTE:_** every other wallet will work the same way, just change the name (eg. ```Nami``` -> ```CCVault``` )
 
