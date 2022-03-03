@@ -127,11 +127,14 @@ if( Wallet.has( Wallet.Names.Nami ) )
 /*...*/
 ```
 
+have a look at [documentation/examples/Wallets iteration.md]() to understand how to generalize the process for more wallets
+
 <a name="oth_examples">
 </a>
 <h4>other examples</h4>
 
 check the [documentation/examples](https://github.com/HarmonicPool/cardano-wallet-interface/tree/main/documentation/examples) folder for more
+
 
 <a name="docs_link">
 </a>

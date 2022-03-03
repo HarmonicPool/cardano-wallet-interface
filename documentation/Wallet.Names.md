@@ -1,5 +1,7 @@
 # Wallet.Names
 
+The strings values are the same returned by calling ```window.cardano.walletExtension.name``` in any browser environment, where ```walletExtension``` is the desired wallet
+
 these properties, paired with some static methods, allow for wallet abstraction
 
 as defined in [src/Wallet/index.js]():
@@ -26,6 +28,4 @@ static stringNames = Object.freeze([
 ]);
 ```
 
-the strings values are the same returned by calling ```window.cardano.walletExtension.name``` in any browser environment, where ```walletExtension``` is the desired wallet
-
-> **_NOTE:_** you can use ```Wallet.stringNames``` to iterate each aviable wallet
+> **_NOTE:_** you can use ```Wallet.stringNames``` to iterate each aviable wallet check [documentation/examples/Wallets iteration.md]()

@@ -33,3 +33,38 @@ interface Wallet
 ```
 
 for the ```Wallet.RawCIP30WalletInterface``` documentation refer to [CIP-0030](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0030) itself.
+
+### getCurrentUserDelegation
+
+```getCurrentUserDelegation``` performs a blockfrost call to the ```/accounts/${rewardAddress}``` endpoint, where ```rewardAddress``` is retreived using ```raw.getRewardAddress()```
+
+### signTransaction & submitTransaction
+
+wrappers around the CIP-0030 defined ones, where address handling is done by default
+
+often used in pair as
+```js
+await submitTransaction(
+    await signTransaction(
+        /* your transaction */
+    )
+)
+```
+
+### delegateTo
+
+the definition should be self explanatory
+
+```js
+const delegateTo = async ( targetPoolId, blockfrost_project_id = undefined ) => 
+{
+    return await submitTransaction(
+        await signTransaction(
+            await createDelegagtionTransaction(
+                targetPoolId,
+                blockfrost_project_id
+            )
+        )
+    );
+}
+```
