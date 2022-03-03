@@ -28,4 +28,4 @@ static stringNames = Object.freeze([
 ]);
 ```
 
-> **_NOTE:_** you can use ```Wallet.stringNames``` to iterate each aviable wallet check [documentation/examples/Wallets iteration.md]()
+> **_NOTE:_** you can use ```Wallet.stringNames``` to iterate each aviable wallet check [documentation/examples/Wallets iteration.md](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/examples/Wallets%20iteration.md)
