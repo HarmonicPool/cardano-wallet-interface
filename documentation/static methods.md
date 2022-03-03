@@ -54,7 +54,7 @@ returns ```Wallet.YourWallet``` if accessible, **throws** otherwise
 
 > **_BEST PRACTICE:_** check ```Wallet.isAviable( WalletName_member )``` to return ```true``` to be sure no error will be thrown
 
-check also [Wallet.Wallet]() to know how to use the returned object
+check also [Wallet.Wallet](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/Wallet.Wallet.md) to know how to use the returned object
 
 ### getInterface
 
@@ -64,4 +64,4 @@ static getInterface( WalletName_member: string ): Wallet.WalletInterface
 
 returns ```Wallet.YourWalletInterface```
 
-check also [Wallet.WalletInterface]() to know how to use the returned object
+check also [Wallet.WalletInterface](https://github.com/HarmonicPool/cardano-wallet-interface/blob/main/documentation/Wallet.WalletInterface.md) to know how to use the returned object
