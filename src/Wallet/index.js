@@ -185,22 +185,18 @@ class Wallet
   static Names = Object.freeze({
     Nami: "Nami",
     CCVault: "ccvault",
-    Flint: "Flint",
+    Flint: "Flint Wallet",
     Yoroi: "yoroi",
     Gero: "GeroWallet",
     Typhon: "Typhon Wallet",
     Cardwallet: "CardWallet"
   });
 
-  static stringNames = Object.freeze([
-    "Nami",
-    "ccvault",
-    "Flint",
-    "yoroi",
-    "GeroWallet",
-    "Typhon Wallet",
-    "CardWallet"
-  ]);
+  // dynamicaly genearted so that any change is updated immediately
+  static stringNames = Object.freeze(
+    Object.keys( Wallet.Names )
+    .map( walletName => Wallet.Names[ walletName ] )
+  );
 
   static utils = {
     getStringFromWalletName: Wallet._getStringFromWalletName,
@@ -213,19 +209,7 @@ class Wallet
       // if( typeof walletNameEnum !== "symbol" ) throw invalidSymbolError;
       if( !Wallet.stringNames.includes( walletNameEnum ) ) throw invalidSymbolError;
 
-      switch( walletNameEnum )
-      {
-          case Wallet.Names.Nami:               return "Nami";
-          case Wallet.Names.CCVault:            return "ccvault";
-          case Wallet.Names.Flint:              return "Flint";
-          case Wallet.Names.Yoroi:              return "yoroi";
-          case Wallet.Names.Gero:               return "GeroWallet";
-          case Wallet.Names.Typhon:             return "Typhon Wallet";
-          case Wallet.Names.Cardwallet:         return "CardWallet";
-
-          default:
-              throw invalidSymbolError;
-      }
+      return walletNameEnum;
   }
 
   static _getWalletNameFromString( string )
@@ -235,20 +219,7 @@ class Wallet
       if( typeof string !== "string" )    throw invalidString;
       if( !Wallet.stringNames.includes(string) ) throw invalidString;
 
-      switch( string )
-      {
-          case "Nami":                return Wallet.Names.Nami;
-          case "ccvault":             return Wallet.Names.CCVault;
-          case "Flint":               return Wallet.Names.Flint;
-          case "yoroi":               return Wallet.Names.Yoroi;
-          case "GeroWallet":          return Wallet.Names.Gero;
-          case "Typhon Wallet":       return Wallet.Names.Typhon;
-          case "CardWallet":          return Wallet.Names.Cardwallet;
-
-
-          default: // should never get here
-              throw invalidString;
-      }
+      return string;
   }
 
 
