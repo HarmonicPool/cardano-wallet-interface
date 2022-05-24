@@ -16,13 +16,13 @@
  * @deprecated use ```Wallet.Names``` instead
  */
 export const WalletName : Readonly<{
-    Nami: symbol;
-    CCVault: symbol;
-    Flint: symbol;
-    Yoroi: symbol;
-    Gero: symbol;
-    Typhon: symbol;
-    Cardwallet: symbol;
+    Nami: string;
+    CCVault: string;
+    Flint: string;
+    Yoroi: string;
+    Gero: string;
+    Typhon: string;
+    Cardwallet: string;
 }>;
 
 export default WalletName;

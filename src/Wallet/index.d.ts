@@ -167,7 +167,7 @@ declare class Wallet {
     /**
      * 
      * @param {Wallet.WalletStringName} wallet member of the WalletStringName enumerative object
-     * @returns {boolean} if the Wallet object is aviable
+     * @returns {boolean} true if the Wallet instance is ready to be used, false if it has to be enabled
      */
     static isAviable( wallet : Wallet.WalletStringName ) : boolean;
 
