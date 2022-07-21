@@ -205,7 +205,7 @@ class Wallet
         
         return Wallet.Names[ walletName ]
         })
-        .fileter( wName => wName !== undefined )
+        .filter( wName => wName !== undefined )
     );
 
     /**
